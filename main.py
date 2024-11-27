@@ -9,7 +9,7 @@ from tkinter import PhotoImage
 root = Tk()
 root.state('zoomed')
 root.resizable(False, False)
-root.title("Cafevia")
+root.title("Listenary")
 root.wm_iconbitmap('images\logo.ico')
 root.configure(bg="#fff")
 
@@ -43,6 +43,13 @@ def profile():
     profile_fram = Frame(width=800, height=600, bg='pink')
     profile_fram.place(relx=0.18, rely=0.06, relwidth=0.82, relheight=0.94)
 
+def click(*args): 
+    search_box.delete(0, 'end') 
+  
+def leave(*args): 
+    search_box.delete(0, 'end') 
+    search_box.insert(0, 'Search here') 
+    root.focus() 
 # ======================MenuBar=======================================================
 
 menu_bar = Frame(bg="#111013",height=100)
@@ -53,7 +60,7 @@ right_border.pack(side="right", fill="y")
 
 # logo
 menu_logo = Label(menu_bar, text="LISTENARY", bg="#232323", fg="#000")
-menu_logo.place(relx=0.2, rely=0.06)
+menu_logo.place(relx=0.2, rely=0.05)
 menu_logo.config(bg="#111013", fg="#fff", font=("Arsenal", 20, "bold"))
 
 # dashboard button
@@ -98,10 +105,11 @@ profile_name_btn.place(relx=0.93, rely=0.25, relwidth=0.04, relheight=0.5)
 # cnt_sec = Frame(bg="#fff")
 # cnt_sec.place(relx=0.18, rely=0, relwidth=0.82, relheight=1)
 
-
-
-
-
+search_box = Entry(navbar)
+search_box.place(relx=0.02, rely=0.25, relwidth=0.2, relheight=0.5)
+search_box.insert(0, 'Search here') 
+search_box.bind("<Button-1>", click) 
+search_box.bind("<Leave>", leave) 
 
 
 
