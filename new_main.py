@@ -2,6 +2,31 @@ from tkinter import *
 from tkinter import font
 from PIL import ImageTk, Image
 
+def loading_screen():
+    window = Tk()
+    width = 370
+    height = 230
+    x = (window.winfo_screenwidth()//2)-(width//2)
+    y = (window.winfo_screenheight()//2)-(height//2)
+    window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    window.overrideredirect(True)
+    window.configure(bg="#E7E0D6")
+
+    # text = "CAFEVIA"
+    # spaced_text = " ".join(text)
+
+    loading_text = Label(window, text="CAFEVIA", font=("century gothic bold", 30), bg="#E7E0D6", fg="#27150C")
+    loading_text.place(relx=0.5, rely=0.5, anchor=CENTER)
+    
+    def redirectToHome():
+        window.destroy()
+        AdminDashboard()
+
+    window.after(3000, redirectToHome)
+    window.mainloop()
+
+loading_screen()
+
 class Login():
     def __init__(self,loginwindow):
         self.loginwindow = loginwindow
@@ -185,12 +210,12 @@ class AdminDashboard():
 
 
 def win():
-    # window = Tk()
-    # AdminDashboard(window)
-    # window.mainloop()
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
+    window = Tk()
+    AdminDashboard(window)
+    window.mainloop()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
 
 if __name__ == '__main__':
 
