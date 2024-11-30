@@ -6,10 +6,15 @@ class Login():
     def __init__(self,loginwindow):
         self.loginwindow = loginwindow
         self.loginwindow.title("LOGIN - CAFEVIA")
-        self.loginwindow.state('zoomed')
+        width = 1000
+        height = 600
+        x = (loginwindow.winfo_screenwidth()//2)-(width//2)
+        y = (loginwindow.winfo_screenheight()//2)-(height//2)
+        self.loginwindow.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.loginwindow.state('normal')
         self.loginwindow.resizable(False, False)
         self.loginwindow.config(background='#E7E0D6')
-        
+
         self.loginback = Frame(loginwindow, background="#E7E0D6")
         self.loginback.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -17,19 +22,44 @@ class Login():
         loginimage = ImageTk.PhotoImage(loginimage)
         loginimage_label = Label(self.loginback, image=loginimage,  background="#E7E0D6")
         loginimage_label.image = loginimage
-        loginimage_label.place(relx=0, rely=0, relwidth=0.37, relheight=1)
-
+        loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
 
         #Use Verification
         name_var = StringVar()
         passw_var = StringVar()
-        role_var = StringVar()
-        role_var.set("Select Role")
 
+        self.loginform = Frame(loginwindow, background="#E7E0D6")
+        self.loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
 
+        loginwindow.overrideredirect(True)
+        def close_button():
+            loginwindow.destroy() 
+        self.closebutton = Button(self.loginform, text="x", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=close_button)
+        self.closebutton.place(relx=0.94, rely=0.014, width=30, height=30)
+        
+        # login logo
+        self.loginlogo = Label(self.loginform, text="CAFEVIA", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 30), bd=0)
+        self.loginlogo.place(relx=0.35, rely=0.07)
+        self.loginslogan = Label(self.loginform, text="Wake up, sip, and conquer your day with our brew.", bg="#E7E0D6", fg="#27150C", font=("century gothic", 10))
+        self.loginslogan.place(relx=0.23, rely=0.15)
 
-        def Submit(name, passv, role):
-            mylabel = Label(self.loginback, text = name + passv + role).pack()
+        self.loginUserlabel = Label(self.loginform, text="Username", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
+        self.loginUserlabel.place(relx=0.2, rely=0.3)
+        self.loginUserentry = Entry(self.loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
+        self.loginUserentry.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
+
+        self.loginPasswordlabel = Label(self.loginform, text="Password", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
+        self.loginPasswordlabel.place(relx=0.2, rely=0.46)
+        self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2)
+        self.loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
+
+        self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=lambda:Submit(name_var, passw_var))
+        self.login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
+        self.loginNote = Label(self.loginform, text="Must do check USERNAME & PASSWORD is correct", bg="#E7E0D6", fg="#27150C", font=("century gothic", 8))
+        self.loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
+
+        def Submit(name, passv):
+            mylabel = Label(self.loginform, text = name + passv).pack()
 
 
 
@@ -52,7 +82,7 @@ class AdminDashboard():
         # logoimage_label.image = logoimage
         # logoimage_label.place(relx=0.4, rely=0.05, width=100, height=100)
 
-        DashboardButton = Button(self.sidebar, text="Dashboard",  font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(DashboardMenu))
+        DashboardButton = Button(self.sidebar, text="Dashboard", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(DashboardMenu))
         DashboardButton.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.05)
 
         OrderButton = Button(self.sidebar, text="Orders", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(OrderMenu))
@@ -161,12 +191,12 @@ def win():
     loginwindow = Tk()
     Login(loginwindow)
     loginwindow.mainloop()
-    
+
 if __name__ == '__main__':
 
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
     win()
 
 

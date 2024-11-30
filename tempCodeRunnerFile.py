@@ -1,3 +1,0 @@
-
-    # AdminDashboard(window)
-    # window.mainloop()
