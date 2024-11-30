@@ -1,143 +1,151 @@
-import tkinter as tk
-from tkinter import messagebox
-import mysql.connector
+from tkinter import *
+from PIL import ImageTk, Image
 
-# MySQL Database Configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'your_username',
-    'password': 'your_password',
-    'database': 'auth_system'
-}
+class Login():
+    def _init_(self,loginwindow):
+        self.loginwindow = loginwindow
+        self.loginwindow.title("It's Time To Work")
+        self.loginwindow.geometry("650x400")
+        self.loginwindow.state('normal')
+        self.loginwindow.config(background='#fffbda')
 
-# Initialize database connection
-def init_db():
-    try:
-        conn = mysql.connector.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+        # Login Image
+        image = Image.open('image/logo.png')
+        image = ImageTk.PhotoImage(image)
+        image_label = Label(loginwindow, image=image, height=100, width=100, background='#fffbda')
+        image_label.image = image
+        image_label.place(x=150, y=150)
+
+class AdminDashboard():
+
+    def _init_(self,window):
+        self.window = window
+        self.window.title("Bank Management System")
+        self.window.geometry("1500x750")
+        self.window.state('zoomed')
+        self.window.config(background='#fffbda')
+
+        # header
+        self.header = Frame(self.window, bg='#730000')
+        self.header.place(x=225, y=0, height=40, width=1320)
+
+        self.headertext = Label(self.window, text='Bank Management System', foreground='white', background='#730000', font=("century gothic bold",12), width=23, height=1)
+        self.headertext.place(x=270, y=5)
+
+        self.versiontext = Label(self.window, text='Version 1.0', foreground='white', background='#730000', font=("century gothic bold",8), width=8, height=1)
+        self.versiontext.place(x=485, y=8)
+
+        # sidebar
+        self.sidebar = Frame(self.window, bg='#730000')
+        self.sidebar.place(x=0, y=0, height=850, width=225) 
+
+        logoimage = Image.open('image/logo.png')
+        logoimage = ImageTk.PhotoImage(logoimage)
+        logoimage_label = Label(window, image=logoimage, height=100, width=100, background='#fffbda')
+        logoimage_label.image = logoimage
+        logoimage_label.place(x=150, y=150)
+
+        DashboardButton = Button(self.sidebar,text="Dashboard",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(DashboardMenu))
+        DashboardButton.place(x=0, y=250)
         
-        # Create users table if it doesn't exist
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL
-            )
-        ''')
-        conn.commit()
-        return conn
-    except mysql.connector.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
-        return None
-
-class AuthApp(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("Authentication System")
-        self.geometry("300x200")
-        self.db_conn = init_db()
-        self.current_frame = None
-        self.show_login_page()
-
-    def show_login_page(self):
-        self.clear_frame()
-        LoginPage(self)
-
-    def show_signup_page(self):
-        self.clear_frame()
-        SignupPage(self)
-
-    def show_welcome_page(self, username):
-        self.clear_frame()
-        WelcomePage(self, username)
-
-    def clear_frame(self):
-        if self.current_frame:
-            self.current_frame.destroy()
-        self.current_frame = tk.Frame(self)
-        self.current_frame.pack(fill=tk.BOTH, expand=True)
-
-class LoginPage:
-    def __init__(self, master):
-        self.master = master
-        self.frame = master.current_frame
-
-        tk.Label(self.frame, text="Login").pack(pady=10)
+        CustomerButton = Button(self.sidebar,text="Customer Account Management",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(CustomerMenu))
+        CustomerButton.place(x=0, y=300)
+    
+        AccountManageButton = Button(self.sidebar,text="Account Management",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(AccountMenu))
+        AccountManageButton.place(x=0, y=350)
         
-        tk.Label(self.frame, text="Username:").pack()
-        self.username_entry = tk.Entry(self.frame)
-        self.username_entry.pack()
-
-        tk.Label(self.frame, text="Password:").pack()
-        self.password_entry = tk.Entry(self.frame, show="*")
-        self.password_entry.pack()
-
-        tk.Button(self.frame, text="Login", command=self.login).pack(pady=10)
-        tk.Button(self.frame, text="Sign Up", command=self.master.show_signup_page).pack()
-
-    def login(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
-
-        if not username or not password:
-            messagebox.showerror("Error", "Please enter both username and password")
-            return
-
-        cursor = self.master.db_conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
-        user = cursor.fetchone()
-
-        if user:
-            messagebox.showinfo("Success", "Login successful!")
-            self.master.show_welcome_page(username)
-        else:
-            messagebox.showerror("Error", "Invalid username or password")
-
-class SignupPage:
-    def __init__(self, master):
-        self.master = master
-        self.frame = master.current_frame
-
-        tk.Label(self.frame, text="Sign Up").pack(pady=10)
+        TransactionManageButton = Button(self.sidebar,text="Transaction Management",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(TransactionMenu))
+        TransactionManageButton.place(x=0, y=400)
         
-        tk.Label(self.frame, text="Username:").pack()
-        self.username_entry = tk.Entry(self.frame)
-        self.username_entry.pack()
+        LoanButton = Button(self.sidebar,text="Loan Management",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(LoanMenu))
+        LoanButton.place(x=0, y=450)
+    
+        ReportGenerationButton = Button(self.sidebar,text="Report Generation",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(ReportMenu))
+        ReportGenerationButton.place(x=0, y=500)
 
-        tk.Label(self.frame, text="Password:").pack()
-        self.password_entry = tk.Entry(self.frame, show="*")
-        self.password_entry.pack()
+        SecurityAndAuditButton = Button(self.sidebar,text="Security And Audit",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(SecurityMenu))
+        SecurityAndAuditButton.place(x=0, y=550)
 
-        tk.Button(self.frame, text="Sign Up", command=self.signup).pack(pady=10)
-        tk.Button(self.frame, text="Back to Login", command=self.master.show_login_page).pack()
+        DataManagementButton = Button(self.sidebar,text="Data Management",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(DataMenu))
+        DataManagementButton.place(x=0, y=600)
 
-    def signup(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
+        SettingsButton = Button(self.sidebar,text="Settings",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3, command= lambda:MenuSystem(SettingMenu))
+        SettingsButton.place(x=0, y=650)
 
-        if not username or not password:
-            messagebox.showerror("Error", "Please enter both username and password")
-            return
+        LogoutButton = Button(self.sidebar,text="LogOut",font=("century gothic bold",10), width=27, height=1,background="darkred", foreground="white", cursor="hand2", highlightthickness=2, relief="flat", overrelief="raised", activebackground="darkorange", bd=3)
+        LogoutButton.place(x=0, y=750)
 
-        cursor = self.master.db_conn.cursor()
-        try:
-            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
-            self.master.db_conn.commit()
-            messagebox.showinfo("Success", "Account created successfully!")
-            self.master.show_login_page()
-        except mysql.connector.IntegrityError:
-            messagebox.showerror("Error", "Username already exists")
-        except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"An error occurred: {err}")
+        # Functionality for menu system
+        main_frame = Frame(window)
+        main_frame.config( background='#fffbda', height=760, width=1311)
+        main_frame.place(x=225, y=40)
 
-class WelcomePage:
-    def __init__(self, master, username):
-        self.master = master
-        self.frame = master.current_frame
+        def MenuSystem(page):
+            for frame in main_frame.winfo_children():
+                frame.destroy()
+            page()
 
-        tk.Label(self.frame, text=f"Welcome, {username}!").pack(pady=20)
-        tk.Button(self.frame, text="Logout", command=self.master.show_login_page).pack()
 
-if __name__ == "__main__":
-    app = AuthApp()
-    app.mainloop()
+        def DashboardMenu():
+            dashboardFrame = Frame(main_frame, background='orange')
+            dashboardFrame.config(height=760, width=1310)
+            dashboardFrame.place(x=0, y=0)
+
+        def CustomerMenu():
+            CustomerFrame = Frame(main_frame, background='#fffbda')
+            CustomerFrame.config(height=760, width=1310)
+            CustomerFrame.place(x=0, y=0)
+
+        def AccountMenu():
+            AccountFrame = Frame(main_frame, background='red')
+            AccountFrame.config(height=760, width=1310)
+            AccountFrame.place(x=0, y=0)
+
+        def TransactionMenu():
+            TransactionFrame = Frame(main_frame, background='#fffbda')
+            TransactionFrame.config(height=760, width=1310)
+            TransactionFrame.place(x=0, y=0)
+
+        def LoanMenu():
+            LoanFrame = Frame(main_frame, background='yellow')
+            LoanFrame.config(height=760, width=1310)
+            LoanFrame.place(x=0, y=0)
+
+        def ReportMenu():
+            ReportFrame = Frame(main_frame, background='#fffbda')
+            ReportFrame.config(height=760, width=1310)
+            ReportFrame.place(x=0, y=0)
+
+        def SecurityMenu():
+            SecurityFrame = Frame(main_frame, background='white')
+            SecurityFrame.config(height=760, width=1310)
+            SecurityFrame.place(x=0, y=0)
+
+        def DataMenu():
+            DataFrame = Frame(main_frame, background='black')
+            DataFrame.config(height=760, width=1310)
+            DataFrame.place(x=0, y=0)
+
+        def SettingMenu():
+            SettingFrame = Frame(main_frame, background='#fffbda')
+            SettingFrame.config(height=760, width=1310)
+            SettingFrame.place(x=0, y=0)
+
+        # def LogoutMenu():
+        #     LogoutFrame = Frame(main_frame, background='red')
+        #     LogoutFrame.config(height=760, width=1310)
+        #     LogoutFrame.place(x=225, y=40)
+
+
+
+def win():
+    window = Tk()
+    AdminDashboard(window)
+    window.mainloop()
+
+if _name_ == '_main_':
+
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
