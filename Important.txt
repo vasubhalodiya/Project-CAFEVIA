@@ -1,20 +1,28 @@
 =============== Color Code ============
 
-brown color -      #27150C
-secondary color -  #E7E0D6
-third color -      #EDD6B3
+brown color -         #27150C
+secondary color -     #E7E0D6
+third color -         #EDD6B3
+card sidebar color -  #D7CCBE
 
 =============== Pages ============
 
 dashboard
-orders
+menu
 billing
-customers
+orders
+table book
 sales
 logout
 
+=============== Category ============
 
-
+All
+coffee
+softdrink
+pizza
+burger
+dessert
 
 
 

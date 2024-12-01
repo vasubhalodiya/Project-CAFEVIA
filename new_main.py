@@ -78,7 +78,7 @@ class Login():
         self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
         self.loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
-        self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=lambda:Submit(name_var, passw_var))
+        self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=win)
         self.login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
         self.loginNote = Label(self.loginform, text="Must do check USERNAME & PASSWORD is correct", bg="#E7E0D6", fg="#27150C", font=("century gothic", 8))
         self.loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
@@ -116,8 +116,8 @@ class AdminDashboard():
         BillingButton = Button(self.sidebar, text="Billing", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(BillingMenu))
         BillingButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
 
-        CustomerButton = Button(self.sidebar, text="Customer", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(CustomerMenu))
-        CustomerButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
+        TableBookButton = Button(self.sidebar, text="Table Book", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(TableBookMenu))
+        TableBookButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
 
         SalesButton = Button(self.sidebar, text="Sales", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(SalesMenu))
         SalesButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
@@ -138,27 +138,53 @@ class AdminDashboard():
             DashboardFrame = Frame(main_frame, background='red')
             DashboardFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+
+
+
+
+        # ==========================================
+
         def OrderMenu():
             OrderFrame = Frame(main_frame, background='blue')
             OrderFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+
+        # ==========================================
 
         def BillingMenu():
             BillingFrame = Frame(main_frame, background='green')
             BillingFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        def CustomerMenu():
-            CustomerFrame = Frame(main_frame, background='yellow')
-            CustomerFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+        # ==========================================
+
+        def TableBookMenu():
+            TableBookFrame = Frame(main_frame, background='yellow')
+            TableBookFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+        # ==========================================
 
         def SalesMenu():
             SalesFrame = Frame(main_frame, background='darkred')
             SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+
+
+
+        # ==========================================
+
         def LogoutMenu():
             self.window.destroy()
-            loginwindow = Tk()
-            Login(loginwindow)
-            loginwindow.mainloop()
+            # loginwindow = Tk()
+            # Login(loginwindow)
+            # loginwindow.mainloop()
 
 
 
@@ -219,10 +245,10 @@ def win():
 
 if __name__ == '__main__':
 
-    # loginwindow = Tk()
-    # Login(loginwindow)
-    # loginwindow.mainloop()
-    win()
+    loginwindow = Tk()
+    Login(loginwindow)
+    loginwindow.mainloop()
+    # win()
 
 
 
