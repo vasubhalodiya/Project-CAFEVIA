@@ -75,7 +75,7 @@ class Login():
 
         self.loginPasswordlabel = Label(self.loginform, text="Password", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
         self.loginPasswordlabel.place(relx=0.2, rely=0.46)
-        self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2)
+        self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
         self.loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
         self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=lambda:Submit(name_var, passw_var))
