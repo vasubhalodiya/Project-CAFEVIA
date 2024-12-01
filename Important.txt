@@ -3,7 +3,7 @@
 brown color -         #27150C
 secondary color -     #E7E0D6
 third color -         #EDD6B3
-card sidebar color -  #D7CCBE
+card sidebar color -  #DDD2C3
 
 =============== Pages ============
 
