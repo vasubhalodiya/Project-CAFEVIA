@@ -131,147 +131,6 @@ class AdminDashboard():
 
 # ===========================================================================================
 
-        OrderFrame = Frame(main_frame, background='#E7E0D6')
-        OrderFrame.place(relx=0, rely=0, relwidth=0.8, relheight=1)
-
-        OrderCartFrame = Frame(main_frame, background='#DDD2C3')
-        OrderCartFrame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
-
-        self.ChooseCategory = Label(OrderFrame, text="Choose Category", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
-        self.ChooseCategory.place(relx=0.03, rely=0.02)
-
-        # ============================
-        categoryimage = Image.open('images/all.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="All", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/coffee.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Coffee", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/softdrink.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Softdrink", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/pizza.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Pizza", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/burger.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Burger", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/dessert.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Dessert", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
-        # ============================
-        categoryimage = Image.open('images/meal.png').resize((45, 45))
-        categoryimage = ImageTk.PhotoImage(categoryimage)
-        categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
-        categoryimage_label.image = categoryimage
-        self.CategoryChildCard = Button(OrderFrame, text="Food Meal", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-        self.CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
-        # ============================
-       
-        self.CoffeeCategory = Frame(OrderFrame, background="#E7E0D6")
-        self.CoffeeCategory.place(relx=0, rely=0.27, relwidth=0.95, relheight=1)
-        self.CoffeeCategoryLabel = Label(self.CoffeeCategory, text="Coffee Menu", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
-        self.CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
-
-        AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
-        AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
-        AddCoffeeButtonImage_label = Label(self.CoffeeCategory, image=AddCoffeeButtonImage, background='#DDD2C3')
-        AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
-        self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background="#DDD2C3", cursor="hand2", relief="solid", activebackground="#EDD6B3", bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20)
-        self.AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.24)
-
-# ===================================================================================================
-        self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
-        self.ProductCard.place(relx=0.27, rely=0.08, relwidth=0.21, relheight=0.24)
-        # *********************
-        ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-        ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-        ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
-        ProductCardImage_label.image = ProductCardImage
-        ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-        # *********************
-        self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
-        self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-        # *********************
-        self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
-        self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-        # *********************
-        self.ProductAddToCardButton = Button(self.ProductCard, text="Add to Cart", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
-        self.ProductAddToCardButton.place(relx=0.05, rely=0.78, relwidth=0.9, relheight=0.17)
-
-# ===================================================================================================
-        self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
-        self.ProductCard.place(relx=0.515, rely=0.08, relwidth=0.21, relheight=0.24)
-        # *********************
-        ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-        ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-        ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
-        ProductCardImage_label.image = ProductCardImage
-        ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-        # *********************
-        self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
-        self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-        # *********************
-        self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
-        self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-        # *********************
-        self.ProductAddToCardButton = Button(self.ProductCard, text="Add to Cart", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
-        self.ProductAddToCardButton.place(relx=0.05, rely=0.78, relwidth=0.9, relheight=0.17)
-
-# ===================================================================================================
-        self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
-        self.ProductCard.place(relx=0.76, rely=0.08, relwidth=0.21, relheight=0.24)
-        # *********************
-        ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-        ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-        ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
-        ProductCardImage_label.image = ProductCardImage
-        ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-        # *********************
-        self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
-        self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-        # *********************
-        self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
-        self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-        # *********************
-        self.ProductAddToCardButton = Button(self.ProductCard, text="Add to Cart", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
-        self.ProductAddToCardButton.place(relx=0.05, rely=0.78, relwidth=0.9, relheight=0.17)
-
-# ===================================================================================================
-
-
-
-
-
-
-# ===========================================================================================
-
-
-
-
         def MenuSystem(page):
             for frame in main_frame.winfo_children():
                 frame.destroy()
@@ -287,12 +146,144 @@ class AdminDashboard():
 
         # ==========================================
 
-        # def OrderMenu():
-        #     OrderFrame = Frame(main_frame, background='red')
-        #     OrderFrame.place(relx=0, rely=0, relwidth=0.8, relheight=1)
+        def OrderMenu():
+            OrderFrame = Frame(main_frame, background='#E7E0D6')
+            OrderFrame.place(relx=0, rely=0, relwidth=0.8, relheight=1)
 
-        #     OrderCartFrame = Frame(main_frame, background='#DDD2C3')
-        #     OrderCartFrame.place(relx=0.8, rely=0, relwidth=0.2, relheight=1)
+            OrderCartFrame = Frame(main_frame, background='#DDD2C3')
+            OrderCartFrame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
+
+            self.ChooseCategory = Label(OrderFrame, text="Choose Category", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
+            self.ChooseCategory.place(relx=0.03, rely=0.02)
+
+            # ============================
+            categoryimage = Image.open('images/all.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="All", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/coffee.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Coffee", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/softdrink.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Softdrink", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/pizza.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Pizza", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/burger.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Burger", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/dessert.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Dessert", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
+            # ============================
+            categoryimage = Image.open('images/meal.png').resize((45, 45))
+            categoryimage = ImageTk.PhotoImage(categoryimage)
+            categoryimage_label = Label(OrderFrame, image=categoryimage, background='#DDD2C3')
+            categoryimage_label.image = categoryimage
+            self.CategoryChildCard = Button(OrderFrame, text="Food Meal", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            self.CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
+            # ============================
+        
+            self.CoffeeCategory = Frame(OrderFrame, background="#E7E0D6")
+            self.CoffeeCategory.place(relx=0, rely=0.27, relwidth=0.95, relheight=1)
+            self.CoffeeCategoryLabel = Label(self.CoffeeCategory, text="Coffee Menu", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
+            self.CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
+
+            AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
+            AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
+            AddCoffeeButtonImage_label = Label(self.CoffeeCategory, image=AddCoffeeButtonImage, background='#DDD2C3')
+            AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
+            self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background="#DDD2C3", cursor="hand2", relief="solid", activebackground="#EDD6B3", bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20)
+            self.AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.25)
+
+    # ===================================================================================================
+            self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
+            self.ProductCard.place(relx=0.27, rely=0.08, relwidth=0.21, relheight=0.25)
+            # *********************
+            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
+            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
+            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
+            ProductCardImage_label.image = ProductCardImage
+            ProductCardImage_label.place(relx=0.3, rely=0.08, width=75, height=75)
+            # *********************
+            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
+            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
+            # *********************
+            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
+            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+            # *********************
+            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+            # *********************
+            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
+            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+
+    # ===================================================================================================
+            self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
+            self.ProductCard.place(relx=0.515, rely=0.08, relwidth=0.21, relheight=0.25)
+            # *********************
+            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
+            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
+            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
+            ProductCardImage_label.image = ProductCardImage
+            ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
+            # *********************
+            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
+            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
+            # *********************
+            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
+            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+            # *********************
+            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+            # *********************
+            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
+            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+
+    # ===================================================================================================
+            self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
+            self.ProductCard.place(relx=0.76, rely=0.08, relwidth=0.21, relheight=0.25)
+            # *********************
+            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
+            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
+            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background='#DDD2C3')
+            ProductCardImage_label.image = ProductCardImage
+            ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
+            # *********************
+            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
+            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
+            # *********************
+            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w") # wraplength=180
+            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+            # *********************
+            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+            # *********************
+            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
+            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
 
 

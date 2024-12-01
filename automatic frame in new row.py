@@ -22,7 +22,7 @@ def add_dynamic_frame():
         col = 0
         row += 1
 
-for _ in range(5):
+for _ in range(6):
     add_dynamic_frame()
 
 root.mainloop()
