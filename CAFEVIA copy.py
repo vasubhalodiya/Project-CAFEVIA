@@ -27,66 +27,67 @@ def loading_screen():
 
 loading_screen()
 
-# class Login():
-#     def __init__(self,loginwindow):
-#         self.loginwindow = loginwindow
-#         self.loginwindow.title("LOGIN - CAFEVIA")
-#         width = 1000
-#         height = 600
-#         x = (loginwindow.winfo_screenwidth()//2)-(width//2)
-#         y = (loginwindow.winfo_screenheight()//2)-(height//2)
-#         self.loginwindow.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-#         self.loginwindow.state('normal')
-#         self.loginwindow.resizable(False, False)
-#         self.loginwindow.config(background='#E7E0D6')
+class Login():
+    def __init__(self,loginwindow):
+        self.loginwindow = loginwindow
+        self.loginwindow.title("LOGIN - CAFEVIA")
+        width = 1000
+        height = 600
+        x = (loginwindow.winfo_screenwidth()//2)-(width//2)
+        y = (loginwindow.winfo_screenheight()//2)-(height//2)
+        self.loginwindow.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.loginwindow.state('normal')
+        self.loginwindow.resizable(False, False)
+        self.loginwindow.config(background='#E7E0D6')
 
-#         self.loginback = Frame(loginwindow, background="#E7E0D6")
-#         self.loginback.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.loginback = Frame(loginwindow, background="#E7E0D6")
+        self.loginback.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-#         loginimage = Image.open('images/login_img.jpg')
-#         loginimage = ImageTk.PhotoImage(loginimage)
-#         loginimage_label = Label(self.loginback, image=loginimage,  background="#E7E0D6")
-#         loginimage_label.image = loginimage
-#         loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
+        loginimage = Image.open('images/login_img.jpg')
+        loginimage = ImageTk.PhotoImage(loginimage)
+        loginimage_label = Label(self.loginback, image=loginimage,  background="#E7E0D6")
+        loginimage_label.image = loginimage
+        loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
 
-#         #Use Verification
-#         name_var = StringVar()
-#         passw_var = StringVar()
+        #Use Verification
+        name_var = StringVar()
+        passw_var = StringVar()
 
-#         self.loginform = Frame(loginwindow, background="#E7E0D6")
-#         self.loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
+        self.loginform = Frame(loginwindow, background="#E7E0D6")
+        self.loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
 
-#         loginwindow.overrideredirect(True)
-#         def close_button():
-#             loginwindow.destroy() 
-#         self.closebutton = Button(self.loginform, text="x", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=close_button)
-#         self.closebutton.place(relx=0.94, rely=0.014, width=30, height=30)
+        loginwindow.overrideredirect(True)
+        def close_button():
+            loginwindow.destroy() 
+        self.closebutton = Button(self.loginform, text="x", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=close_button)
+        self.closebutton.place(relx=0.94, rely=0.014, width=30, height=30)
         
-#         # login logo
-#         self.loginlogo = Label(self.loginform, text="CAFEVIA", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 30), bd=0)
-#         self.loginlogo.place(relx=0.35, rely=0.07)
-#         self.loginslogan = Label(self.loginform, text="Wake up, sip, and conquer your day with our brew.", bg="#E7E0D6", fg="#27150C", font=("century gothic", 10))
-#         self.loginslogan.place(relx=0.23, rely=0.15)
+        # login logo
+        self.loginlogo = Label(self.loginform, text="CAFEVIA", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 30), bd=0)
+        self.loginlogo.place(relx=0.35, rely=0.07)
+        self.loginslogan = Label(self.loginform, text="Wake up, sip, and conquer your day with our brew.", bg="#E7E0D6", fg="#27150C", font=("century gothic", 10))
+        self.loginslogan.place(relx=0.23, rely=0.15)
 
-#         self.loginUserlabel = Label(self.loginform, text="Username", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
-#         self.loginUserlabel.place(relx=0.2, rely=0.3)
-#         self.loginUserentry = Entry(self.loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
-#         self.loginUserentry.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
+        # login user input field
+        self.loginUserlabel = Label(self.loginform, text="Username", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
+        self.loginUserlabel.place(relx=0.2, rely=0.3)
+        self.loginUserentry = Entry(self.loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
+        self.loginUserentry.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
 
-#         self.loginPasswordlabel = Label(self.loginform, text="Password", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
-#         self.loginPasswordlabel.place(relx=0.2, rely=0.46)
-#         self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
-#         self.loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
+        # login password input field
+        self.loginPasswordlabel = Label(self.loginform, text="Password", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 16))
+        self.loginPasswordlabel.place(relx=0.2, rely=0.46)
+        self.loginPasswordentry = Entry(self.loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
+        self.loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
-#         self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=win)
-#         self.login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
-#         self.loginNote = Label(self.loginform, text="Must do check USERNAME & PASSWORD is correct", bg="#E7E0D6", fg="#27150C", font=("century gothic", 8))
-#         self.loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
+        # login button
+        self.login = Button(self.loginform, text="Login", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", bd=2, command=win)
+        self.login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
+        self.loginNote = Label(self.loginform, text="Must do check USERNAME & PASSWORD is correct", bg="#E7E0D6", fg="#27150C", font=("century gothic", 8))
+        self.loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
 
-#         def Submit(name, passv):
-#             mylabel = Label(self.loginform, text = name + passv).pack()
-
-
+        def Submit(name, passv):
+            mylabel = Label(self.loginform, text = name + passv).pack()
 
 class AdminDashboard():
     def __init__(self,window):
@@ -143,10 +144,6 @@ class AdminDashboard():
             DashboardFrame = Frame(main_frame, background='red')
             DashboardFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-
-
-
-
         # ==========================================
 
         def MenuMenu():
@@ -159,66 +156,83 @@ class AdminDashboard():
             self.ChooseCategory = Label(MenuFrame, text="Choose Category", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
             self.ChooseCategory.place(relx=0.03, rely=0.02)
 
-            # ============================
+            # ============category all button================
             categoryimage = Image.open('images/all.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="All", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category coffee button================
+
             categoryimage = Image.open('images/coffee.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="Coffee", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category softdrink button================
+
             categoryimage = Image.open('images/softdrink.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="Softdrink", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category pizza button================
+
             categoryimage = Image.open('images/pizza.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="Pizza", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category burger button================
+
             categoryimage = Image.open('images/burger.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="Burger", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category dessert button================
+
             categoryimage = Image.open('images/dessert.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
+
             self.CategoryChildCard = Button(MenuFrame, text="Dessert", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
-            # ============================
+
+            # ============category meal button================
+
             categoryimage = Image.open('images/meal.png').resize((45, 45))
             categoryimage = ImageTk.PhotoImage(categoryimage)
             categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
             categoryimage_label.image = categoryimage
             self.CategoryChildCard = Button(MenuFrame, text="Food Meal", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             self.CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
-            # ============================
-        
            
-# =============================================================================================
+        # =============================category menu list card========================================
 
             self.CoffeeCategory = Frame(MenuFrame, background="#E7E0D6")
             self.CoffeeCategory.place(relx=0, rely=0.27, relwidth=0.95, relheight=1)
             self.CoffeeCategoryLabel = Label(self.CoffeeCategory, text="Coffee Menu", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
             self.CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
 
-    # ================= add coffee button =======================
+        # ================= add coffee button =======================
+
             AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
             AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
             AddCoffeeButtonImage_label = Label(self.CoffeeCategory, image=AddCoffeeButtonImage, background='#DDD2C3')
@@ -227,7 +241,8 @@ class AdminDashboard():
             self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background="#DDD2C3", cursor="hand2", relief="solid", activebackground="#EDD6B3", bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20, command=AddCoffeeProduct)
             self.AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.25)
 
-    # ===================================================================================================
+        # =====================coffee product card====================================
+
             self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
             self.ProductCard.place(relx=0.27, rely=0.08, relwidth=0.21, relheight=0.25)
             # *********************
@@ -249,7 +264,8 @@ class AdminDashboard():
             self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
             self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-    # ===================================================================================================
+        # =====================coffee product card====================================
+
             self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
             self.ProductCard.place(relx=0.515, rely=0.08, relwidth=0.21, relheight=0.25)
             # *********************
@@ -271,7 +287,8 @@ class AdminDashboard():
             self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
             self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-    # ===================================================================================================
+        # =====================coffee product card====================================
+
             self.ProductCard = Frame(self.CoffeeCategory, background="#DDD2C3")
             self.ProductCard.place(relx=0.76, rely=0.08, relwidth=0.21, relheight=0.25)
             # *********************
@@ -293,7 +310,7 @@ class AdminDashboard():
             self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg="#B26431", fg="#DDD2C3", font=("century gothic bold", 15))
             self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-# =========================================================================================================
+    # =====================add coffee product new window open====================================
 
         def AddCoffeeProduct():
             self.AddCoffeeWindow = Tk()
@@ -310,45 +327,50 @@ class AdminDashboard():
             self.AddNavbar = Frame(self.AddCoffeeWindow, background='#27150C')
             self.AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
 
-            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Add Coffee", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
-            self.AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
+            self.AddNavbarLabel = Label(self.AddCoffeeWindow, text="Add Coffee", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
+            self.AddNavbarLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
 
+            # add product name
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg="#27150C", fg="#E7E0D6", font=("century gothic bold", 16))
             self.AddHeadLabel.place(relx=0.07, rely=0.1)
             self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
             self.loginUserentry.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
 
+            # add product category
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg="#27150C", fg="#E7E0D6", font=("century gothic bold", 16))
             self.AddHeadLabel.place(relx=0.07, rely=0.23)
             self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
             self.loginUserentry.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
 
+            # add product avaliability
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg="#27150C", fg="#E7E0D6", font=("century gothic bold", 16))
             self.AddHeadLabel.place(relx=0.07, rely=0.36)
             self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
             self.loginUserentry.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
 
+            # add product price
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg="#27150C", fg="#E7E0D6", font=("century gothic bold", 16))
             self.AddHeadLabel.place(relx=0.4, rely=0.1)
             self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
             self.loginUserentry.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
 
+            # add product image
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg="#27150C", fg="#E7E0D6", font=("century gothic bold", 16))
             self.AddHeadLabel.place(relx=0.4, rely=0.23)
             self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
             self.loginUserentry.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
 
+            # add product add button
             self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, font=("century gothic bold", 12))
             self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
 
+            # add product edit button
             self.EditProductButton = Button(self.AddCoffeeWindow, text="Edit Product", background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, font=("century gothic bold", 12))
             self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
 
+            # add product delete button
             self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, font=("century gothic bold", 12))
             self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
-
-
-
 
 
 
@@ -445,16 +467,13 @@ def win():
     window = Tk()
     AdminDashboard(window)
     window.mainloop()
-    # loginwindow = Tk()
-    # Login(loginwindow)
-    # loginwindow.mainloop()
 
 if __name__ == '__main__':
 
-    # loginwindow = Tk()
-    # Login(loginwindow)
-    # loginwindow.mainloop()
-    win()
+    loginwindow = Tk()
+    Login(loginwindow)
+    loginwindow.mainloop()
+    # win()
 
 
 

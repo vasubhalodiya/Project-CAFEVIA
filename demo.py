@@ -1,71 +1,193 @@
-import tkinter as tk
-from tkinter import PhotoImage
-from PIL import Image, ImageTk
+from tkinter import *
+from tkinter import font
+from PIL import ImageTk, Image
 
-root = tk.Tk()
-root.geometry("600x400")
+def loading_screen():
+    window = Tk()
+    width = 370
+    height = 230
+    x = (window.winfo_screenwidth()//2)-(width//2)
+    y = (window.winfo_screenheight()//2)-(height//2)
+    window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    window.overrideredirect(True)
+    window.configure(bg="#E7E0D6")
 
-# Functionality for menu system
-main_frame = Frame(window, background='#E7E0D6')
-main_frame.place(relx=0.18, rely=0, relwidth=0.82, relheight=1)
-OrderFrame = Frame(main_frame, background='#E7E0D6')
-OrderFrame.place(relx=0, rely=0, relwidth=0.8, relheight=1)
-self.CoffeeCategory = Frame(OrderFrame, background="#E7E0D6")
-self.CoffeeCategory.place(relx=0, rely=0.27, relwidth=0.95, relheight=1)
-self.CoffeeCategoryLabel = Label(self.CoffeeCategory, text="Coffee Menu", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
-self.CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
+    # text = "CAFEVIA"
+    # spaced_text = " ".join(text)
 
-AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
-AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
-AddCoffeeButtonImage_label = Label(self.CoffeeCategory, image=AddCoffeeButtonImage, background='#DDD2C3')
-AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
-self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background="#DDD2C3", cursor="hand2", relief="solid", activebackground="#EDD6B3", bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20)
-self.AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.24)
-# Parent Frame
-self.CoffeeCategory = tk.Frame(root, background="#DDD2C3")
-self.CoffeeCategory.pack(fill="both", expand=True)
-
-# Number of frames to place in a row
-max_columns = 3
-
-# Add Product Frames Dynamically
-product_data = [
-    ("Coffee", 'images/coffee.png'),
-    ("Tea", 'images/tea.png'),
-    ("Latte", 'images/latte.png'),
-    ("Cappuccino", 'images/cappuccino.png'),
-    ("Mocha", 'images/mocha.png')
-]
-
-for idx, (name, image_path) in enumerate(product_data):
-    row = idx // max_columns  # Determine the row
-    col = idx % max_columns   # Determine the column
+    loading_text = Label(window, text="CAFEVIA", font=("century gothic bold", 30), bg="#E7E0D6", fg="#27150C")
+    loading_text.place(relx=0.5, rely=0.5, anchor=CENTER)
     
-    # Calculate relative x and y positions
-    relx = col * 0.33  # 33% for each column (3 columns per row)
-    rely = 0.1 + (row * 0.3)  # Stagger y position for each row
+    def redirectToHome():
+        window.destroy()
+        AdminDashboard()
 
-    # Product Frame
-    ProductCard = tk.Frame(self.CoffeeCategory, background="#DDD2C3")
-    ProductCard.place(relx=relx, rely=rely, relwidth=0.28, relheight=0.2)
+    window.after(3000, redirectToHome)
+    window.mainloop()
 
-    # Product Image
-    ProductCardImage = Image.open(image_path).resize((75, 75))
-    ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-    ProductCardImage_label = tk.Label(ProductCard, image=ProductCardImage, background='#DDD2C3')
-    ProductCardImage_label.image = ProductCardImage
-    ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
+loading_screen()
 
-    # Product Category Label
-    ProductCategoryLabel = tk.Label(ProductCard, text=name, bg="#DDD2C3", fg="#27150C", font=("century gothic", 8))
-    ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
 
-    # Product Name Label
-    ProductNameLabel = tk.Label(ProductCard, text=f"Hello {name}!", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13), anchor="w")
-    ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
 
-    # Add to Cart Button
-    ProductAddToCartButton = tk.Button(ProductCard, text="Add to Cart", font=("century gothic bold", 11), width=27, height=1, background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
-    ProductAddToCartButton.place(relx=0.05, rely=0.78, relwidth=0.9, relheight=0.17)
 
-root.mainloop()
+class AdminDashboard():
+    def init(self,window):
+        self.window = window
+        self.window.title("CAFEVIA")
+        # self.window.geometry("1500x750")
+        self.window.state('zoomed')
+        self.window.resizable(False, False)
+        self.window.config(background='#E7E0D6')
+
+        # sidebar
+        self.sidebar = Frame(self.window, bg='#27150C')
+        self.sidebar.place(relx=0, rely=0, relwidth=0.18, relheight=1) 
+
+        # logoimage = Image.open('images/logo.jpg')
+        # logoimage = ImageTk.PhotoImage(logoimage)
+        # logoimage_label = Label(self.sidebar, image=logoimage, height=100, width=100, background='#27150C')
+        # logoimage_label.image = logoimage
+        # logoimage_label.place(relx=0.4, rely=0.05, width=100, height=100)
+
+        DashboardButton = Button(self.sidebar, text="Dashboard", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(DashboardMenu))
+        DashboardButton.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.05)
+
+        OrderButton = Button(self.sidebar, text="Orders", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(OrderMenu))
+        OrderButton.place(relx=0.1, rely=0.28, relwidth=0.8, relheight=0.05)
+
+        BillingButton = Button(self.sidebar, text="Billing", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(BillingMenu))
+        BillingButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
+
+        TableBookButton = Button(self.sidebar, text="Table Book", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(TableBookMenu))
+        TableBookButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
+
+        SalesButton = Button(self.sidebar, text="Sales", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(SalesMenu))
+        SalesButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
+
+        LogoutButton = Button(self.sidebar, text="Logout", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(LogoutMenu))
+        LogoutButton.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.05)
+
+        # Functionality for menu system
+        main_frame = Frame(window, background='#E7E0D6')
+        main_frame.place(relx=0.18, rely=0, relwidth=0.82, relheight=1)
+
+        def MenuSystem(page):
+            for frame in main_frame.winfo_children():
+                frame.destroy()
+            page()
+
+        def DashboardMenu():
+            DashboardFrame = Frame(main_frame, background='red')
+            DashboardFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+
+        # ==========================================
+
+        def OrderMenu():
+            OrderFrame = Frame(main_frame, background='blue')
+            OrderFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+
+        # ==========================================
+
+        def BillingMenu():
+            BillingFrame = Frame(main_frame, background='green')
+            BillingFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+        # ==========================================
+
+        def TableBookMenu():
+            TableBookFrame = Frame(main_frame, background='yellow')
+            TableBookFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+        # ==========================================
+
+        def SalesMenu():
+            SalesFrame = Frame(main_frame, background='darkred')
+            SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+        # ==========================================
+
+        def LogoutMenu():
+            self.window.destroy()
+            loginwindow = Tk()
+            Login(loginwindow)
+            loginwindow.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def win():
+    window = Tk()
+    AdminDashboard(window)
+    window.mainloop()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+
+if __name__ == '__main__':
+
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
