@@ -2,30 +2,30 @@ from tkinter import *
 from tkinter import font
 from PIL import ImageTk, Image
 
-def loading_screen():
-    window = Tk()
-    width = 370
-    height = 230
-    x = (window.winfo_screenwidth()//2)-(width//2)
-    y = (window.winfo_screenheight()//2)-(height//2)
-    window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-    window.overrideredirect(True)
-    window.configure(bg="#E7E0D6")
+# def loading_screen():
+#     window = Tk()
+#     width = 370
+#     height = 230
+#     x = (window.winfo_screenwidth()//2)-(width//2)
+#     y = (window.winfo_screenheight()//2)-(height//2)
+#     window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+#     window.overrideredirect(True)
+#     window.configure(bg="#E7E0D6")
 
-    # text = "CAFEVIA"
-    # spaced_text = " ".join(text)
+#     # text = "CAFEVIA"
+#     # spaced_text = " ".join(text)
 
-    loading_text = Label(window, text="CAFEVIA", font=("century gothic bold", 30), bg="#E7E0D6", fg="#27150C")
-    loading_text.place(relx=0.5, rely=0.5, anchor=CENTER)
+#     loading_text = Label(window, text="CAFEVIA", font=("century gothic bold", 30), bg="#E7E0D6", fg="#27150C")
+#     loading_text.place(relx=0.5, rely=0.5, anchor=CENTER)
     
-    def redirectToHome():
-        window.destroy()
-        AdminDashboard()
+#     def redirectToHome():
+#         window.destroy()
+#         AdminDashboard()
 
-    window.after(3000, redirectToHome)
-    window.mainloop()
+#     window.after(3000, redirectToHome)
+#     window.mainloop()
 
-loading_screen()
+# loading_screen()
 
 class Login():
     def __init__(self,loginwindow):
@@ -104,16 +104,21 @@ class AdminDashboard():
         self.sidebar = Frame(self.window, bg='#27150C')
         self.sidebar.place(relx=0, rely=0, relwidth=0.18, relheight=1) 
 
-        # logoimage = Image.open('images/logo.jpg')
+        # logoimage = Image.open('images/logo.png').resize((60, 60))
         # logoimage = ImageTk.PhotoImage(logoimage)
-        # logoimage_label = Label(self.sidebar, image=logoimage, height=100, width=100, background='#27150C')
+        # logoimage_label = Label(self.sidebar, image=logoimage, background='#27150C')
         # logoimage_label.image = logoimage
-        # logoimage_label.place(relx=0.4, rely=0.05, width=100, height=100)
+        # logoimage_label.place(relx=0, rely=0.09, width=75, height=75)
+        text = "CAFEVIA"
+        spaced_text = " ".join(text)
+
+        loading_text = Label(self.sidebar, text=spaced_text, font=("century gothic bold", 27), bg="#27150C", fg="#E7E0D6")
+        loading_text.place(relx=0.1, rely=0.07)
 
         DashboardButton = Button(self.sidebar, text="Dashboard", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(DashboardMenu))
         DashboardButton.place(relx=0.1, rely=0.2, relwidth=0.8, relheight=0.05)
 
-        MenuButton = Button(self.sidebar, text="Menus", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(MenuMenu))
+        MenuButton = Button(self.sidebar, text="Menu", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(MenuMenu))
         MenuButton.place(relx=0.1, rely=0.28, relwidth=0.8, relheight=0.05)
 
         BillingButton = Button(self.sidebar, text="Billing", font=("century gothic bold", 11), width=27, height=1, background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, command=lambda:MenuSystem(BillingMenu))
@@ -134,6 +139,15 @@ class AdminDashboard():
         # Functionality for menu system
         main_frame = Frame(window, background='#E7E0D6')
         main_frame.place(relx=0.18, rely=0, relwidth=0.82, relheight=1)
+
+        HomeImage = Image.open('images/homeimg.jpg')
+        HomeImage = ImageTk.PhotoImage(HomeImage)
+        HomeImage_label = Label(main_frame, image=HomeImage, background='#DDD2C3')
+        HomeImage_label.image = HomeImage
+        HomeImage_label.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.HomeLabel = Label(main_frame, text="Welcome to CAFEVIA", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 25))
+        self.HomeLabel.place(relx=0.35, rely=0.18)
 
 # ===========================================================================================
 
@@ -156,63 +170,172 @@ class AdminDashboard():
             MenuFrame = Frame(main_frame, background='#E7E0D6')
             MenuFrame.place(relx=0, rely=0, relwidth=0.8, relheight=1)
 
+        # ================== Menu Cart Product Start=====================
             MenuCartFrame = Frame(main_frame, background='#DDD2C3')
             MenuCartFrame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
+            
+            self.MenuCartItem = Label(MenuCartFrame, text="Cart", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 20))
+            self.MenuCartItem.place(relx=0.03, rely=0.01)
+
+            self.MenuCartOrderNo = Label(MenuCartFrame, text="Order #3243", bg="#DDD2C3", fg="#27150C", font=("century gothic", 10))
+            self.MenuCartOrderNo.place(relx=0.7, rely=0.02)
+
+            self.MenuCartDineInBtn = Button(MenuCartFrame, text="Dine In", font=("century gothic bold", 11), background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartDineInBtn.place(relx=0.05, rely=0.07, relwidth=0.25, relheight=0.04)
+
+            self.MenuCartTakeAwayBtn = Button(MenuCartFrame, text="Take away", font=("century gothic bold", 11), background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartTakeAwayBtn.place(relx=0.35, rely=0.07, relwidth=0.35, relheight=0.04)
+
+            self.MenuCartProductCardParent = Frame(MenuCartFrame, background='#DDD2C3')
+            self.MenuCartProductCardParent.place(relx=0.05, rely=0.16, relwidth=0.91, relheight=0.11)
+
+            MenuCartProductImage = Image.open('images/coffee.png').resize((60, 60))
+            MenuCartProductImage = ImageTk.PhotoImage(MenuCartProductImage)
+            MenuCartProductImage_label = Label(self.MenuCartProductCardParent, image=MenuCartProductImage, background='#DDD2C3')
+            MenuCartProductImage_label.image = MenuCartProductImage
+            MenuCartProductImage_label.place(relx=0, rely=0.09, width=75, height=75)
+
+            self.MenuCartProductName = Label(self.MenuCartProductCardParent, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13))
+            self.MenuCartProductName.place(relx=0.3, rely=0.1)
+
+            self.MenuCartOrderPrice = Label(self.MenuCartProductCardParent, text="₹ 100", bg="#B26431", fg="#E7E0D6", font=("century gothic bold", 13))
+            self.MenuCartOrderPrice.place(relx=0.32, rely=0.5, relwidth=0.21, relheight=0.24)
+
+            self.MenuCartMinusBtn = Button(self.MenuCartProductCardParent, text="-", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartMinusBtn.place(relx=0.6, rely=0.5, width=25, height=25)
+            # *************
+            self.MenuCartItemNo = Label(self.MenuCartProductCardParent, text="3", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 15))
+            self.MenuCartItemNo.place(relx=0.7, rely=0.5, width=22, height=22)
+            # *************
+            self.MenuCartPlusBtn = Button(self.MenuCartProductCardParent, text="+", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartPlusBtn.place(relx=0.8, rely=0.5, width=25, height=25)
+        # ===================================================
+            self.MenuCartProductCardParent = Frame(MenuCartFrame, background='#DDD2C3')
+            self.MenuCartProductCardParent.place(relx=0.05, rely=0.3, relwidth=0.91, relheight=0.11)
+
+            MenuCartProductImage = Image.open('images/coffee.png').resize((60, 60))
+            MenuCartProductImage = ImageTk.PhotoImage(MenuCartProductImage)
+            MenuCartProductImage_label = Label(self.MenuCartProductCardParent, image=MenuCartProductImage, background='#DDD2C3')
+            MenuCartProductImage_label.image = MenuCartProductImage
+            MenuCartProductImage_label.place(relx=0, rely=0.09, width=75, height=75)
+
+            self.MenuCartProductName = Label(self.MenuCartProductCardParent, text="Hello World Coffee", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 13))
+            self.MenuCartProductName.place(relx=0.3, rely=0.1)
+
+            self.MenuCartOrderPrice = Label(self.MenuCartProductCardParent, text="₹ 100", bg="#B26431", fg="#E7E0D6", font=("century gothic bold", 13))
+            self.MenuCartOrderPrice.place(relx=0.32, rely=0.5, relwidth=0.21, relheight=0.24)
+
+            self.MenuCartMinusBtn = Button(self.MenuCartProductCardParent, text="-", font=("century gothic bold", 15), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartMinusBtn.place(relx=0.6, rely=0.5, width=25, height=25)
+            # *************
+            self.MenuCartItemNo = Label(self.MenuCartProductCardParent, text="3", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 15))
+            self.MenuCartItemNo.place(relx=0.7, rely=0.5, width=22, height=22)
+            # *************
+            self.MenuCartPlusBtn = Button(self.MenuCartProductCardParent, text="+", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartPlusBtn.place(relx=0.8, rely=0.5, width=25, height=25)
+        # ===================================================
+
+            self.MenuCartItemTotal = Label(MenuCartFrame, text="Items", bg="#DDD2C3", fg="#27150C", font=("century gothic", 11), anchor="w")
+            self.MenuCartItemTotal.place(relx=0.05, rely=0.77, relwidth=0.2, relheight=0.03)
+            self.MenuCartItemTotalAns = Label(MenuCartFrame, text="₹ 1000", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 12), anchor="e")
+            self.MenuCartItemTotalAns.place(relx=0.7, rely=0.77, relwidth=0.25, relheight=0.03)
+            # *************
+            self.MenuCartDiscountTotal = Label(MenuCartFrame, text="Discount", bg="#DDD2C3", fg="#27150C", font=("century gothic", 11), anchor="w")
+            self.MenuCartDiscountTotal.place(relx=0.05, rely=0.81, relwidth=0.25, relheight=0.03)
+            self.MenuCartDiscountTotalAns = Label(MenuCartFrame, text="- ₹100", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 12), anchor="e")
+            self.MenuCartDiscountTotalAns.place(relx=0.75, rely=0.81, relwidth=0.2, relheight=0.03)
+
+            # *************
+            self.MenuCartTotalFrame = Frame(MenuCartFrame, background='#DDD2C3')
+            self.MenuCartTotalFrame.place(relx=0.05, rely=0.86, relwidth=0.9, relheight=0.14)
+            top_border = Frame(self.MenuCartTotalFrame, bg="#CBA084", height=1)
+            top_border.pack(side="top", fill="x")
+            # *************
+            self.MenuCartAllTotal = Label(self.MenuCartTotalFrame, text="Total", bg="#DDD2C3", fg="#27150C", font=("century gothic bold", 12), anchor="w")
+            self.MenuCartAllTotal.place(relx=0, rely=0.2, relwidth=0.2, relheight=0.2)
+            self.MenuCartAllTotalAns = Label(self.MenuCartTotalFrame, text="₹ 1000", bg="#B26431", fg="#E7E0D6", font=("century gothic bold", 12))
+            self.MenuCartAllTotalAns.place(relx=0.73, rely=0.2, relwidth=0.28, relheight=0.2)
+            # *************
+            self.MenuCartPlaceOrderBtn = Button(self.MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background="#27150C", foreground="#E7E0D6", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2)
+            self.MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
+
+
+
+        # ================== Menu Cart Product End=====================
 
             self.ChooseCategory = Label(MenuFrame, text="Choose Category", bg="#E7E0D6", fg="#27150C", font=("century gothic bold", 20))
             self.ChooseCategory.place(relx=0.03, rely=0.02)
 
             # ============================
-            categoryimage = Image.open('images/all.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="All", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/coffee.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Coffee", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/softdrink.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Softdrink", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/pizza.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Pizza", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/burger.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Burger", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/dessert.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Dessert", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
-            # ============================
-            categoryimage = Image.open('images/meal.png').resize((45, 45))
-            categoryimage = ImageTk.PhotoImage(categoryimage)
-            categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
-            categoryimage_label.image = categoryimage
-            self.CategoryChildCard = Button(MenuFrame, text="Food Meal", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            self.CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
-            # ============================
-        
+            # categoryimage = Image.open('images/all.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="All", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/coffee.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Coffee", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/softdrink.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Softdrink", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/pizza.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Pizza", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/burger.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Burger", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/dessert.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Dessert", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/meal.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background='#DDD2C3')
+            # categoryimage_label.image = categoryimage
+            # self.CategoryChildCard = Button(MenuFrame, text="Food Meal", background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # self.CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
+            # # ============================
+
+            categories = [
+                {"name": "All", "image": "images/all.png"},
+                {"name": "Coffee", "image": "images/coffee.png"},
+                {"name": "Softdrink", "image": "images/softdrink.png"},
+                {"name": "Pizza", "image": "images/pizza.png"},
+                {"name": "Burger", "image": "images/burger.png"},
+                {"name": "Dessert", "image": "images/dessert.png"},
+                {"name": "Food Meal", "image": "images/meal.png"},
+            ]
+
+            for i, category in enumerate(categories):
+                category_image = Image.open(category["image"]).resize((45, 45))
+                category_image = ImageTk.PhotoImage(category_image)
+                
+                relx = 0.03 + i * 0.13
+                
+                self.CategoryChildCard = Button(MenuFrame, text=category["name"], image=category_image, background="#DDD2C3", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, compound="top", font=("century gothic bold", 12), pady=13)
+                self.CategoryChildCard.image = category_image
+                self.CategoryChildCard.place(relx=relx, rely=0.08, width=110, height=110)
            
 # =============================================================================================
 
@@ -350,7 +473,7 @@ class AdminDashboard():
             self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background="#E7E0D6", foreground="#27150C", cursor="hand2", relief="flat", activebackground="#EDD6B3", bd=2, font=("century gothic bold", 12))
             self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
-
+       
 
 
 
@@ -451,10 +574,10 @@ def win():
 
 if __name__ == '__main__':
 
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
-    # win()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
 
 
 
