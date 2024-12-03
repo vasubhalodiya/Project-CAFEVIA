@@ -1,6 +1,7 @@
 from tkinter import *
-from tkinter import font
 from PIL import ImageTk, Image
+from tkinter import ttk, messagebox
+import MySQLdb
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"

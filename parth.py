@@ -265,64 +265,6 @@ class MovieCRUD:
                 messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
                 con.close()
 
-        #DELETE OPERATION
-        def MovieDelete():
-            if(txtid.get() == ""):
-                messagebox.showinfo("Delete Status","ID Is Required For Delete Operation")
-            else:
-                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-                cursor = con.cursor()
-                cursor.execute("delete from movie_details where id='"+txtid.get()+"'")
-                cursor.execute("commit")
-
-                txtid.delete(0,'end')
-                txtMovieName.delete(0,'end')
-                txtReleaseDate.delete(0,'end')
-
-                txtMovieCategory.delete(0,'end')
-                txtMovieDuration.delete(0,'end')
-                txtMovieLanguage.delete(0,'end')
-
-                txtShortDescription.delete(0,'end')
-                txtMovieFormate.delete(0,'end')
-                messagebox.showinfo("DELETE Status","DELETED SUCCESSFULLY")
-                con.close()
-
-        #UPDATE OPERATION
-        def MovieUpdate():
-            pass
-            MovieId = txtid.get()
-            MovieName = txtMovieName.get()
-            ReleaseDate = txtReleaseDate.get()
-
-            MovieCategory = txtMovieCategory.get()
-            MovieDuration = txtMovieDuration.get()
-            MovieLanguage = txtMovieLanguage.get()
-
-            ShortDescription = txtShortDescription.get()
-            MovieFormate = txtMovieFormate.get()
-
-            if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
-                messagebox.showinfo("Update Status","All fields are required")
-            else:
-                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-                cursor = con.cursor()
-                cursor.execute("update movie_details set movie_name='"+txtMovieName.get()+"',release_date='"+txtReleaseDate.get()+"',category='"+txtMovieCategory.get()+"',duration='"+txtMovieDuration.get()+"',language='"+txtMovieLanguage.get()+"',short_description='"+txtShortDescription.get()+"',format='"+txtMovieFormate.get()+"' where id='"+txtid.get()+"'")
-                cursor.execute("commit")
-
-                txtid.delete(0,'end')
-                txtMovieName.delete(0,'end')
-                txtReleaseDate.delete(0,'end')
-
-                txtMovieCategory.delete(0,'end')
-                txtMovieDuration.delete(0,'end')
-                txtMovieLanguage.delete(0,'end')
-
-                txtShortDescription.delete(0,'end')
-                txtMovieFormate.delete(0,'end')
-                messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
-                con.close()
-
         # ALL FIELD's AND FRAME
         CRUDtxtFild = Frame(MovieCRUDwindow,background='#800808')
         CRUDtxtFild.config(height=350,width=1000)

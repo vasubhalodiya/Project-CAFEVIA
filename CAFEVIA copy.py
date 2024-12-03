@@ -1,6 +1,7 @@
 from tkinter import *
-from tkinter import font
 from PIL import ImageTk, Image
+from tkinter import ttk, messagebox
+import MySQLdb
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -360,103 +361,14 @@ class AdminDashboard():
             self.CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
 
     # ================= add coffee button =======================
-            AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
-            AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
-            AddCoffeeButtonImage_label = Label(self.CoffeeCategory, image=AddCoffeeButtonImage, background=sidecart_color)
-            AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
 
-            self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background=sidecart_color, cursor="hand2", relief="solid", activebackground=active_color, bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20, command=ProductMenu)
+            self.AddCoffeeButton = Button(self.CoffeeCategory, text="Add New Dish to \nCoffee", background=sidecart_color, cursor="hand2", relief="solid", activebackground=active_color, bd=1, compound="top", font=("century gothic bold", 12), pady=20, command=MovieCRUD_calling)
             self.AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.25)
 
-    # ===================================================================================================
-            self.ProductCard = Frame(self.CoffeeCategory, background=sidecart_color)
-            self.ProductCard.place(relx=0.27, rely=0.08, relwidth=0.21, relheight=0.25)
-            # *********************
-            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background=sidecart_color)
-            ProductCardImage_label.image = ProductCardImage
-            ProductCardImage_label.place(relx=0.3, rely=0.08, width=75, height=75)
-            # *********************
-            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
-            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-            # *********************
-            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w") # wraplength=180
-            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-            # *********************
-            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-            # *********************
-            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
-
-    # ===================================================================================================
-            self.ProductCard = Frame(self.CoffeeCategory, background=sidecart_color)
-            self.ProductCard.place(relx=0.515, rely=0.08, relwidth=0.21, relheight=0.25)
-            # *********************
-            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background=sidecart_color)
-            ProductCardImage_label.image = ProductCardImage
-            ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-            # *********************
-            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
-            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-            # *********************
-            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w") # wraplength=180
-            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-            # *********************
-            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-            # *********************
-            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
-
-    # ===================================================================================================
-            self.ProductCard = Frame(self.CoffeeCategory, background=sidecart_color)
-            self.ProductCard.place(relx=0.76, rely=0.08, relwidth=0.21, relheight=0.25)
-            # *********************
-            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-            ProductCardImage_label = Label(self.ProductCard, image=ProductCardImage, background=sidecart_color)
-            ProductCardImage_label.image = ProductCardImage
-            ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-            # *********************
-            self.ProductCategoryLabel = Label(self.ProductCard, text="Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
-            self.ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-            # *********************
-            self.ProductNameLabel = Label(self.ProductCard, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w") # wraplength=180
-            self.ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-            # *********************
-            self.ProductAddToCardButton = Button(self.ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            self.ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-            # *********************
-            self.ProductPriceLabel = Label(self.ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-            self.ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+          
 
 # =========================================================================================================
 
-        def ProductMenu():
-            self.AddCoffeeWindow = Tk()
-            self.AddCoffeeWindow.title("Add Coffee - CAFEVIA")
-            width = 1200
-            height = 750
-            x = (window.winfo_screenwidth()//2)-(width//2)
-            y = (window.winfo_screenheight()//2)-(height//2)
-            self.AddCoffeeWindow.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-            self.AddCoffeeWindow.state('normal')
-            self.AddCoffeeWindow.resizable(False, False)
-            self.AddCoffeeWindow.config(background=secondary_color)
-
-            self.AddNavbar = Frame(self.AddCoffeeWindow, background=primary_color)
-            self.AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
-
-            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Add Coffee", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
-            self.AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
-
-
-
-        # ==========================================
 
         def BillingMenu():
             BillingFrame = Frame(main_frame, background='green')
@@ -487,191 +399,139 @@ class AdminDashboard():
 
         # ==========================================
 
+class MovieCRUD:
+    def _init_(self,MovieCRUDwindow):
+        self.MovieCRUDwindow = MovieCRUDwindow
+        self.MovieCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE MOVIE")
+        self.MovieCRUDwindow.geometry("1000x600")
+        self.MovieCRUDwindow.state('normal')
 
-class ProductCRUD:
-    def _init_(self,ProductCRUDwindow):
-        self.ProductCRUDwindow = ProductCRUDwindow
-        self.ProductCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE Product")
-        self.ProductCRUDwindow.geometry("1000x600")
-        self.ProductCRUDwindow.state('normal')
+        # #Variable Declaration
+        # id_int = int()
+        # MovieName = StringVar()
+        # ReleaseDate = StringVar()
+        # category = StringVar()
+        # Duration = StringVar()
+        # Language = StringVar()
+        # Short_Description = StringVar()
+        # Formatee = StringVar()
 
-        #Variable Declaration
-        id_int = int()
-        ProductName = StringVar()
-        ReleaseDate = StringVar()
-        category = StringVar()
-        Duration = StringVar()
-        Language = StringVar()
-        Short_Description = StringVar()
-        Formatee = StringVar()
-
-        # CRUD OPERATION FUNCTION
-        # INSERT function
-        def Productinsert():
-            ProductId = txtid.get()
-            ProductName = txtProductName.get()
-            ReleaseDate = txtReleaseDate.get()
-
-            ProductCategory = txtProductCategory.get()
-            ProductDuration = txtProductDuration.get()
-            ProductLanguage = txtProductLanguage.get()
-
-            ShortDescription = txtShortDescription.get()
-            ProductFormate = txtProductFormate.get()
-
-            if(ProductId=="" or ProductName=="" or ReleaseDate=="" or ProductCategory=="" or ProductDuration=="" or ProductLanguage=="" or ShortDescription=="" or ProductFormate==""):
-                messagebox.showinfo("Insert Status","All fields are required")
-            else:
-                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-                cursor = con.cursor()
-                cursor.execute("insert into Product_details values('"+ProductId+"','"+ProductName+"','"+ReleaseDate+"','"+ProductCategory+"','"+ProductDuration+"','"+ProductLanguage+"','"+ShortDescription+"','"+ProductFormate+"')")
-                cursor.execute("commit")
-
-                txtid.delete(0,'end')
-                txtProductName.delete(0,'end')
-                txtReleaseDate.delete(0,'end')
-
-                txtProductCategory.delete(0,'end')
-                txtProductDuration.delete(0,'end')
-                txtProductLanguage.delete(0,'end')
-
-                txtShortDescription.delete(0,'end')
-                txtProductFormate.delete(0,'end')
-                messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
-                con.close()
-
-        #DELETE OPERATION
-        # def ProductDelete():
-        #     if(txtid.get() == ""):
-        #         messagebox.showinfo("Delete Status","ID Is Required For Delete Operation")
-        #     else:
-        #         con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-        #         cursor = con.cursor()
-        #         cursor.execute("delete from Product_details where id='"+txtid.get()+"'")
-        #         cursor.execute("commit")
-
-        #         txtid.delete(0,'end')
-        #         txtProductName.delete(0,'end')
-        #         txtReleaseDate.delete(0,'end')
-
-        #         txtProductCategory.delete(0,'end')
-        #         txtProductDuration.delete(0,'end')
-        #         txtProductLanguage.delete(0,'end')
-
-        #         txtShortDescription.delete(0,'end')
-        #         txtProductFormate.delete(0,'end')
-        #         messagebox.showinfo("DELETE Status","DELETED SUCCESSFULLY")
-        #         con.close()
-
-        #UPDATE OPERATION
-        # def ProductUpdate():
-        #     pass
-        #     ProductId = txtid.get()
-        #     ProductName = txtProductName.get()
+        # # CRUD OPERATION FUNCTION
+        # # INSERT function
+        # def Movieinsert():
+        #     MovieId = txtid.get()
+        #     MovieName = txtMovieName.get()
         #     ReleaseDate = txtReleaseDate.get()
 
-        #     ProductCategory = txtProductCategory.get()
-        #     ProductDuration = txtProductDuration.get()
-        #     ProductLanguage = txtProductLanguage.get()
+        #     MovieCategory = txtMovieCategory.get()
+        #     MovieDuration = txtMovieDuration.get()
+        #     MovieLanguage = txtMovieLanguage.get()
 
         #     ShortDescription = txtShortDescription.get()
-        #     ProductFormate = txtProductFormate.get()
+        #     MovieFormate = txtMovieFormate.get()
 
-        #     if(ProductId=="" or ProductName=="" or ReleaseDate=="" or ProductCategory=="" or ProductDuration=="" or ProductLanguage=="" or ShortDescription=="" or ProductFormate==""):
-        #         messagebox.showinfo("Update Status","All fields are required")
+        #     if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
+        #         messagebox.showinfo("Insert Status","All fields are required")
         #     else:
         #         con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
         #         cursor = con.cursor()
-        #         cursor.execute("update Product_details set Product_name='"+txtProductName.get()+"',release_date='"+txtReleaseDate.get()+"',category='"+txtProductCategory.get()+"',duration='"+txtProductDuration.get()+"',language='"+txtProductLanguage.get()+"',short_description='"+txtShortDescription.get()+"',format='"+txtProductFormate.get()+"' where id='"+txtid.get()+"'")
+        #         cursor.execute("insert into movie_details values('"+MovieId+"','"+MovieName+"','"+ReleaseDate+"','"+MovieCategory+"','"+MovieDuration+"','"+MovieLanguage+"','"+ShortDescription+"','"+MovieFormate+"')")
         #         cursor.execute("commit")
 
         #         txtid.delete(0,'end')
-        #         txtProductName.delete(0,'end')
+        #         txtMovieName.delete(0,'end')
         #         txtReleaseDate.delete(0,'end')
 
-        #         txtProductCategory.delete(0,'end')
-        #         txtProductDuration.delete(0,'end')
-        #         txtProductLanguage.delete(0,'end')
+        #         txtMovieCategory.delete(0,'end')
+        #         txtMovieDuration.delete(0,'end')
+        #         txtMovieLanguage.delete(0,'end')
 
         #         txtShortDescription.delete(0,'end')
-        #         txtProductFormate.delete(0,'end')
-        #         messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
+        #         txtMovieFormate.delete(0,'end')
+        #         messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
         #         con.close()
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
+        # # ALL FIELD's AND FRAME
+        # CRUDtxtFild = Frame(MovieCRUDwindow,background='#800808')
+        # CRUDtxtFild.config(height=350,width=1000)
+        # CRUDtxtFild.place(x=0,y=0)
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+        # CRUDmenu = Frame(CRUDtxtFild,background='white')
+        # CRUDmenu.config(height=30,width=1000)
+        # CRUDmenu.place(x=0,y=10)
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.36)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
+        # MovieAddBtn = Button(CRUDmenu,text="ADD MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=Movieinsert)
+        # MovieAddBtn.place(x=540,y=0)
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
+        # MoviewDetails = Label(CRUDmenu,text="  MOVIE DETAIL's  ",font=('century gothic bold',20),background='#880808',foreground='white')
+        # MoviewDetails.place(x=50,y=0)
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
+        # lblid = Label(CRUDtxtFild,text="MOVIE ID :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblid.place(x=50,y=70)
 
-        self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
+        # txtid = Entry(CRUDtxtFild,textvariable=id_int,font=('century gothic',15),width=20,relief='ridge')
+        # txtid.place(x=50,y=100)
 
-        self.EditProductButton = Button(self.AddCoffeeWindow, text="Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
+        # lblMovieName = Label(CRUDtxtFild,text="MOVIE NAME :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieName.place(x=50,y=150)
 
-        self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
+        # txtMovieName = Entry(CRUDtxtFild,textvariable=MovieName,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieName.place(x=50,y=180)
 
-    
+        # lblReleaseDate = Label(CRUDtxtFild,text="RELEASE DATE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblReleaseDate.place(x=50,y=230)
+
+        # txtReleaseDate = Entry(CRUDtxtFild,textvariable=ReleaseDate,font=('century gothic',15),width=20,relief='ridge')
+        # txtReleaseDate.place(x=50,y=260)
+
+        # lblMovieCategory = Label(CRUDtxtFild,text="MOVIE CATEGORY :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieCategory.place(x=390,y=70)
+        
+        # txtMovieCategory = Entry(CRUDtxtFild,textvariable=category,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieCategory.place(x=390,y=100)
+
+        # lblMovieDuration = Label(CRUDtxtFild,text="MOVIE DURATION :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieDuration.place(x=390,y=150)
+        
+        # txtMovieDuration = Entry(CRUDtxtFild,textvariable=Duration,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieDuration.place(x=390,y=180)
+
+        # lblMovieLanguage = Label(CRUDtxtFild,text="MOVIE LANGUAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieLanguage.place(x=390,y=230)
+
+        # txtMovieLanguage = Entry(CRUDtxtFild,textvariable=Language,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieLanguage.place(x=390,y=260)
+
+        # lblShortDescription = Label(CRUDtxtFild,text="SHORT DESCRIPTION :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblShortDescription.place(x=730,y=70)
+        
+        # txtShortDescription = Entry(CRUDtxtFild,textvariable=Short_Description,font=('century gothic',15),width=20,relief='ridge')
+        # txtShortDescription.place(x=730,y=100)
+
+        # lblMovieimage = Label(CRUDtxtFild,text="MOVIE IMAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieimage.place(x=730,y=150)
+        
+        # txtMovieimage = Entry(CRUDtxtFild,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieimage.place(x=730,y=180)
+
+        # lblMovieFormat = Label(CRUDtxtFild,text="MOVIE FORMATE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        # lblMovieFormat.place(x=730,y=230)
+
+        # txtMovieFormate = Entry(CRUDtxtFild,textvariable=Formatee,font=('century gothic',15),width=20,relief='ridge')
+        # txtMovieFormate.place(x=730,y=260)
+
+        # #DATAGRID VIEW AND DATA DESIGN       MovieCRUDwindow
+        # CRUDtxtDatagridView = Frame(MovieCRUDwindow,background='black')
+        # CRUDtxtDatagridView.config(height=350,width=1000)
+        # CRUDtxtDatagridView.place(x=0,y=350)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def MovieCRUD_calling():
+    MovieCRUDwindow = Tk()
+    MovieCRUD(MovieCRUDwindow)
+    MovieCRUDwindow.mainloop()
 
 def win():
     window = Tk()
