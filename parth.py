@@ -346,7 +346,6 @@ class MovieCRUD:
 
         lblid = Label(CRUDtxtFild,text="MOVIE ID :",font=('century gothic bold',15),background='#880808',foreground='white')
         lblid.place(x=50,y=70)
-
         txtid = Entry(CRUDtxtFild,textvariable=id_int,font=('century gothic',15),width=20,relief='ridge')
         txtid.place(x=50,y=100)
 
