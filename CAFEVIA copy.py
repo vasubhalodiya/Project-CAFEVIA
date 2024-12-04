@@ -1,9 +1,8 @@
 from tkinter import *
 from PIL import ImageTk, Image
-# from tkinter import ttk, messagebox
-# import MySQLdb
+from tkinter import ttk, messagebox
+from tkinter import filedialog
 import MySQLdb
-from tkinter import messagebox
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -367,7 +366,7 @@ class AdminDashboard():
             AddCoffeeButtonImage_label = Label(CoffeeCategory, image=AddCoffeeButtonImage, background=sidecart_color)
             AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
 
-            AddCoffeeButton = Button(CoffeeCategory, text="Add New Dish to \nCoffee", background=sidecart_color, cursor="hand2", relief="solid", activebackground=active_color, bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20, command=ProductMenu)
+            AddCoffeeButton = Button(CoffeeCategory, text="Add New Dish to \nCoffee", background=sidecart_color, cursor="hand2", relief="solid", activebackground=active_color, bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20, command=fetch_products)
             AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.25)
 
     # ===================================================================================================
@@ -472,120 +471,109 @@ class AdminDashboard():
                     messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
                     con.close()
 
-            def ProductDelete():
-                if(txtProductId.get() == ""):
-                    messagebox.showinfo("Delete Status", "ID is required for delete operation")
-                else:
-                    try:
-                        # Connect to the database
-                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                        cursor = con.cursor()
+        def fetch_products():
+            con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+            cursor = con.cursor()
+            cursor.execute("SELECT * FROM product")
+            products = cursor.fetchall()
+            con.close()
 
-                        # query = "DELETE FROM product WHERE proid = %s"
-                        cursor.execute("delete from product where proid='"+txtProductId.get()+"'")
-                        con.commit()
+            # Clear the existing cards (if any)
+            for widget in canvas_frame.winfo_children():
+                widget.destroy()
 
-                        txtProductId.delete(0, 'end')
-                        txtProductName.delete(0, 'end')
-                        txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
-                        txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
+            # Display each product in a new card
+            row_frame = None
+            card_count = 0
+            for product in products:
+                if card_count % 3 == 0:  # Create a new row for every 3 cards
+                    row_frame = Frame(canvas_frame)
+                    row_frame.pack(pady=10)
 
-                        messagebox.showinfo("DELETE Status", "Deleted Successfully")
-                    except Exception as e:
-                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
-                    con.close()
+                ProductCard = Frame(row_frame, background=sidecart_color, bd=1, relief="solid", width=300, height=200)
+                ProductCard.grid(row=0, column=card_count % 3, padx=10)
 
-            def ProductUpdate():
-                ProductId = txtProductId.get()
-                ProductName = txtProductName.get()
-                ProductCategory = txtProductCategory.get()
-                ProductAvaliable = txtProductAvaliable.get()
-                ProductPrice = txtProductPrice.get()
-                ProductImage = txtProductImage.get()
+                # Image
+                
 
-                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
-                    messagebox.showinfo("Update Status", "All fields are required")
-                else:
-                    try:
-                        # Connect to the database
-                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                        cursor = con.cursor()
+                # Category
+                ProductCategoryLabel = Label(ProductCard, text=product[2], bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
+                ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
 
-                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proavailable='"+txtProductAvaliable.get()+"',proprice='"+txtProductPrice.get()+"',proimage='"+txtProductImage.get()+"' where proid='"+txtProductId.get()+"'")
-                        con.commit()
+                # Product Name
+                ProductNameLabel = Label(ProductCard, text=product[1], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
+                ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
 
-                        # Clear input fields
-                        txtProductId.delete(0, 'end')
-                        txtProductName.delete(0, 'end')
-                        txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
-                        txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
-                        messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
+                # Price
+                ProductPriceLabel = Label(ProductCard, text=f"₹ {product[3]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
+                ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-                    except Exception as e:
-                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
-                    con.close()
+                # Add to Cart Button
+                ProductAddToCardButton = Button(ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+                ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
-                def browse_image():
-                    file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg;*.png;*.jpeg")])
-                    if file_path:
-                        label_image_path.config(text=file_path)
-                        display_image(file_path)
+                card_count += 1
 
-                def display_image(image_path):
-                    img = Image.open(image_path)
-                    img = img.resize((100, 100))
-                    img = ImageTk.PhotoImage(img)
-                    panel.config(image=img)
-                    panel.image = img
+            # After adding cards, update the scrollregion to fit all the cards
+            canvas.config(scrollregion=canvas.bbox("all"))
 
-            AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
-            AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
+        root = Tk()
+        root.title("Product Management - CAFEVIA")
+        width = 1200
+        height = 750
+        x = (root.winfo_screenwidth() // 2) - (width // 2)
+        y = (root.winfo_screenheight() // 2) - (height // 2)
+        root.geometry(f'{width}x{height}+{x}+{y}')
+        root.resizable(False, False)
+        root.config(background=secondary_color)
 
-            AddHeadLabel = Label(AddCoffeeWindow, text="Add Coffee", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
-            AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
 
-            lblProductId = Label(AddCoffeeWindow, text="Product Id", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductId.place(relx=0.07, rely=0.1)
-            txtProductId = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductId.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
+        AddNavbar = Frame(root, background=primary_color)
+        AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
 
-            lblProductCategory = Label(AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductCategory.place(relx=0.07, rely=0.23)
-            txtProductCategory = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+        # Title Label
+        AddHeadLabel = Label(root, text="Add Product", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
+        AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
 
-            lblProductAvaliable = Label(AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductAvaliable.place(relx=0.07, rely=0.36)
-            txtProductAvaliable = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductAvaliable.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
+        # Form fields (Product ID, Category, etc.)
+        txtProductId = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductId.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
 
-            lblProductName = Label(AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductName.place(relx=0.4, rely=0.1)
-            txtProductName = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductName.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
+        txtProductCategory = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
 
-            lblProductPrice = Label(AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductPrice.place(relx=0.4, rely=0.23)
-            txtProductPrice = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductPrice.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
+        txtProductAvaliable = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductAvaliable.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
 
-            lblProductImage = BUtton(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16), command=browse_image)
-            lblProductImage.place(relx=0.4, rely=0.36)
-            txtProductImage = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
+        txtProductName = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductName.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
 
-            AddProductButton = Button(AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
-            AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
+        txtProductPrice = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductPrice.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
 
-            EditProductButton = Button(AddCoffeeWindow, text= "Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductUpdate)
-            EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
+        txtProductImage = Entry(root, font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
 
-            DeleteProductButton = Button(AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductDelete)
-            DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
+        # Add Product Button
+        AddProductButton = Button(root, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+        AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
+
+        # Create a canvas for scrolling
+        canvas = Canvas(root)
+        canvas.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
+
+        # Create a vertical scrollbar linked to the canvas
+        scrollbar = Scrollbar(root, orient="vertical", command=canvas.yview)
+        scrollbar.place(relx=0.97, rely=0.5, relwidth=0.03, relheight=0.5)
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Create a frame inside the canvas to hold the product cards
+        canvas_frame = Frame(canvas)
+        canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
+
+        # Fetch and display products on startup
+        fetch_products()
 
 
         # ==========================================

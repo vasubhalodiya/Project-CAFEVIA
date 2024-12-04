@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import filedialog
 from PIL import Image, ImageTk
 import MySQLdb
 
@@ -10,8 +9,6 @@ sidecart_color = "#FFFFFF"
 active_color = "#9C27B0"
 price_color = "#FFEB3B"
 
-def connect_db():
-    return MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
 
 # Function to insert product into the database
 def Productinsert():
@@ -24,10 +21,9 @@ def Productinsert():
     if(ProductName == "" or ProductCategory == "" or ProductAvaliable == "" or ProductPrice == "" or ProductImage == ""):
         messagebox.showinfo("Insert Status", "All fields are required")
     else:
-        con = connect_db()
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
         cursor = con.cursor()
-        cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", 
-                       (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
+        cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
         con.commit()
         con.close()
         messagebox.showinfo("INSERT Status", "INSERTED SUCCESSFULLY")
@@ -35,14 +31,14 @@ def Productinsert():
 
 # Function to fetch products from the database and display them in product cards
 def fetch_products():
-    con = connect_db()
+    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
     cursor = con.cursor()
     cursor.execute("SELECT * FROM product")
     products = cursor.fetchall()
     con.close()
 
     # Clear the existing cards (if any)
-    for widget in frame_products.winfo_children():
+    for widget in canvas_frame.winfo_children():
         widget.destroy()
 
     # Display each product in a new card
@@ -50,14 +46,14 @@ def fetch_products():
     card_count = 0
     for product in products:
         if card_count % 3 == 0:  # Create a new row for every 3 cards
-            row_frame = tk.Frame(frame_products)
+            row_frame = tk.Frame(canvas_frame)
             row_frame.pack(pady=10)
 
-        ProductCard = tk.Frame(row_frame, background=sidecart_color, bd=1, relief="solid", width=300, height=400)
+        ProductCard = tk.Frame(row_frame, background=sidecart_color, bd=1, relief="solid", width=300, height=200)
         ProductCard.grid(row=0, column=card_count % 3, padx=10)
 
         # Image
-       
+        
 
         # Category
         ProductCategoryLabel = tk.Label(ProductCard, text=product[2], bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
@@ -76,6 +72,9 @@ def fetch_products():
         ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
         card_count += 1
+
+    # After adding cards, update the scrollregion to fit all the cards
+    canvas.config(scrollregion=canvas.bbox("all"))
 
 # Tkinter GUI Setup
 root = tk.Tk()
@@ -119,9 +118,19 @@ txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
 AddProductButton = tk.Button(root, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
 AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
 
-# Frame for displaying product cards
-frame_products = tk.Frame(root, background=secondary_color)
-frame_products.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
+# Create a canvas for scrolling
+canvas = tk.Canvas(root)
+canvas.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
+
+# Create a vertical scrollbar linked to the canvas
+scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+scrollbar.place(relx=0.97, rely=0.5, relwidth=0.03, relheight=0.5)
+
+canvas.configure(yscrollcommand=scrollbar.set)
+
+# Create a frame inside the canvas to hold the product cards
+canvas_frame = tk.Frame(canvas)
+canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
 # Fetch and display products on startup
 fetch_products()

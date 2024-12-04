@@ -74,12 +74,12 @@ def fetch_products():
         card_count = 0
 
         for product in products:
-            if card_count % 3 == 0:  # Create a new row after every 3 cards
+            if card_count % 4 == 0:  # Create a new row after every 3 cards
                 row_frame = tk.Frame(frame_products)
                 row_frame.pack(pady=10)
 
             product_card = tk.Frame(row_frame, bd=1, relief="solid", width=300, height=400, bg="red", padx=10, pady=10)
-            product_card.grid(row=0, column=card_count % 3, padx=10)
+            product_card.grid(row=0, column=card_count % 4, padx=10)
 
             img_path = product[3]
             img = Image.open(img_path)
