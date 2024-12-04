@@ -1,7 +1,9 @@
 from tkinter import *
 from PIL import ImageTk, Image
-from tkinter import ttk, messagebox
+# from tkinter import ttk, messagebox
+# import MySQLdb
 import MySQLdb
+from tkinter import messagebox
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -86,8 +88,8 @@ class Login():
 
         self.loginUserlabel = Label(self.loginform, text="Username", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         self.loginUserlabel.place(relx=0.2, rely=0.3)
-        self.loginUserentry = Entry(self.loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
+        self.txtProductName = Entry(self.loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
+        self.txtProductName.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
 
         self.loginPasswordlabel = Label(self.loginform, text="Password", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         self.loginPasswordlabel.place(relx=0.2, rely=0.46)
@@ -449,13 +451,108 @@ class AdminDashboard():
             self.AddCoffeeWindow.resizable(False, False)
             self.AddCoffeeWindow.config(background=secondary_color)
 
+            # def Productinsert():
+            #     # ProductId = txtid.get()
+            #     ProductName = self.txtProductName.get()
+            #     ProductCategory = self.txtProductCategory.get()
+            #     ProductAvaliable = self.txtProductAvaliable.get()
+            #     ProductPrice = self.txtProductPrice.get()
+            #     ProductImage = self.txtProductImage.get()
+
+            #     if(ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
+            #         messagebox.showinfo("Insert Status","All fields are required")
+            #     else:
+            #         con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+            #         cursor = con.cursor()
+            #         cursor.execute("insert into product values('"+ProductName+"','"+ProductCategory+"','"+ProductAvaliable+"','"+ProductPrice+"','"+ProductImage+"')")
+            #         cursor.execute("commit")
+            #         messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
+            #         con.close()
+
+            #         # txtid.delete(0,'end')
+            #         self.txtProductName.delete(0,'end')
+            #         self.txtProductCategory.delete(0,'end')
+            #         self.txtProductAvaliable.delete(0,'end')
+            #         self.txtProductPrice.delete(0,'end')
+            #         self.txtProductImage.delete(0,'end')
+            #         messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
+            #         con.close()
+
+            def Productinsert(self):
+                ProductName = txtProductName.get()
+                ProductCategory = txtProductCategory.get()
+                ProductAvaliable = txtProductAvaliable.get()
+                ProductPrice = txtProductPrice.get()
+                ProductImage = txtProductImage.get()
+
+                if (ProductName == "" or ProductCategory == "" or ProductAvaliable == "" or ProductPrice == "" or ProductImage == ""):
+                    messagebox.showinfo("Insert Status", "All fields are required")
+                else:
+                    try:
+                        # Establish database connection
+                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                        cursor = con.cursor()
+                        
+                        # Parameterized query to prevent SQL injection
+                        query = "INSERT INTO product (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage) VALUES (%s, %s, %s, %s, %s)"
+                        values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage)
+                        cursor.execute(query, values)
+                        
+                        # Commit changes and close the connection
+                        con.commit()
+                        messagebox.showinfo("INSERT Status", "INSERTED SUCCESSFULLY")
+                        
+                        # Clear input fields
+                        txtProductName.delete(0, 'end')
+                        txtProductCategory.delete(0, 'end')
+                        txtProductAvaliable.delete(0, 'end')
+                        txtProductPrice.delete(0, 'end')
+                        txtProductImage.delete(0, 'end')
+                    except MySQLdb.Error as e:
+                        messagebox.showerror("Database Error", f"Error: {e}")
+                    finally:
+                        if con:
+                            con.close()
+
             self.AddNavbar = Frame(self.AddCoffeeWindow, background=primary_color)
             self.AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
 
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Add Coffee", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             self.AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
 
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.1)
+            txtProductName = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductName.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
 
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.23)
+            txtProductCategory = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.36)
+            txtProductAvaliable = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductAvaliable.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.4, rely=0.1)
+            txtProductPrice = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductPrice.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.4, rely=0.23)
+            txtProductImage = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductImage.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
+
+            self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
+            self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
+
+            self.EditProductButton = Button(self.AddCoffeeWindow, text= "Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
+
+            self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
         # ==========================================
 
@@ -599,39 +696,7 @@ class ProductCRUD:
         #         messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
         #         con.close()
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.36)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
-
-        self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
-
-        self.EditProductButton = Button(self.AddCoffeeWindow, text="Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
-
-        self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
+        
 
     
 
