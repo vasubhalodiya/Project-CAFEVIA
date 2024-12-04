@@ -462,9 +462,8 @@ class AdminDashboard():
                 else:
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
-                    query = "INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES ("'+ProductName+'","'+ProductCategory+"',"'+ProductAvaliable+"',"'+ProductPrice+"',"'+ProductImage+"')"
-                    # query = "INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)"
-                    # values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage)
+                    query = "INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)"
+                    values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage)
                     cursor.execute(query, values)
                     con.commit()
 
