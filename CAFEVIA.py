@@ -1,7 +1,7 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import ttk, messagebox
-import MySQLdb
+# import MySQLdb
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -455,7 +455,39 @@ class AdminDashboard():
             self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Add Coffee", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             self.AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
 
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.1)
+            self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
+            self.loginUserentry.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
 
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.23)
+            self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
+            self.loginUserentry.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.07, rely=0.36)
+            self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
+            self.loginUserentry.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.4, rely=0.1)
+            self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
+            self.loginUserentry.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
+
+            self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            self.AddHeadLabel.place(relx=0.4, rely=0.23)
+            self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
+            self.loginUserentry.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
+
+            self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
+
+            self.EditProductButton = Button(self.AddCoffeeWindow, text="Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
+
+            self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
         # ==========================================
 
@@ -599,39 +631,7 @@ class ProductCRUD:
         #         messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
         #         con.close()
 
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proname_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="procategory_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.07, rely=0.36)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proavaliablity_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.1)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proprice_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
-
-        self.AddHeadLabel = Label(self.AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-        self.AddHeadLabel.place(relx=0.4, rely=0.23)
-        self.loginUserentry = Entry(self.AddCoffeeWindow, textvariable="proimg_var", font=("century gothic", 13), relief='ridge', bd=2)
-        self.loginUserentry.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
-
-        self.AddProductButton = Button(self.AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
-
-        self.EditProductButton = Button(self.AddCoffeeWindow, text="Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
-
-        self.DeleteProductButton = Button(self.AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
-        self.DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
+        
 
     
 

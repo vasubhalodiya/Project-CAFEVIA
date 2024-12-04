@@ -1,16 +1,16 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import ttk, messagebox
-import MySQLdb
+# import MySQLdb
 
 # LOGIN FORM CREATE
 class Login:
-    def _init_(self, loginwindow):
+    def __init__(self, loginwindow):
         self.loginwindow = loginwindow
         self.loginwindow.title("BOOK MY SHOW - LOGIN")
         self.loginwindow.geometry("1000x600")
-        p1 = PhotoImage(file = 'images/logo1.png')
-        self.loginwindow.iconphoto(False,p1)
+        # p1 = PhotoImage(file = 'images/logo1.png')
+        # self.loginwindow.iconphoto(False,p1)
         self.loginwindow.state('normal')
         self.main_window()
         
@@ -21,14 +21,14 @@ class Login:
         passw_var=StringVar()
 
         # Replace with your actual image path
-        bg_image = Image.open("images/login_background.jpg")
-        bg_image = bg_image.resize((1000, 600))
-        self.bg_photo = ImageTk.PhotoImage(bg_image)
+        # bg_image = Image.open("images/login_background.jpg")
+        # bg_image = bg_image.resize((1000, 600))
+        # self.bg_photo = ImageTk.PhotoImage(bg_image)
         # Create Canvas
         canvas = Canvas(self.loginwindow, width=1000, height=600)
         canvas.pack(fill="both", expand=True)
         # Add the image to the Canvas
-        canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
+        # canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
         loginframe = Frame(loginwindow,background='#880808',height=450,width=800)
         loginframe.place(x=100,y=80)
@@ -57,11 +57,11 @@ class Login:
         user_pwd_txt = Entry(loginframe_leftside,textvariable=passw_var,font=('century gothic',15), width=21,relief='ridge',show='*')
         user_pwd_txt.place(x=65,y=210)
 
-        img = Image.open("images/loginscreen1.png")
-        img = ImageTk.PhotoImage(img)
-        panel = Label(loginframe_sub, image=img,height=360,width=400,bg='white')
-        panel.image = img
-        panel.place(x=0,y=150)
+        # img = Image.open("images/loginscreen1.png")
+        # img = ImageTk.PhotoImage(img)
+        # panel = Label(loginframe_sub, image=img,height=360,width=400,bg='white')
+        # panel.image = img
+        # panel.place(x=0,y=150)
 
         self.heading_lbl = Label(loginframe_sub,text='BOOK MY SHOW',font=('Bodoni Bd BT',30),fg='black',bg='white',width=0,height=1)
         self.heading_lbl.place(x=35,y=50)
@@ -73,7 +73,7 @@ class Login:
         warning_lbl.place(x=15,y=370)
 
 class AdminDashboard():
-    def _init_(self,window):
+    def __init__(self,window):
         self.window = window
         self.window.title("BOOK MY SHOW")
         self.window.state('zoomed')
@@ -214,7 +214,7 @@ class AdminDashboard():
             self.window.destroy()
             
 class MovieCRUD:
-    def _init_(self,MovieCRUDwindow):
+    def __init__(self,MovieCRUDwindow):
         self.MovieCRUDwindow = MovieCRUDwindow
         self.MovieCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE MOVIE")
         self.MovieCRUDwindow.geometry("1000x600")
@@ -358,7 +358,7 @@ def win():
     window.mainloop()
  
 # LOGIN Main window creation
-if _name_ == "_main_":
+if __name__ == "__main__":
     loginwindow = Tk()
     app = Login(loginwindow)  # Initialize the Login class
     loginwindow.mainloop()
