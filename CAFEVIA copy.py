@@ -529,7 +529,18 @@ class AdminDashboard():
                         messagebox.showerror("Error", f"An error occurred: {str(e)}")
                     con.close()
 
+                def browse_image():
+                    file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg;*.png;*.jpeg")])
+                    if file_path:
+                        label_image_path.config(text=file_path)
+                        display_image(file_path)
 
+                def display_image(image_path):
+                    img = Image.open(image_path)
+                    img = img.resize((100, 100))
+                    img = ImageTk.PhotoImage(img)
+                    panel.config(image=img)
+                    panel.image = img
 
             AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
             AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
@@ -562,7 +573,7 @@ class AdminDashboard():
             txtProductPrice = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
             txtProductPrice.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
 
-            lblProductImage = Label(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
+            lblProductImage = BUtton(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16), command=browse_image)
             lblProductImage.place(relx=0.4, rely=0.36)
             txtProductImage = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
             txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
