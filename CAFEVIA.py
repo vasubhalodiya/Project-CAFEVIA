@@ -461,9 +461,7 @@ class AdminDashboard():
                 else:
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
-                    query = "INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)"
-                    values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage)
-                    cursor.execute(query, values)
+                    cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
                     con.commit()
 
                     txtProductName.delete(0,'end')
@@ -473,6 +471,64 @@ class AdminDashboard():
                     txtProductImage.delete(0,'end')
                     messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
                     con.close()
+
+            def ProductDelete():
+                if(txtProductId.get() == ""):
+                    messagebox.showinfo("Delete Status", "ID is required for delete operation")
+                else:
+                    try:
+                        # Connect to the database
+                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                        cursor = con.cursor()
+
+                        # query = "DELETE FROM product WHERE proid = %s"
+                        cursor.execute("delete from product where proid='"+txtProductId.get()+"'")
+                        con.commit()
+
+                        txtProductId.delete(0, 'end')
+                        txtProductName.delete(0, 'end')
+                        txtProductCategory.delete(0, 'end')
+                        txtProductAvaliable.delete(0, 'end')
+                        txtProductPrice.delete(0, 'end')
+                        txtProductImage.delete(0, 'end')
+
+                        messagebox.showinfo("DELETE Status", "Deleted Successfully")
+                    except Exception as e:
+                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                    con.close()
+
+            def ProductUpdate():
+                ProductId = txtProductId.get()
+                ProductName = txtProductName.get()
+                ProductCategory = txtProductCategory.get()
+                ProductAvaliable = txtProductAvaliable.get()
+                ProductPrice = txtProductPrice.get()
+                ProductImage = txtProductImage.get()
+
+                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
+                    messagebox.showinfo("Update Status", "All fields are required")
+                else:
+                    try:
+                        # Connect to the database
+                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                        cursor = con.cursor()
+
+                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proavailable='"+txtProductAvaliable.get()+"',proprice='"+txtProductPrice.get()+"',proimage='"+txtProductImage.get()+"' where proid='"+txtProductId.get()+"'")
+                        con.commit()
+
+                        # Clear input fields
+                        txtProductId.delete(0, 'end')
+                        txtProductName.delete(0, 'end')
+                        txtProductCategory.delete(0, 'end')
+                        txtProductAvaliable.delete(0, 'end')
+                        txtProductPrice.delete(0, 'end')
+                        txtProductImage.delete(0, 'end')
+                        messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
+
+                    except Exception as e:
+                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                    con.close()
+
 
 
             AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
@@ -514,10 +570,10 @@ class AdminDashboard():
             AddProductButton = Button(AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
             AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
 
-            EditProductButton = Button(AddCoffeeWindow, text= "Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            EditProductButton = Button(AddCoffeeWindow, text= "Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductUpdate)
             EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
 
-            DeleteProductButton = Button(AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12))
+            DeleteProductButton = Button(AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductDelete)
             DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
 
@@ -553,119 +609,7 @@ class AdminDashboard():
         # ==========================================
 
 
-class ProductCRUD:
-    def _init_(self,ProductCRUDwindow):
-        self.ProductCRUDwindow = ProductCRUDwindow
-        self.ProductCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE Product")
-        self.ProductCRUDwindow.geometry("1000x600")
-        self.ProductCRUDwindow.state('normal')
 
-        #Variable Declaration
-        id_int = int()
-        ProductName = StringVar()
-        ReleaseDate = StringVar()
-        category = StringVar()
-        Duration = StringVar()
-        Language = StringVar()
-        Short_Description = StringVar()
-        Formatee = StringVar()
-
-        # CRUD OPERATION FUNCTION
-        # INSERT function
-        def Productinsert():
-            ProductId = txtid.get()
-            ProductName = txtProductName.get()
-            ReleaseDate = txtReleaseDate.get()
-
-            ProductCategory = txtProductCategory.get()
-            ProductDuration = txtProductDuration.get()
-            ProductLanguage = txtProductLanguage.get()
-
-            ShortDescription = txtShortDescription.get()
-            ProductFormate = txtProductFormate.get()
-
-            if(ProductId=="" or ProductName=="" or ReleaseDate=="" or ProductCategory=="" or ProductDuration=="" or ProductLanguage=="" or ShortDescription=="" or ProductFormate==""):
-                messagebox.showinfo("Insert Status","All fields are required")
-            else:
-                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-                cursor = con.cursor()
-                cursor.execute("insert into Product_details values('"+ProductId+"','"+ProductName+"','"+ReleaseDate+"','"+ProductCategory+"','"+ProductDuration+"','"+ProductLanguage+"','"+ShortDescription+"','"+ProductFormate+"')")
-                cursor.execute("commit")
-
-                txtid.delete(0,'end')
-                txtProductName.delete(0,'end')
-                txtReleaseDate.delete(0,'end')
-
-                txtProductCategory.delete(0,'end')
-                txtProductDuration.delete(0,'end')
-                txtProductLanguage.delete(0,'end')
-
-                txtShortDescription.delete(0,'end')
-                txtProductFormate.delete(0,'end')
-                messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
-                con.close()
-
-        #DELETE OPERATION
-        # def ProductDelete():
-        #     if(txtid.get() == ""):
-        #         messagebox.showinfo("Delete Status","ID Is Required For Delete Operation")
-        #     else:
-        #         con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-        #         cursor = con.cursor()
-        #         cursor.execute("delete from Product_details where id='"+txtid.get()+"'")
-        #         cursor.execute("commit")
-
-        #         txtid.delete(0,'end')
-        #         txtProductName.delete(0,'end')
-        #         txtReleaseDate.delete(0,'end')
-
-        #         txtProductCategory.delete(0,'end')
-        #         txtProductDuration.delete(0,'end')
-        #         txtProductLanguage.delete(0,'end')
-
-        #         txtShortDescription.delete(0,'end')
-        #         txtProductFormate.delete(0,'end')
-        #         messagebox.showinfo("DELETE Status","DELETED SUCCESSFULLY")
-        #         con.close()
-
-        #UPDATE OPERATION
-        # def ProductUpdate():
-        #     pass
-        #     ProductId = txtid.get()
-        #     ProductName = txtProductName.get()
-        #     ReleaseDate = txtReleaseDate.get()
-
-        #     ProductCategory = txtProductCategory.get()
-        #     ProductDuration = txtProductDuration.get()
-        #     ProductLanguage = txtProductLanguage.get()
-
-        #     ShortDescription = txtShortDescription.get()
-        #     ProductFormate = txtProductFormate.get()
-
-        #     if(ProductId=="" or ProductName=="" or ReleaseDate=="" or ProductCategory=="" or ProductDuration=="" or ProductLanguage=="" or ShortDescription=="" or ProductFormate==""):
-        #         messagebox.showinfo("Update Status","All fields are required")
-        #     else:
-        #         con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-        #         cursor = con.cursor()
-        #         cursor.execute("update Product_details set Product_name='"+txtProductName.get()+"',release_date='"+txtReleaseDate.get()+"',category='"+txtProductCategory.get()+"',duration='"+txtProductDuration.get()+"',language='"+txtProductLanguage.get()+"',short_description='"+txtShortDescription.get()+"',format='"+txtProductFormate.get()+"' where id='"+txtid.get()+"'")
-        #         cursor.execute("commit")
-
-        #         txtid.delete(0,'end')
-        #         txtProductName.delete(0,'end')
-        #         txtReleaseDate.delete(0,'end')
-
-        #         txtProductCategory.delete(0,'end')
-        #         txtProductDuration.delete(0,'end')
-        #         txtProductLanguage.delete(0,'end')
-
-        #         txtShortDescription.delete(0,'end')
-        #         txtProductFormate.delete(0,'end')
-        #         messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
-        #         con.close()
-
-        
-
-    
 
 
 
@@ -713,10 +657,10 @@ def win():
 
 if __name__ == '__main__':
 
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
-    # win()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
 
 
 
