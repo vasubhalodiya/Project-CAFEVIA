@@ -459,7 +459,7 @@ class AdminDashboard():
             AddCoffeeWindow.geometry(f'{width}x{height}+{x}+{y}')
             AddCoffeeWindow.resizable(False, False)
             AddCoffeeWindow.config(background=secondary_color)
-            # AddCoffeeWindow.attributes("-topmost", True)
+            AddCoffeeWindow.attributes("-topmost", True)
 
             def Productinsert():
                 ProductName = txtProductName.get()
