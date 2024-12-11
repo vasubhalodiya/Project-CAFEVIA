@@ -1,1 +1,5 @@
-section
+50C"
+secondary_color = "#E7E0D6"
+sidecart_color = "#DDD2C3"
+active_color = "#EDD6B3"
+price_color = "#B26431"

@@ -1,9 +1,8 @@
 from tkinter import *
 from PIL import ImageTk, Image
-# from tkinter import ttk, messagebox
-# import MySQLdb
+from tkinter import ttk, messagebox
+from tkinter import filedialog
 import MySQLdb
-from tkinter import messagebox
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -361,58 +360,8 @@ class AdminDashboard():
             CoffeeCategoryLabel = Label(CoffeeCategory, text="Coffee Menu", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
 
-    # ================= add coffee button =======================
-            AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
-            AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
-            AddCoffeeButtonImage_label = Label(CoffeeCategory, image=AddCoffeeButtonImage, background=sidecart_color)
-            AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
-
-            AddCoffeeButton = Button(CoffeeCategory, text="Add New Dish to \nCoffee", background=sidecart_color, cursor="hand2", relief="solid", activebackground=active_color, bd=1, image=AddCoffeeButtonImage, compound="top", font=("century gothic bold", 12), pady=20, command=ProductMenu)
-            AddCoffeeButton.place(relx=0.03, rely=0.08, relwidth=0.21, relheight=0.25)
-
-    # ===================================================================================================
-            ProductCard = Frame(CoffeeCategory, background=sidecart_color)
-            ProductCard.place(relx=0.27, rely=0.08, relwidth=0.21, relheight=0.25)
-            # *********************
-            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-            ProductCardImage_label = Label(ProductCard, image=ProductCardImage, background=sidecart_color)
-            ProductCardImage_label.image = ProductCardImage
-            ProductCardImage_label.place(relx=0.3, rely=0.08, width=75, height=75)
-            # *********************
-            ProductCategoryLabel = Label(ProductCard, text="Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
-            ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-            # *********************
-            ProductNameLabel = Label(ProductCard, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w") # wraplength=180
-            ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-            # *********************
-            ProductAddToCardButton = Button(ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-            # *********************
-            ProductPriceLabel = Label(ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-            ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
-
-    # ===================================================================================================
-            ProductCard = Frame(CoffeeCategory, background=sidecart_color)
-            ProductCard.place(relx=0.515, rely=0.08, relwidth=0.21, relheight=0.25)
-            # *********************
-            ProductCardImage = Image.open('images/coffee.png').resize((75, 75))
-            ProductCardImage = ImageTk.PhotoImage(ProductCardImage)
-            ProductCardImage_label = Label(ProductCard, image=ProductCardImage, background=sidecart_color)
-            ProductCardImage_label.image = ProductCardImage
-            ProductCardImage_label.place(relx=0.3, rely=0.1, width=75, height=75)
-            # *********************
-            ProductCategoryLabel = Label(ProductCard, text="Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic", 8))
-            ProductCategoryLabel.place(relx=0, rely=0.56, relwidth=0.32, relheight=0.09)
-            # *********************
-            ProductNameLabel = Label(ProductCard, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w") # wraplength=180
-            ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-            # *********************
-            ProductAddToCardButton = Button(ProductCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-            # *********************
-            ProductPriceLabel = Label(ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-            ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+            AddProductButton = Button(CoffeeCategory, text="Add Product", background=primary_color, foreground=secondary_color, cursor="hand2", relief="solid", activebackground=active_color, bd=0, font=("century gothic bold", 12), command=ProductMenu)
+            AddProductButton.place(relx=0.815, rely=0.02, relwidth=0.15, relheight=0.05)
 
     # ===================================================================================================
             ProductCard = Frame(CoffeeCategory, background=sidecart_color)
@@ -436,6 +385,99 @@ class AdminDashboard():
             ProductPriceLabel = Label(ProductCard, text="₹ 100", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
             ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
+# =================================================================
+
+
+            # Add a scrollbar to the ProductCategorymain_frame
+            ProductCategorymain_frame = Frame(CoffeeCategory)
+            ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
+
+            # Create a Canvas inside the ProductCategorymain_frame
+            Produc_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color)
+            Produc_canvas.pack(side="left", fill="both", expand=True)
+
+            # Create a vertical scrollbar
+            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
+            # scrollbar.pack(side="right", fill="y")
+            scrollbar.place(relx=0.988, rely=0, relwidth=0.013, relheight=1)
+
+            # Configure the canvas to use the scrollbar
+            Produc_canvas.configure(yscrollcommand=scrollbar.set)
+
+            # Create a frame inside the canvas to hold the content
+            canvas_frame = Frame(Produc_canvas, background=secondary_color)
+            Produc_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
+
+            # Bind the canvas to resize the scroll region
+            def update_scrollregion(event):
+                Produc_canvas.configure(scrollregion=Produc_canvas.bbox("all"))
+
+            canvas_frame.bind("<Configure>", update_scrollregion)
+
+            # Add mousewheel scrolling functionality
+            def on_mousewheel(event):
+                Produc_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+            Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
+
+            # Database and card creation
+            con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+            cursor = con.cursor()
+            cursor.execute("SELECT * FROM product")
+            products = cursor.fetchall()
+            con.close()
+
+            row_frame = None
+            card_count = 0
+            for product_details in products:
+                if card_count % 4 == 0:
+                    row_frame = Frame(canvas_frame, background=secondary_color)
+                    row_frame.pack(padx=20, pady=10)
+
+                ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
+                ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
+
+                # movie_name = Label(ProductDtlCard, text=product_details[1], background="white", foreground="black", font=('century gothic bold', 8))
+                # movie_name.place(x=10, y=40)
+
+                # Image
+                    
+
+                # Category
+                ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
+                ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
+
+                # Product Name
+                ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
+                ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+
+                # Price
+                ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
+                ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+
+                # Add to Cart Button
+                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+                ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+
+
+                card_count += 1
+
+
+
+        # Create a canvas for scrolling
+        # canvas = Canvas(root)
+        # canvas.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
+
+        # Create a vertical scrollbar linked to the canvas
+        # scrollbar = Scrollbar(root, orient="vertical", command=canvas.yview)
+        # scrollbar.place(relx=0.97, rely=0.5, relwidth=0.03, relheight=0.5)
+
+        # canvas.configure(yscrollcommand=scrollbar.set)
+
+
+
+
+
 # =========================================================================================================
 
         def ProductMenu():
@@ -448,7 +490,6 @@ class AdminDashboard():
             AddCoffeeWindow.geometry(f'{width}x{height}+{x}+{y}')
             AddCoffeeWindow.resizable(False, False)
             AddCoffeeWindow.config(background=secondary_color)
-            AddCoffeeWindow.attributes("-topmost", True)
 
             def Productinsert():
                 ProductName = txtProductName.get()
@@ -473,109 +514,6 @@ class AdminDashboard():
                     messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
                     con.close()
 
-            def ProductDelete():
-                if(txtProductId.get() == ""):
-                    messagebox.showinfo("Delete Status", "ID is required for delete operation")
-                else:
-                    try:
-                        # Connect to the database
-                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                        cursor = con.cursor()
-
-                        # query = "DELETE FROM product WHERE proid = %s"
-                        cursor.execute("delete from product where proid='"+txtProductId.get()+"'")
-                        con.commit()
-
-                        txtProductId.delete(0, 'end')
-                        txtProductName.delete(0, 'end')
-                        txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
-                        txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
-
-                        messagebox.showinfo("DELETE Status", "Deleted Successfully")
-                    except Exception as e:
-                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
-                    con.close()
-
-            def ProductUpdate():
-                ProductId = txtProductId.get()
-                ProductName = txtProductName.get()
-                ProductCategory = txtProductCategory.get()
-                ProductAvaliable = txtProductAvaliable.get()
-                ProductPrice = txtProductPrice.get()
-                ProductImage = txtProductImage.get()
-
-                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
-                    messagebox.showinfo("Update Status", "All fields are required")
-                else:
-                    try:
-                        # Connect to the database
-                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                        cursor = con.cursor()
-
-                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proavailable='"+txtProductAvaliable.get()+"',proprice='"+txtProductPrice.get()+"',proimage='"+txtProductImage.get()+"' where proid='"+txtProductId.get()+"'")
-                        con.commit()
-
-                        # Clear input fields
-                        txtProductId.delete(0, 'end')
-                        txtProductName.delete(0, 'end')
-                        txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
-                        txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
-                        messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
-
-                    except Exception as e:
-                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
-                    con.close()
-
-
-
-            AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
-            AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
-
-            AddHeadLabel = Label(AddCoffeeWindow, text="Add Coffee", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
-            AddHeadLabel.place(relx=0, rely=0.02, relwidth=1, relheight=0.05)
-
-            lblProductId = Label(AddCoffeeWindow, text="Product Id", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductId.place(relx=0.07, rely=0.1)
-            txtProductId = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductId.place(relx=0.07, rely=0.15, relwidth=0.25, relheight=0.05)
-
-            lblProductCategory = Label(AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductCategory.place(relx=0.07, rely=0.23)
-            txtProductCategory = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
-
-            lblProductAvaliable = Label(AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductAvaliable.place(relx=0.07, rely=0.36)
-            txtProductAvaliable = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductAvaliable.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
-
-            lblProductName = Label(AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductName.place(relx=0.4, rely=0.1)
-            txtProductName = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductName.place(relx=0.4, rely=0.15, relwidth=0.25, relheight=0.05)
-
-            lblProductPrice = Label(AddCoffeeWindow, text="Product Price", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductPrice.place(relx=0.4, rely=0.23)
-            txtProductPrice = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductPrice.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
-
-            lblProductImage = Label(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductImage.place(relx=0.4, rely=0.36)
-            txtProductImage = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
-
-            AddProductButton = Button(AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
-            AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
-
-            EditProductButton = Button(AddCoffeeWindow, text= "Edit Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductUpdate)
-            EditProductButton.place(relx=0.73, rely=0.24, relwidth=0.2, relheight=0.08)
-
-            DeleteProductButton = Button(AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductDelete)
-            DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
 
         # ==========================================
