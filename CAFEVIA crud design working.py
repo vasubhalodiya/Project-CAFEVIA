@@ -372,7 +372,7 @@ class AdminDashboard():
 
 # =========================================================================================================
 
-             # Add a scrollbar to the ProductCategorymain_frame
+            # Add a scrollbar to the ProductCategorymain_frame
             ProductCategorymain_frame = Frame(CoffeeCategory)
             ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
 
@@ -442,7 +442,6 @@ class AdminDashboard():
                 # Add to Cart Button
                 ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
                 ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-
 
                 card_count += 1
 
