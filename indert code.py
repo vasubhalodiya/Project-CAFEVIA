@@ -8,7 +8,6 @@ root.state('zoomed')
 # INSERT function
 def Movieinsert():
     txtttt = txt.get()
-    
 
     if(txtttt==""):
         messagebox.showinfo("Insert Status","All fields are required")
