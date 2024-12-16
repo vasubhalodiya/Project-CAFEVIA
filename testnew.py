@@ -1,139 +1,77 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
-import MySQLdb
+import sqlite3
+import io
 
-# Connect to MySQL database
-conn = MySQLdb.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="try"
-)
+# Connect to the cafevia database
+conn = sqlite3.connect("cafevia.db")
 cursor = conn.cursor()
 
+# Ensure the product table exists (modify as needed)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS product (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    proimage BLOB
+)
+""")
+conn.commit()
+
+# Function to insert an image into the product table
 def insert_image():
-    filepath = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.png *.jpeg *.bmp")])
-    if not filepath:
-        return
+    file_path = filedialog.askopenfilename(
+        filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+    )
+    if file_path:
+        try:
+            with open(file_path, "rb") as file:
+                img_blob = file.read()
+            # Insert image as binary data into the product table
+            cursor.execute("INSERT INTO product (name, proimage) VALUES (?, ?)", 
+                           (file_path, img_blob))
+            conn.commit()
+            messagebox.showinfo("Success", "Image inserted into the product table!")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to insert image: {e}")
 
-    name = name_entry.get()
-    if not name:
-        messagebox.showerror("Error", "Please enter a name for the image.")
-        return
-
-    with open(filepath, "rb") as file:
-        binary_data = file.read()
-
-    query = "INSERT INTO try_data_table (name, image) VALUES (%s, %s)"
-    cursor.execute(query, (name, binary_data))
-    conn.commit()
-    messagebox.showinfo("Success", "Image inserted successfully.")
-    fetch_images()
-
-def update_image():
-    selected_id = get_selected_id()
-    if not selected_id:
-        return
-
-    filepath = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.png *.jpeg *.bmp")])
-    if not filepath:
-        return
-
-    with open(filepath, "rb") as file:
-        binary_data = file.read()
-
-    query = "UPDATE try_data_table SET image = %s WHERE id = %s"
-    cursor.execute(query, (binary_data, selected_id))
-    conn.commit()
-    messagebox.showinfo("Success", "Image updated successfully.")
-    fetch_images()
-
-def delete_image():
-    selected_id = get_selected_id()
-    if not selected_id:
-        return
-
-    query = "DELETE FROM try_data_table WHERE id = %s"
-    cursor.execute(query, (selected_id,))
-    conn.commit()
-    messagebox.showinfo("Success", "Image deleted successfully.")
-    fetch_images()
-
-def fetch_images():
-    query = "SELECT id, name FROM try_data_table"
-    cursor.execute(query)
-    rows = cursor.fetchall()
-
-    listbox.delete(0, tk.END)
-    for row in rows:
-        listbox.insert(tk.END, f"{row[0]} - {row[1]}")
-
-def get_selected_id():
-    selection = listbox.curselection()
-    if not selection:
-        messagebox.showerror("Error", "Please select an image from the list.")
-        return None
-
-    selected_item = listbox.get(selection[0])
-    return int(selected_item.split(" - ")[0])
-
-def show_image():
-    selected_id = get_selected_id()
-    if not selected_id:
-        return
-
-    query = "SELECT image FROM try_data_table WHERE id = %s"
-    cursor.execute(query, (selected_id,))
+# Function to fetch and display the last inserted image
+def fetch_image():
+    cursor.execute("SELECT proimage FROM product ORDER BY id DESC LIMIT 1")
     row = cursor.fetchone()
-    if not row:
-        messagebox.showerror("Error", "Image not found.")
-        return
+    if row:
+        try:
+            img_blob = row[0]
+            # Convert binary data to image
+            img = Image.open(io.BytesIO(img_blob))
+            img.thumbnail((400, 400))  # Resize for display
+            img_tk = ImageTk.PhotoImage(img)
+            # Display the image
+            image_label.config(image=img_tk)
+            image_label.image = img_tk
+            image_label.text = ""
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to display image: {e}")
+    else:
+        messagebox.showinfo("No Image", "No images found in the product table!")
 
-    binary_data = row[0]
-    with open("temp_image.png", "wb") as file:
-        file.write(binary_data)
-
-    img = Image.open("temp_image.png")
-    img = img.resize((200, 200))
-    img_tk = ImageTk.PhotoImage(img)
-    image_label.config(image=img_tk)
-    image_label.image = img_tk
-
-# GUI Setup
+# Create the main application window
 root = tk.Tk()
-root.title("Image Management with MySQL")
+root.title("Image Upload and Fetch for Cafevia")
 
-frame = tk.Frame(root)
-frame.pack(pady=10)
+# Add buttons for uploading and fetching images
+upload_button = tk.Button(root, text="Upload Image", command=insert_image)
+upload_button.pack(pady=10)
 
-tk.Label(frame, text="Name:").grid(row=0, column=0, padx=5, pady=5)
-name_entry = tk.Entry(frame)
-name_entry.grid(row=0, column=1, padx=5, pady=5)
+fetch_button = tk.Button(root, text="Fetch Last Image", command=fetch_image)
+fetch_button.pack(pady=10)
 
-insert_btn = tk.Button(frame, text="Insert", command=insert_image)
-insert_btn.grid(row=0, column=2, padx=5, pady=5)
-
-update_btn = tk.Button(frame, text="Update", command=update_image)
-update_btn.grid(row=0, column=3, padx=5, pady=5)
-
-delete_btn = tk.Button(frame, text="Delete", command=delete_image)
-delete_btn.grid(row=0, column=4, padx=5, pady=5)
-
-listbox = tk.Listbox(root, width=50)
-listbox.pack(pady=10)
-
-fetch_btn = tk.Button(root, text="Fetch Images", command=fetch_images)
-fetch_btn.pack(pady=5)
-0
-show_btn = tk.Button(root, text="Show Image", command=show_image)
-show_btn.pack(pady=5)
-
-image_label = tk.Label(root)
+# Add a label to display the image
+image_label = tk.Label(root, text="No image uploaded", bg="lightgrey", width=50, height=20)
 image_label.pack(pady=10)
 
-fetch_images()
+# Run the Tkinter event loop
 root.mainloop()
 
-# Close database connection on exit
+# Close the database connection when done
 conn.close()
