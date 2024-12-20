@@ -1,38 +1,71 @@
-import tkinter as tk
+from tkinter import *
+from PIL import Image, ImageTk
 
-def open_subwindow():
-    # Create a subwindow (Toplevel)
-    top = tk.Toplevel(root)
-    top.title("Subwindow")
-    
-    # Make sure the subwindow stays on top of the main window
-    top.attributes("-topmost", 1)
-    top.lift()
+# Sample data for dashboard cards
+cards_data = [
+    {
+        "title": "Happy Customer",
+        "value": "300",
+        "icon_path": "images/happycustomer.png",
+    },
+    {
+        "title": "New Orders",
+        "value": "120",
+        "icon_path": "images/neworders.png",
+    },
+    {
+        "title": "Revenue",
+        "value": "$15K",
+        "icon_path": "images/revenue.png",
+    },
+    {
+        "title": "Feedbacks",
+        "value": "89",
+        "icon_path": "images/feedback.png",
+    },
+]
 
-    # Function to show a custom message box
-    def show_message():
-        # Create a custom message box (another Toplevel window)
-        message_box = tk.Toplevel(top)
-        message_box.title("Custom Message Box")
-        
-        # Make the message box stay on top of the subwindow
-        message_box.attributes("-topmost", 1)
-        message_box.lift()
+# Colors
+sidecart_color = "#f0f0f0"
+primary_color = "#007BFF"
 
-        label = tk.Label(message_box, text="This is a custom message.")
-        label.pack(pady=20)
+# Initialize root and frame
+root = Tk()
+root.geometry("800x600")
+DashboardFrame = Frame(root, background="white")
+DashboardFrame.pack(fill=BOTH, expand=True)
 
-        button = tk.Button(message_box, text="OK", command=message_box.destroy)
-        button.pack(pady=10)
+# Loop through card data and create cards
+for idx, card in enumerate(cards_data):
+    # Create the card frame
+    DashboardCard = Frame(DashboardFrame, background=sidecart_color)
+    DashboardCard.place(relx=0.03 + idx * 0.25, rely=0.1, relwidth=0.23, relheight=0.19)
 
-    # Create a button in the subwindow that shows the custom message box
-    button = tk.Button(top, text="Show Message", command=show_message)
-    button.pack(pady=20)
+    # Add the title label
+    lblDashboardCustomer = Label(
+        DashboardCard,
+        text=card["title"],
+        bg=sidecart_color,
+        fg=primary_color,
+        font=("century gothic", 10),
+    )
+    lblDashboardCustomer.place(relx=0.07, rely=0.25)
 
-root = tk.Tk()
-root.title("Main Window")
+    # Add the value label
+    NoDashboardCustomer = Label(
+        DashboardCard,
+        text=card["value"],
+        bg=sidecart_color,
+        fg=primary_color,
+        font=("century gothic bold", 20),
+    )
+    NoDashboardCustomer.place(relx=0.07, rely=0.45)
 
-main_button = tk.Button(root, text="Open Subwindow", command=open_subwindow)
-main_button.pack(pady=20)
+    # Add the icon
+    dashboardIcon = Image.open(card["icon_path"]).resize((50, 50))
+    dashboardIcon = ImageTk.PhotoImage(dashboardIcon)
+    dashboardIcon_label = Label(DashboardCard, image=dashboardIcon, background=sidecart_color)
+    dashboardIcon_label.image = dashboardIcon
+    dashboardIcon_label.place(relx=0.65, rely=0.28, width=60, height=60)
 
 root.mainloop()
