@@ -1,6 +1,7 @@
 from tkinter import *
 from PIL import ImageTk, Image
-from tkinter import ttk, messagebox
+# from tkinter import ttk, messagebox
+# import MySQLdb
 import MySQLdb
 from tkinter import messagebox
 
@@ -289,6 +290,49 @@ class AdminDashboard():
             # categoryimage_label.image = categoryimage
             # CategoryChildCard = Button(MenuFrame, text="All", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
             # CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/coffee.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Coffee", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.16, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/softdrink.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Softdrink", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.29, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/pizza.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Pizza", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.42, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/burger.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Burger", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.55, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/dessert.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Dessert", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.68, rely=0.08, width=110, height=110)
+            # # ============================
+            # categoryimage = Image.open('images/meal.png').resize((45, 45))
+            # categoryimage = ImageTk.PhotoImage(categoryimage)
+            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
+            # categoryimage_label.image = categoryimage
+            # CategoryChildCard = Button(MenuFrame, text="Food Meal", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
+            # CategoryChildCard.place(relx=0.81, rely=0.08, width=110, height=110)
+            # # ============================
 
             categories = [
                 {"name": "All", "image": "images/all.png"},
@@ -360,46 +404,65 @@ class AdminDashboard():
 
             Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
-            # Database and card creation
-            con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-            cursor = con.cursor()
-            cursor.execute("SELECT * FROM product")
-            products = cursor.fetchall()
-            con.close()
+            # Function to fetch and display products
+            def fetch_and_display_products():
+                # Clear existing product cards
+                for widget in canvas_frame.winfo_children():
+                    widget.destroy()
 
-            row_frame = None
-            card_count = 0
-            for product_details in products:
-                if card_count % 4 == 0:
-                    row_frame = Frame(canvas_frame, background=secondary_color)
-                    row_frame.pack(padx=20, pady=10)
+                # Fetch updated product list from the database
+                con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+                cursor.execute("SELECT * FROM product")
+                products = cursor.fetchall()
+                con.close()
 
-                ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
-                ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
+                # Display the products
+                row_frame = None
+                card_count = 0
+                for product_details in products:
+                    if card_count % 4 == 0:
+                        row_frame = Frame(canvas_frame, background=secondary_color)
+                        row_frame.pack(padx=20, pady=10)
 
-                # movie_name = Label(ProductDtlCard, text=product_details[1], background="white", foreground="black", font=('century gothic bold', 8))
-                # movie_name.place(x=10, y=40)
+                    ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
+                    ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
 
-                # Image
-                    
+                    # Category
+                    ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
+                    ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
 
-                # Category
-                ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
-                ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
+                    # Product Name
+                    ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
+                    ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
 
-                # Product Name
-                ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
-                ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+                    # Price
+                    ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
+                    ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-                # Price
-                ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-                ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+                    # Add to Cart Button
+                    ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+                    ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
-                # Add to Cart Button
-                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-                ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+                    card_count += 1
 
-                card_count += 1
+            # Function to add a product and refresh the UI
+            def add_product_to_database(product_name, category, price):
+                con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+                cursor.execute("INSERT INTO product (name, category, price) VALUES (%s, %s, %s)", (product_name, category, price))
+                con.commit()
+                con.close()
+
+                # Refresh the product list after insertion
+                fetch_and_display_products()
+
+            # Fetch and display products initially
+            fetch_and_display_products()
+
+            # Example: Call this function after adding a product
+            # add_product_to_database('New Coffee', 'Beverage', 150)
+
 
 
 # =========================================================================================================
@@ -414,7 +477,7 @@ class AdminDashboard():
             AddCoffeeWindow.geometry(f'{width}x{height}+{x}+{y}')
             AddCoffeeWindow.resizable(False, False)
             AddCoffeeWindow.config(background=secondary_color)
-            # AddCoffeeWindow.attributes("-topmost", True)
+            AddCoffeeWindow.attributes("-topmost", True)
 
             def Productinsert():
                 ProductName = txtProductName.get()
@@ -496,6 +559,8 @@ class AdminDashboard():
                         messagebox.showerror("Error", f"An error occurred: {str(e)}")
                     con.close()
 
+
+
             AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
             AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
 
@@ -541,66 +606,6 @@ class AdminDashboard():
             DeleteProductButton = Button(AddCoffeeWindow, text="Delete Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=ProductDelete)
             DeleteProductButton.place(relx=0.73, rely=0.36, relwidth=0.2, relheight=0.08)
 
-            CRUDtxtDatagridView = Frame(AddCoffeeWindow,background=secondary_color)
-            CRUDtxtDatagridView.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
-
-            def fetch_data():
-                try:
-                    conn = MySQLdb.connect(
-                        host="localhost",   # Replace with your database host
-                        user="root",  # Replace with your username
-                        password="",  # Replace with your password
-                        database="cafevia"  # Replace with your database name
-                    )
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT * FROM product")
-                    rows = cursor.fetchall()
-                    for count, row in enumerate(rows):
-                        my_tree.insert(parent='', index='end', iid=count, text="", values=row)
-                    conn.close()
-                except MySQLdb.Error as err:
-                    print(f"Error: {err}")
-            my_tree = ttk.Treeview(CRUDtxtDatagridView)
-            my_tree['columns'] = ("proid", "proimage", "proname","procategory","proprice","proavaliable")
-
-            my_tree.column("#0", width=0, stretch=NO)  # Default column for the tree structure
-            my_tree.column("proid", anchor="w", width=100)
-            my_tree.column("proimage", anchor="w", width=220)
-            my_tree.column("proname", anchor="w", width=220)
-            my_tree.column("procategory", anchor="w", width=220)
-            my_tree.column("proprice", anchor="w", width=220)
-            my_tree.column("proavaliable", anchor="w", width=220)
-
-            my_tree.heading("#0", text="Label", anchor="w")
-            my_tree.heading("proid", text="Product Id", anchor="w")
-            my_tree.heading("proimage", text="Product Image", anchor="w")
-            my_tree.heading("proname", text="Product Name", anchor="w")
-            my_tree.heading("procategory", text="Product Ctegory", anchor="w")
-            my_tree.heading("proprice", text="Product Price", anchor="w")
-            my_tree.heading("proavaliable", text="Product Avaliable", anchor="w")
-
-            def selectedrecord(e):
-                txtProductId.delete(0, 'end')
-                txtProductName.delete(0, 'end')
-                txtProductCategory.delete(0, 'end')
-                txtProductAvaliable.delete(0, 'end')
-                txtProductPrice.delete(0, 'end')
-                txtProductImage.delete(0, 'end')
-
-                selected = my_tree.focus()
-                values = my_tree.item(selected,'values')
-
-                txtProductId.insert(0,values[0])
-                txtProductImage.insert(0,values[1])
-                txtProductName.insert(0,values[2])
-                txtProductCategory.insert(0,values[3])
-                txtProductPrice.insert(0,values[4])
-                txtProductAvaliable.insert(0,values[5])
-
-            my_tree.pack()  
-            my_tree.bind("<ButtonRelease-1>",selectedrecord)
-            fetch_data()
-
 
         # ==========================================
 
@@ -632,6 +637,11 @@ class AdminDashboard():
             self.window.destroy()
 
         # ==========================================
+
+
+
+
+
 
 
 
