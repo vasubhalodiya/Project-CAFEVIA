@@ -1,71 +1,69 @@
+import MySQLdb
 from tkinter import *
+from tkinter import messagebox
 from PIL import Image, ImageTk
+import io
 
-# Sample data for dashboard cards
-cards_data = [
-    {
-        "title": "Happy Customer",
-        "value": "300",
-        "icon_path": "images/happycustomer.png",
-    },
-    {
-        "title": "New Orders",
-        "value": "120",
-        "icon_path": "images/neworders.png",
-    },
-    {
-        "title": "Revenue",
-        "value": "$15K",
-        "icon_path": "images/revenue.png",
-    },
-    {
-        "title": "Feedbacks",
-        "value": "89",
-        "icon_path": "images/feedback.png",
-    },
-]
+# Function to fetch product details (including image) and display it
+def fetch_and_display_image():
+    proid = txtProductID.get()  # Assuming there's a text field for the product ID
+    
+    if not proid:
+        messagebox.showinfo("Error", "Product ID is required to fetch image.")
+        return
 
-# Colors
-sidecart_color = "#f0f0f0"
-primary_color = "#007BFF"
+    try:
+        # Connect to the database
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        cursor = con.cursor()
 
-# Initialize root and frame
+        # SQL query to fetch product details and image
+        query = "SELECT proimage FROM product WHERE proid = %s"
+        cursor.execute(query, (proid,))
+        result = cursor.fetchone()
+
+        if result:
+            # Extracting the data from the result tuple
+            image_data = result
+
+            # If image data exists, convert it and display
+            if image_data:
+                image = Image.open(io.BytesIO(image_data))
+                image = image.resize((200, 200))  # Resize to fit the label size
+                image_tk = ImageTk.PhotoImage(image)
+
+                # If an image is already displayed, update it
+                lblProductImage.config(image=image_tk)
+                lblProductImage.image = image_tk  # Keep a reference to avoid garbage collection
+            else:
+                lblProductImage.config(image=None)
+                lblProductImage.image = None
+
+        else:
+            messagebox.showinfo("Error", "Product not found.")
+
+    except MySQLdb.OperationalError as e:
+        messagebox.showerror("Database Error", f"Operational error: {str(e)}")
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+    finally:
+        con.close()
+
+# Tkinter Setup
 root = Tk()
-root.geometry("800x600")
-DashboardFrame = Frame(root, background="white")
-DashboardFrame.pack(fill=BOTH, expand=True)
+root.title("Fetch Product Image")
 
-# Loop through card data and create cards
-for idx, card in enumerate(cards_data):
-    # Create the card frame
-    DashboardCard = Frame(DashboardFrame, background=sidecart_color)
-    DashboardCard.place(relx=0.03 + idx * 0.25, rely=0.1, relwidth=0.23, relheight=0.19)
+# Product ID input
+Label(root, text="Enter Product ID:").grid(row=0, column=0, padx=10, pady=10)
+txtProductID = Entry(root)
+txtProductID.grid(row=0, column=1, padx=10, pady=10)
 
-    # Add the title label
-    lblDashboardCustomer = Label(
-        DashboardCard,
-        text=card["title"],
-        bg=sidecart_color,
-        fg=primary_color,
-        font=("century gothic", 10),
-    )
-    lblDashboardCustomer.place(relx=0.07, rely=0.25)
+# Buttons and Labels for displaying product details
+btnFetchImage = Button(root, text="Fetch Image", command=fetch_and_display_image)
+btnFetchImage.grid(row=1, column=0, columnspan=2, pady=10)
 
-    # Add the value label
-    NoDashboardCustomer = Label(
-        DashboardCard,
-        text=card["value"],
-        bg=sidecart_color,
-        fg=primary_color,
-        font=("century gothic bold", 20),
-    )
-    NoDashboardCustomer.place(relx=0.07, rely=0.45)
+lblProductImage = Label(root)
+lblProductImage.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
-    # Add the icon
-    dashboardIcon = Image.open(card["icon_path"]).resize((50, 50))
-    dashboardIcon = ImageTk.PhotoImage(dashboardIcon)
-    dashboardIcon_label = Label(DashboardCard, image=dashboardIcon, background=sidecart_color)
-    dashboardIcon_label.image = dashboardIcon
-    dashboardIcon_label.place(relx=0.65, rely=0.28, width=60, height=60)
-
+# Start the Tkinter main loop
 root.mainloop()

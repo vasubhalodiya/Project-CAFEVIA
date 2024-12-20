@@ -4,8 +4,8 @@ from tkinter import ttk, messagebox
 import MySQLdb
 from tkinter import messagebox
 import mysql.connector
-from PIL import Image, ImageTk
-from tkinter import Frame, Label
+import io
+from tkinter import filedialog
 
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
@@ -478,7 +478,7 @@ class AdminDashboard():
 
 # =========================================================================================================
 
-             # Add a scrollbar to the ProductCategorymain_frame
+            # Add a scrollbar to the ProductCategorymain_frame
             ProductCategorymain_frame = Frame(CoffeeCategory)
             ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
 
@@ -531,7 +531,7 @@ class AdminDashboard():
                 # movie_name.place(x=10, y=40)
 
                 # Image
-                    
+                
 
                 # Category
                 ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
@@ -551,6 +551,8 @@ class AdminDashboard():
 
                 card_count += 1
 
+            
+
 
 # =========================================================================================================
 
@@ -566,27 +568,87 @@ class AdminDashboard():
             AddCoffeeWindow.config(background=secondary_color)
             # AddCoffeeWindow.attributes("-topmost", True)
 
+            def browse_image():
+                # Open a file dialog to allow the user to select an image file.
+                global selected_file_path
+                selected_file_path = filedialog.askopenfilename(
+                    title="Select Image",
+                    filetypes=[("Image Files", ".png;.jpg;.jpeg;.bmp;*.gif")]
+                )
+                if selected_file_path:
+                    messagebox.showinfo("File Selected", f"Image selected: {selected_file_path}")
+                else:
+                    messagebox.showerror("Error", "No image selected.")
+
+
+
             def Productinsert():
+                # Insert movie details along with an optional image into the database.
+                global selected_file_path
+
                 ProductName = txtProductName.get()
                 ProductCategory = txtProductCategory.get()
                 ProductAvaliable = txtProductAvaliable.get()
                 ProductPrice = txtProductPrice.get()
-                ProductImage = txtProductImage.get()
+                # ProductImage = txtProductImage.get()
 
-                if(ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
+                # if(ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
+                #     messagebox.showinfo("Insert Status","All fields are required")
+                # else:
+                #     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                #     cursor = con.cursor()
+                #     cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
+                #     con.commit()
+
+                #     txtProductName.delete(0,'end')
+                #     txtProductCategory.delete(0,'end')
+                #     txtProductAvaliable.delete(0,'end')
+                #     txtProductPrice.delete(0,'end')
+                #     txtProductImage.delete(0,'end')
+                #     messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
+                #     con.close()
+
+                if (ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice==""):
                     messagebox.showinfo("Insert Status","All fields are required")
-                else:
+                    return  # Exit the function if validation fails
+
+                # Read the selected image file
+                image_data = None
+                if selected_file_path:
+                    try:
+                        with open(selected_file_path, "rb") as file:
+                            image_data = file.read()
+                    except Exception as e:
+                        messagebox.showerror("Error", f"Failed to read image file: {str(e)}")
+                        return
+
+                try:
+                    # Connect to the database
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
-                    cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
+
+                    # SQL query to insert movie details along with the image
+                    query = """ INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s) """
+                    values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, image_data if image_data else None)
+
+                    cursor.execute(query, values)
                     con.commit()
 
+                    # Clear input fields and reset the image path
                     txtProductName.delete(0,'end')
                     txtProductCategory.delete(0,'end')
                     txtProductAvaliable.delete(0,'end')
                     txtProductPrice.delete(0,'end')
-                    txtProductImage.delete(0,'end')
-                    messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
+                    selected_file_path = None  # Reset the global variable
+
+                    # Success message
+                    messagebox.showinfo("INSERT Status", "INSERTED SUCCESSFULLY")
+
+                except MySQLdb.OperationalError as e:
+                    messagebox.showerror("Database Error", f"Operational error: {str(e)}")
+                except Exception as e:
+                    messagebox.showerror("Error", str(e))
+                finally:
                     con.close()
 
             def ProductDelete():
@@ -679,7 +741,7 @@ class AdminDashboard():
 
             lblProductImage = Label(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductImage.place(relx=0.4, rely=0.36)
-            txtProductImage = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
+            txtProductImage = Button(AddCoffeeWindow, text="Browse Image", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=browse_image)
             txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
 
             AddProductButton = Button(AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
