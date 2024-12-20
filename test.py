@@ -1,69 +1,145 @@
-import MySQLdb
-from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
-import io
+import mysql.connector
 
-# Function to fetch the product image and display it
-def fetch_and_display_image():
-    proid = txtProductID.get()  # Assuming there's a text field for the product ID
-    
-    if not proid:
-        messagebox.showinfo("Error", "Product ID is required to fetch image.")
-        return
-
+# MySQL connection setup
+def get_table_status(table_id):
+    """
+    Fetches the current status of the table from the database.
+    :param table_id: The ID of the table.
+    :return: The status of the table ('available' or 'reserved').
+    """
     try:
-        # Connect to the database
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        cursor = con.cursor()
-
-        # SQL query to fetch only the product image
-        query = "SELECT proimage FROM product WHERE proid = %s"
-        cursor.execute(query, (proid))
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="your_username",
+            password="your_password",
+            database="restaurant"
+        )
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT status FROM tables WHERE id = {table_id}")
         result = cursor.fetchone()
-
-        if result:
-            # Extract the image data from the result tuple
-            image_data = result[0]
-
-            # If image data exists, convert it and display
-            if image_data:
-                image = Image.open(io.BytesIO(image_data))
-                image = image.resize((200, 200))  # Resize to fit the label size
-                image_tk = ImageTk.PhotoImage(image)
-
-                # If an image is already displayed, update it
-                lblProductImage.config(image=image_tk)
-                lblProductImage.image = image_tk  # Keep a reference to avoid garbage collection
-            else:
-                lblProductImage.config(image=None)
-                lblProductImage.image = None
-        else:
-            messagebox.showinfo("Error", "Product not found.")
-
-    except MySQLdb.OperationalError as e:
-        messagebox.showerror("Database Error", f"Operational error: {str(e)}")
-    except Exception as e:
-        messagebox.showerror("Error", str(e))
+        return result[0] if result else "available"
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return "available"
     finally:
-        con.close()
+        if connection:
+            connection.close()
 
-# Tkinter Setup
-root = Tk()
-root.title("Fetch Product Image")
+def update_table_status(table_id, status):
+    """
+    Updates the table status in the database.
+    :param table_id: The ID of the table.
+    :param status: The new status to be set ('available' or 'reserved').
+    """
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="your_username",
+            password="your_password",
+            database="restaurant"
+        )
+        cursor = connection.cursor()
+        cursor.execute(f"UPDATE tables SET status = %s WHERE id = %s", (status, table_id))
+        connection.commit()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        if connection:
+            connection.close()
 
-# Product ID input
-Label(root, text="Enter Product ID:").grid(row=0, column=0, padx=10, pady=10)
-txtProductID = Entry(root)
-txtProductID.grid(row=0, column=1, padx=10, pady=10)
+def on_table_click(table_id):
+    """
+    Handle table button click and update the table status.
+    :param table_id: The ID of the table clicked.
+    """
+    current_status = get_table_status(table_id)
+    new_status = "reserved" if current_status == "available" else "available"
+    update_table_status(table_id, new_status)
+    
+    # Update button color based on the new status
+    update_table_button_color(table_id)
 
-# Button to fetch the image
-btnFetchImage = Button(root, text="Fetch Image", command=fetch_and_display_image)
-btnFetchImage.grid(row=1, column=0, columnspan=2, pady=10)
+def update_table_button_color(table_id):
+    """
+    Update the table button color based on the status.
+    :param table_id: The ID of the table.
+    """
+    status = get_table_status(table_id)
+    color = "green" if status == "available" else "red"
+    
+    table_buttons[table_id].config(bg=color)
 
-# Label for displaying the product image
-lblProductImage = Label(root)
-lblProductImage.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+def draw_table_with_chairs(canvas, x, y, table_width, table_height, chair_config, table_id):
+    """
+    Draws a table as a button with chairs around it on a canvas.
+    :param canvas: The Canvas widget.
+    :param x: Top-left x-coordinate of the table.
+    :param y: Top-left y-coordinate of the table.
+    :param table_width: Width of the table.
+    :param table_height: Height of the table.
+    :param chair_config: A dictionary specifying the number of chairs on each side.
+    :param table_id: The ID assigned to the table.
+    """
+    global table_buttons
+    # Chair size and spacing
+    chair_size = 20
+    chair_spacing = 10
 
-# Start the Tkinter main loop
+    # Get initial table status
+    status = get_table_status(table_id)
+    color = "green" if status == "available" else "red"
+
+    # Table button
+    table_button = tk.Button(canvas, text=f"Table {table_id}", bg=color, fg="white", command=lambda: on_table_click(table_id))
+    table_button.place(x=x, y=y, width=table_width, height=table_height)
+
+    # Store table button for later updates
+    table_buttons[table_id] = table_button
+
+    # Draw chairs around the table (same as before)
+    # Top chairs
+    for i in range(chair_config["top"]):
+        chair_x = x + (i + 0.5) * (table_width / chair_config["top"]) - (chair_size / 2)
+        chair_y = y - chair_size - chair_spacing
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+
+    # Bottom chairs
+    for i in range(chair_config["bottom"]):
+        chair_x = x + (i + 0.5) * (table_width / chair_config["bottom"]) - (chair_size / 2)
+        chair_y = y + table_height + chair_spacing
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+
+    # Left chairs
+    for i in range(chair_config["left"]):
+        chair_x = x - chair_size - chair_spacing
+        chair_y = y + (i + 0.5) * (table_height / chair_config["left"]) - (chair_size / 2)
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+
+    # Right chairs
+    for i in range(chair_config["right"]):
+        chair_x = x + table_width + chair_spacing
+        chair_y = y + (i + 0.5) * (table_height / chair_config["right"]) - (chair_size / 2)
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+
+
+# Main application window
+root = tk.Tk()
+root.title("Table with Chairs")
+root.geometry("800x600")
+
+# Create Canvas
+canvas = tk.Canvas(root, width=800, height=600, bg="white")
+canvas.pack(fill="both", expand=True)
+
+# Initialize a dictionary to store buttons
+table_buttons = {}
+
+# Draw tables with different configurations
+draw_table_with_chairs(canvas, 50, 50, 100, 50, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 1)  # Table 1
+draw_table_with_chairs(canvas, 200, 100, 150, 70, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 2)  # Table 2
+draw_table_with_chairs(canvas, 400, 200, 120, 60, {"top": 2, "bottom": 2, "left": 3, "right": 3}, 3)  # Table 3
+draw_table_with_chairs(canvas, 600, 300, 140, 80, {"top": 4, "bottom": 4, "left": 2, "right": 2}, 4)  # Table 4
+
 root.mainloop()
