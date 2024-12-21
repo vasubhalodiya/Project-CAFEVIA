@@ -652,6 +652,7 @@ class AdminDashboard():
                 finally:
                     con.close()
 
+
             def ProductDelete():
                 if(txtProductId.get() == ""):
                     messagebox.showinfo("Delete Status", "ID is required for delete operation")
@@ -670,7 +671,6 @@ class AdminDashboard():
                         txtProductCategory.delete(0, 'end')
                         txtProductAvaliable.delete(0, 'end')
                         txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
 
                         messagebox.showinfo("DELETE Status", "Deleted Successfully")
                     except Exception as e:
@@ -850,20 +850,20 @@ class AdminDashboard():
                 host="localhost",
                 user="root",  # Replace with your MySQL username
                 password="",  # Replace with your MySQL password
-                database="restaurant_management"  # Updated database name
+                database="cafevia"  # Updated database name
             )
 
             cursor = db.cursor()
 
             # Fetch table status from the database
             def get_table_status(table_number):
-                cursor.execute("SELECT status FROM table_reservations WHERE table_number = %s", (table_number,))
+                cursor.execute("SELECT status FROM tablebook WHERE table_number = %s", (table_number,))
                 result = cursor.fetchone()
                 return result[0] if result else "available"
 
             # Update table status in the database
             def update_table_status(table_number, status):
-                cursor.execute("UPDATE table_reservations SET status = %s WHERE table_number = %s", (status, table_number))
+                cursor.execute("UPDATE tablebook SET status = %s WHERE table_number = %s", (status, table_number))
                 db.commit()
 
             def on_table_click(table_number):
