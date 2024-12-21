@@ -59,15 +59,7 @@ def render_ui():
         color = "green" if status == "available" else "red"
         button_text = f"Table {table_number}\n({status.capitalize()})"
 
-        btn = tk.Button(
-            root,
-            text=button_text,
-            bg=color,
-            fg="white",
-            width=15,
-            height=3,
-            command=lambda tid=table_id, stat=status: toggle_table_status(tid, stat)
-        )
+        btn = tk.Button(root, text=button_text, bg=color, fg="white", width=15, height=3, command=lambda tid=table_id, stat=status: toggle_table_status(tid, stat) )
         btn.pack(pady=5)
 
 # Toggle table status between 'available' and 'reserved'

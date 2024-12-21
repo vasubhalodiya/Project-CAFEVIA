@@ -2,144 +2,134 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 
-# MySQL connection setup
-def get_table_status(table_id):
-    """
-    Fetches the current status of the table from the database.
-    :param table_id: The ID of the table.
-    :return: The status of the table ('available' or 'reserved').
-    """
-    try:
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="your_username",
-            password="your_password",
-            database="restaurant"
-        )
-        cursor = connection.cursor()
-        cursor.execute(f"SELECT status FROM tables WHERE id = {table_id}")
-        result = cursor.fetchone()
-        return result[0] if result else "available"
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-        return "available"
-    finally:
-        if connection:
-            connection.close()
+# Sample MySQL connection
+def connect_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",  # Replace with your MySQL username
+        password="",  # Replace with your MySQL password
+        database="restaurant_management"  # Replace with your database name
+    )
 
-def update_table_status(table_id, status):
-    """
-    Updates the table status in the database.
-    :param table_id: The ID of the table.
-    :param status: The new status to be set ('available' or 'reserved').
-    """
-    try:
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="your_username",
-            password="your_password",
-            database="restaurant"
-        )
-        cursor = connection.cursor()
-        cursor.execute(f"UPDATE tables SET status = %s WHERE id = %s", (status, table_id))
-        connection.commit()
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-    finally:
-        if connection:
-            connection.close()
+# Initialize root window
+root = tk.Tk()
+root.title("Table Booking System")
+root.geometry("1200x800")
 
-def on_table_click(table_id):
-    """
-    Handle table button click and update the table status.
-    :param table_id: The ID of the table clicked.
-    """
-    current_status = get_table_status(table_id)
+# Global color settings
+primary_color = "#4CAF50"  # Green color for available tables
+secondary_color = "#FFFFFF"  # White color for text
+price_color = "#FF9800"  # Price color for available chairs
+
+# Table buttons dictionary to store references
+table_buttons = {}
+
+# Database connection setup
+db = connect_db()
+cursor = db.cursor()
+
+# Fetch table status from the database
+def get_table_status(table_number):
+    cursor.execute("SELECT status FROM table_reservations WHERE table_number = %s", (table_number,))
+    result = cursor.fetchone()
+    return result[0] if result else "available"
+
+# Update table status in the database
+def update_table_status(table_number, status):
+    cursor.execute("UPDATE table_reservations SET status = %s WHERE table_number = %s", (status, table_number))
+    db.commit()
+
+# Handle table click to update status and color
+def on_table_click(table_number):
+    current_status = get_table_status(table_number)
     new_status = "reserved" if current_status == "available" else "available"
-    update_table_status(table_id, new_status)
-    
-    # Update button color based on the new status
-    update_table_button_color(table_id)
+    update_table_status(table_number, new_status)
 
-def update_table_button_color(table_id):
-    """
-    Update the table button color based on the status.
-    :param table_id: The ID of the table.
-    """
-    status = get_table_status(table_id)
-    color = "green" if status == "available" else "red"
-    
-    table_buttons[table_id].config(bg=color)
+    # Fetch the updated status
+    status = get_table_status(table_number)
+    button_color = primary_color if status == "available" else "#F02533"  # Red color
 
-def draw_table_with_chairs(canvas, x, y, table_width, table_height, chair_config, table_id):
-    """
-    Draws a table as a button with chairs around it on a canvas.
-    :param canvas: The Canvas widget.
-    :param x: Top-left x-coordinate of the table.
-    :param y: Top-left y-coordinate of the table.
-    :param table_width: Width of the table.
-    :param table_height: Height of the table.
-    :param chair_config: A dictionary specifying the number of chairs on each side.
-    :param table_id: The ID assigned to the table.
-    """
-    global table_buttons
+    # Update the button color directly
+    table_buttons[table_number].config(bg=button_color)
+
+    # Show the messagebox
+    messagebox.showinfo("Table Status Changed", f"Table {table_number} is now {new_status.capitalize()}!")
+
+# Draw table with chairs and status button
+def draw_table_with_chairs(canvas, relx, rely, table_width, table_height, chair_config, table_number):
+    canvas_width = canvas.winfo_width()
+    canvas_height = canvas.winfo_height()
+
+    # Calculate the absolute position based on relative position
+    x = relx * canvas_width
+    y = rely * canvas_height
+
+    # Fetch table status for coloring
+    status = get_table_status(table_number)
+    button_color = primary_color if status == "available" else "#F02533"  # Red color
+    chair_color = price_color if status == "available" else "#CECECE"  # Grey color
+
+    # Table button
+    table_buttons[table_number] = tk.Button(
+        canvas,
+        text=f"Table {table_number}",
+        bg=button_color,
+        fg=secondary_color,
+        command=lambda: on_table_click(table_number),
+        relief="flat"
+    )
+    table_buttons[table_number].place(x=x, y=y, width=table_width, height=table_height)
+
     # Chair size and spacing
     chair_size = 20
     chair_spacing = 10
 
-    # Get initial table status
-    status = get_table_status(table_id)
-    color = "green" if status == "available" else "red"
-
-    # Table button
-    table_button = tk.Button(canvas, text=f"Table {table_id}", bg=color, fg="white", command=lambda: on_table_click(table_id))
-    table_button.place(x=x, y=y, width=table_width, height=table_height)
-
-    # Store table button for later updates
-    table_buttons[table_id] = table_button
-
-    # Draw chairs around the table (same as before)
-    # Top chairs
+    # Draw chairs on the top side
     for i in range(chair_config["top"]):
         chair_x = x + (i + 0.5) * (table_width / chair_config["top"]) - (chair_size / 2)
         chair_y = y - chair_size - chair_spacing
-        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, outline="")
 
-    # Bottom chairs
+    # Draw chairs on the bottom side
     for i in range(chair_config["bottom"]):
         chair_x = x + (i + 0.5) * (table_width / chair_config["bottom"]) - (chair_size / 2)
         chair_y = y + table_height + chair_spacing
-        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, outline="")
 
-    # Left chairs
+    # Draw chairs on the left side
     for i in range(chair_config["left"]):
         chair_x = x - chair_size - chair_spacing
         chair_y = y + (i + 0.5) * (table_height / chair_config["left"]) - (chair_size / 2)
-        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, outline="")
 
-    # Right chairs
+    # Draw chairs on the right side
     for i in range(chair_config["right"]):
         chair_x = x + table_width + chair_spacing
         chair_y = y + (i + 0.5) * (table_height / chair_config["right"]) - (chair_size / 2)
-        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill="blue")
+        canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, outline="")
 
-
-# Main application window
-root = tk.Tk()
-root.title("Table with Chairs")
-root.geometry("800x600")
-
-# Create Canvas
-canvas = tk.Canvas(root, width=800, height=600, bg="white")
+# Create Canvas for drawing tables
+canvas = tk.Canvas(root, bg=secondary_color, bd=0, highlightthickness=0)
 canvas.pack(fill="both", expand=True)
 
-# Initialize a dictionary to store buttons
-table_buttons = {}
+# Function to draw all tables
+def draw_tables():
+    # Draw tables with different configurations
+    draw_table_with_chairs(canvas, 0.05, 0.05, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 1)   # Table 1
+    draw_table_with_chairs(canvas, 0.25, 0.05, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 2)  # Table 2
+    draw_table_with_chairs(canvas, 0.45, 0.05, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 3)  # Table 3
+    draw_table_with_chairs(canvas, 0.65, 0.05, 180, 90, {"top": 4, "bottom": 4, "left": 2, "right": 2}, 4)  # Table 4
+    draw_table_with_chairs(canvas, 0.85, 0.05, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 5)  # Table 5
 
-# Draw tables with different configurations
-draw_table_with_chairs(canvas, 50, 50, 100, 50, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 1)  # Table 1
-draw_table_with_chairs(canvas, 200, 100, 150, 70, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 2)  # Table 2
-draw_table_with_chairs(canvas, 400, 200, 120, 60, {"top": 2, "bottom": 2, "left": 3, "right": 3}, 3)  # Table 3
-draw_table_with_chairs(canvas, 600, 300, 140, 80, {"top": 4, "bottom": 4, "left": 2, "right": 2}, 4)  # Table 4
+    # Row 2
+    draw_table_with_chairs(canvas, 0.05, 0.35, 150, 90, {"top": 3, "bottom": 3, "left": 1, "right": 1}, 6)   # Table 6
+    draw_table_with_chairs(canvas, 0.25, 0.35, 110, 90, {"top": 2, "bottom": 2, "left": 2, "right": 2}, 7)  # Table 7
+    draw_table_with_chairs(canvas, 0.45, 0.35, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 8)  # Table 8
+    draw_table_with_chairs(canvas, 0.65, 0.35, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 9)  # Table 9
+    draw_table_with_chairs(canvas, 0.85, 0.35, 140, 90, {"top": 3, "bottom": 3, "left": 1, "right": 1}, 10)  # Table 10
 
+# Draw tables on window load
+draw_tables()
+
+# Run the Tkinter event loop
 root.mainloop()
