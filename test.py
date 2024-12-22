@@ -1,66 +1,166 @@
-# Connect to MySQL database
-def connect_db():
-    return MySQLdb.connect(
-    host="localhost",
-    user="root",         # Replace with your MySQL username
-    password="",         # Replace with your MySQL password
-    database="bookmyshow"
-)
+# INSERT function
+def Movieinsert():
+    MovieId = txtid.get()
+    MovieName = txtMovieName.get()
+    ReleaseDate = txtReleaseDate.get()
 
-# Fetch all tables from the database
-def fetch_tables():
-    try:
-        db = connect_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM tables")
-        tables = cursor.fetchall()
-        db.close()
-        return tables
-    except MySQLdb.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
-        return []
+    MovieCategory = txtMovieCategory.get()
+    MovieDuration = txtMovieDuration.get()
+    MovieLanguage = txtMovieLanguage.get()
 
-# Update the table status in the database
-def update_table_status(table_id, new_status):
-    try:
-        db = connect_db()
-        cursor = db.cursor()
-        query = "UPDATE tables SET status = %s WHERE id = %s"
-        cursor.execute(query, (new_status, table_id))
-        db.commit()
-        db.close()
-        messagebox.showinfo("Success", f"Table {table_id} is now {new_status}.")
-        refresh_ui()
-    except MySQLdb.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
+    ShortDescription = txtShortDescription.get()
+    MovieFormate = txtMovieFormate.get()
 
-# Refresh the UI to reflect updated table statuses
-def refresh_ui():
-    for widget in TicketBookingFrame.winfo_children():
-        widget.destroy()
-    render_ui()
+    if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
+        messagebox.showinfo("Insert Status","All fields are required")
+    else:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
+        cursor = con.cursor()
+        cursor.execute("insert into movie_details values('"+MovieId+"','"+MovieName+"','"+ReleaseDate+"','"+MovieCategory+"','"+MovieDuration+"','"+MovieLanguage+"','"+ShortDescription+"','"+MovieFormate+"')")
+        cursor.execute("commit")
+        messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
+        con.close()
 
-# Render the UI with table statuses
-def render_ui():
-    tables = fetch_tables()
 
-if not tables:
-    Label(TicketBookingFrame, text="No tables available.", font=("Arial", 12)).pack()
-    return
 
-Label(TicketBookingFrame, text="Table Booking System", font=("Arial", 16)).pack(pady=10)
+def MovieDelete():
+    if(txtid.get() == ""):
+        messagebox.showinfo("Delete Status","ID Is Required For Delete Operation")
+    else:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
+        cursor = con.cursor()
+        cursor.execute("delete from movie_details where id='"+txtid.get()+"'")
+        cursor.execute("commit")
 
-for table in tables:
-    table_id, table_number, status = table
-    color = "green" if status == "available" else "red"
-    button_text = f"Table {table_number}\n({status.capitalize()})"
+        txtid.delete(0,'end')
+        txtMovieName.delete(0,'end')
+        txtReleaseDate.delete(0,'end')
 
-btn = Button(TicketBookingFrame, text=button_text, bg=color, fg="white", width=15, height=3, command=lambda tid=table_id, stat=status: toggle_table_status(tid, stat) )
-btn.pack(pady=5)
+        txtMovieCategory.delete(0,'end')
+        txtMovieDuration.delete(0,'end')
+        txtMovieLanguage.delete(0,'end')
 
-# Toggle table status between 'available' and 'reserved'
-def toggle_table_status(table_id, current_status):
-    new_status = "available" if current_status == "reserved" else "reserved"
-    update_table_status(table_id, new_status)
+        txtShortDescription.delete(0,'end')
+        txtMovieFormate.delete(0,'end')
+        messagebox.showinfo("DELETE Status","DELETED SUCCESSFULLY")
+        con.close()
 
-render_ui()
+
+
+#UPDATE OPERATION
+        def MovieUpdate():
+            pass
+            MovieId = txtid.get()
+            MovieName = txtMovieName.get()
+            ReleaseDate = txtReleaseDate.get()
+
+            MovieCategory = txtMovieCategory.get()
+            MovieDuration = txtMovieDuration.get()
+            MovieLanguage = txtMovieLanguage.get()
+
+            ShortDescription = txtShortDescription.get()
+            MovieFormate = txtMovieFormate.get()
+
+            if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
+                messagebox.showinfo("Update Status","All fields are required")
+            else:
+                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
+                cursor = con.cursor()
+                cursor.execute("update movie_details set MovieName='"+MovieName+"',ReleseDate='"+ReleaseDate+"',MovieCategory='"+MovieCategory+"',MovieDuration='"+MovieDuration+"',MovieLanguage='"+MovieLanguage+"',ShortDescription='"+ShortDescription+"',MovieFormate='"+MovieFormate+"' where MovieId='"+MovieId+"'")
+                cursor.execute("commit")
+
+                txtid.delete(0,'end')
+                txtMovieName.delete(0,'end')
+                txtReleaseDate.delete(0,'end')
+
+                txtMovieCategory.delete(0,'end')
+                txtMovieDuration.delete(0,'end')
+                txtMovieLanguage.delete(0,'end')
+
+                txtShortDescription.delete(0,'end')
+                txtMovieFormate.delete(0,'end')
+                messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
+                con.close()
+
+
+class MovieCRUD:
+    def _init_(self,MovieCRUDwindow):
+        self.MovieCRUDwindow = MovieCRUDwindow
+        self.MovieCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE MOVIE")
+        self.MovieCRUDwindow.geometry("1000x600")
+        self.MovieCRUDwindow.state('normal')
+        
+        # ALL FIELD's AND FRAME
+        CRUDtxtFild = Frame(MovieCRUDwindow,background='#800808')
+        CRUDtxtFild.config(height=350,width=1000)
+        CRUDtxtFild.place(x=0,y=0)
+
+        CRUDmenu = Frame(CRUDtxtFild,background='white')
+        CRUDmenu.config(height=30,width=1000)
+        CRUDmenu.place(x=0,y=10)
+
+        MovieAddBtn = Button(CRUDmenu,text="ADD MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=Movieinsert)
+        MovieAddBtn.place(x=540,y=0)
+
+        MovieUpdateBtn = Button(CRUDmenu,text="UPDATE MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=MovieUpdate)
+        MovieUpdateBtn.place(x=700,y=0)
+
+        MovieDeleteBtn = Button(CRUDmenu,text="DELETE MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=MovieDelete)
+        MovieDeleteBtn.place(x=850,y=0)
+
+        MoviewDetails = Label(CRUDmenu,text="  MOVIE DETAIL's  ",font=('century gothic bold',20),background='#880808',foreground='white')
+        MoviewDetails.place(x=50,y=0)
+
+        lblid = Label(CRUDtxtFild,text="MOVIE ID :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblid.place(x=50,y=70)
+
+        txtid = Entry(CRUDtxtFild,textvariable=id_int,font=('century gothic',15),width=20,relief='ridge')
+        txtid.place(x=50,y=100)
+
+        lblMovieName = Label(CRUDtxtFild,text="MOVIE NAME :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieName.place(x=50,y=150)
+
+        txtMovieName = Entry(CRUDtxtFild,textvariable=MovieName,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieName.place(x=50,y=180)
+
+        lblReleaseDate = Label(CRUDtxtFild,text="RELEASE DATE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblReleaseDate.place(x=50,y=230)
+
+        txtReleaseDate = Entry(CRUDtxtFild,textvariable=ReleaseDate,font=('century gothic',15),width=20,relief='ridge')
+        txtReleaseDate.place(x=50,y=260)
+
+        lblMovieCategory = Label(CRUDtxtFild,text="MOVIE CATEGORY :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieCategory.place(x=390,y=70)
+        
+        txtMovieCategory = Entry(CRUDtxtFild,textvariable=category,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieCategory.place(x=390,y=100)
+
+        lblMovieDuration = Label(CRUDtxtFild,text="MOVIE DURATION :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieDuration.place(x=390,y=150)
+        
+        txtMovieDuration = Entry(CRUDtxtFild,textvariable=Duration,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieDuration.place(x=390,y=180)
+
+        lblMovieLanguage = Label(CRUDtxtFild,text="MOVIE LANGUAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieLanguage.place(x=390,y=230)
+
+        txtMovieLanguage = Entry(CRUDtxtFild,textvariable=Language,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieLanguage.place(x=390,y=260)
+
+        lblShortDescription = Label(CRUDtxtFild,text="SHORT DESCRIPTION :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblShortDescription.place(x=730,y=70)
+        
+        txtShortDescription = Entry(CRUDtxtFild,textvariable=Short_Description,font=('century gothic',15),width=20,relief='ridge')
+        txtShortDescription.place(x=730,y=100)
+
+        lblMovieimage = Label(CRUDtxtFild,text="MOVIE IMAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieimage.place(x=730,y=150)
+        
+        txtMovieimage = Entry(CRUDtxtFild,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieimage.place(x=730,y=180)
+
+        lblMovieFormat = Label(CRUDtxtFild,text="MOVIE FORMATE :",font=('century gothic bold',15),background='#880808',foreground='white')
+        lblMovieFormat.place(x=730,y=230)
+
+        txtMovieFormate = Entry(CRUDtxtFild,textvariable=Formatee,font=('century gothic',15),width=20,relief='ridge')
+        txtMovieFormate.place(x=730,y=260)
