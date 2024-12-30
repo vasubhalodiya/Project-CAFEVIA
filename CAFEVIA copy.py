@@ -8,6 +8,7 @@ import io
 from tkinter import filedialog
 from tkinter import Tk, Canvas, Button, messagebox
 
+
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
 sidecart_color = "#DDD2C3"
@@ -532,7 +533,23 @@ class AdminDashboard():
                 # movie_name.place(x=10, y=40)
 
                 # Image
-                
+                try:
+                    img_data = product_details[5]
+                    print("Image data fetched successfully.")
+                    if img_data:
+                        img = Image.open(io.BytesIO(img_data))
+                        print("Image converted successfully.")
+                        img = img.resize((160, 120))
+                        tk_img = ImageTk.PhotoImage(img)
+                        ProductImageLabel = Label(ProductDtlCard, image=tk_img, bg=sidecart_color)
+                        ProductImageLabel.image = tk_img
+                        ProductImageLabel.place(relx=0.1, rely=0.05, relwidth=0.8, relheight=0.45)
+                    else:
+                        print("No image data available.")
+                        raise ValueError("No image data available")
+                except Exception as e:
+                    print(f"Error loading image for product {product_details[1]}: {e}")
+
 
                 # Category
                 ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")

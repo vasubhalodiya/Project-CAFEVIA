@@ -1,166 +1,97 @@
-# INSERT function
-def Movieinsert():
-    MovieId = txtid.get()
-    MovieName = txtMovieName.get()
-    ReleaseDate = txtReleaseDate.get()
+from tkinter import Tk, Frame, Label, Button, Canvas, Scrollbar
+from PIL import Image, ImageTk
+import MySQLdb
+import os
 
-    MovieCategory = txtMovieCategory.get()
-    MovieDuration = txtMovieDuration.get()
-    MovieLanguage = txtMovieLanguage.get()
+# Colors for the UI
+top_color = "#f8f9fa"
+secondary_color = "#ffffff"
+sidecart_color = "#e9ecef"
+primary_color = "#007bff"
+price_color = "#ffc107"
+active_color = "#0056b3"
 
-    ShortDescription = txtShortDescription.get()
-    MovieFormate = txtMovieFormate.get()
+# Create main window
+root = Tk()
+root.title("Cafecia Product Display")
+root.geometry("800x600")
 
-    if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
-        messagebox.showinfo("Insert Status","All fields are required")
-    else:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-        cursor = con.cursor()
-        cursor.execute("insert into movie_details values('"+MovieId+"','"+MovieName+"','"+ReleaseDate+"','"+MovieCategory+"','"+MovieDuration+"','"+MovieLanguage+"','"+ShortDescription+"','"+MovieFormate+"')")
-        cursor.execute("commit")
-        messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
-        con.close()
+# Canvas for scrolling
+canvas = Canvas(root, bg=top_color)
+canvas.pack(side="left", fill="both", expand=True)
 
+# Scrollbar for the canvas
+scrollbar = Scrollbar(root, orient="vertical", command=canvas.yview)
+scrollbar.pack(side="right", fill="y")
+canvas.configure(yscrollcommand=scrollbar.set)
 
+# Frame inside the canvas
+canvas_frame = Frame(canvas, bg=top_color)
+canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
-def MovieDelete():
-    if(txtid.get() == ""):
-        messagebox.showinfo("Delete Status","ID Is Required For Delete Operation")
-    else:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-        cursor = con.cursor()
-        cursor.execute("delete from movie_details where id='"+txtid.get()+"'")
-        cursor.execute("commit")
+# Database and card creation
+try:
+    # Connect to the database
+    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM product")
+    products = cursor.fetchall()
+    con.close()
+except Exception as e:
+    print(f"Error connecting to the database: {e}")
+    products = []
 
-        txtid.delete(0,'end')
-        txtMovieName.delete(0,'end')
-        txtReleaseDate.delete(0,'end')
+row_frame = None
+card_count = 0
+for product_details in products:
+    if card_count % 4 == 0:
+        row_frame = Frame(canvas_frame, background=secondary_color)
+        row_frame.pack(padx=20, pady=10)
 
-        txtMovieCategory.delete(0,'end')
-        txtMovieDuration.delete(0,'end')
-        txtMovieLanguage.delete(0,'end')
+    ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
+    ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
 
-        txtShortDescription.delete(0,'end')
-        txtMovieFormate.delete(0,'end')
-        messagebox.showinfo("DELETE Status","DELETED SUCCESSFULLY")
-        con.close()
+    # Image
+    try:
+        img_path = product_details[5]  # Assuming the 6th column is the image path
+        if os.path.exists(img_path):
+            img = Image.open(img_path)
+            img = img.resize((160, 120))  # Resize to fit the card
+            tk_img = ImageTk.PhotoImage(img)
 
+            ProductImageLabel = Label(ProductDtlCard, image=tk_img, bg=sidecart_color)
+            ProductImageLabel.image = tk_img  # Keep a reference to avoid garbage collection
+            ProductImageLabel.place(relx=0.1, rely=0.05, relwidth=0.8, relheight=0.45)
+        else:
+            raise FileNotFoundError(f"Image file does not exist: {img_path}")
+    except Exception as e:
+        print(f"Error loading image for product {product_details[1]}: {e}")
+        PlaceholderLabel = Label(ProductDtlCard, text="No Image", bg=sidecart_color, fg="gray")
+        PlaceholderLabel.place(relx=0.1, rely=0.05, relwidth=0.8, relheight=0.45)
 
+    # Category
+    ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
+    ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
 
-#UPDATE OPERATION
-        def MovieUpdate():
-            pass
-            MovieId = txtid.get()
-            MovieName = txtMovieName.get()
-            ReleaseDate = txtReleaseDate.get()
+    # Product Name
+    ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
+    ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
 
-            MovieCategory = txtMovieCategory.get()
-            MovieDuration = txtMovieDuration.get()
-            MovieLanguage = txtMovieLanguage.get()
+    # Price
+    ProductPriceLabel = Label(ProductDtlCard, text=f"\u20B9 {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
+    ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
-            ShortDescription = txtShortDescription.get()
-            MovieFormate = txtMovieFormate.get()
+    # Add to Cart Button
+    ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+    ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
-            if(MovieId=="" or MovieName=="" or ReleaseDate=="" or MovieCategory=="" or MovieDuration=="" or MovieLanguage=="" or ShortDescription=="" or MovieFormate==""):
-                messagebox.showinfo("Update Status","All fields are required")
-            else:
-                con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
-                cursor = con.cursor()
-                cursor.execute("update movie_details set MovieName='"+MovieName+"',ReleseDate='"+ReleaseDate+"',MovieCategory='"+MovieCategory+"',MovieDuration='"+MovieDuration+"',MovieLanguage='"+MovieLanguage+"',ShortDescription='"+ShortDescription+"',MovieFormate='"+MovieFormate+"' where MovieId='"+MovieId+"'")
-                cursor.execute("commit")
+    card_count += 1
 
-                txtid.delete(0,'end')
-                txtMovieName.delete(0,'end')
-                txtReleaseDate.delete(0,'end')
+# Update canvas scroll region
+def update_scroll_region(event=None):
+    canvas.configure(scrollregion=canvas.bbox("all"))
 
-                txtMovieCategory.delete(0,'end')
-                txtMovieDuration.delete(0,'end')
-                txtMovieLanguage.delete(0,'end')
+canvas_frame.bind("<Configure>", update_scroll_region)
 
-                txtShortDescription.delete(0,'end')
-                txtMovieFormate.delete(0,'end')
-                messagebox.showinfo("UPDATE Status","UPDATED SUCCESSFULLY")
-                con.close()
-
-
-class MovieCRUD:
-    def _init_(self,MovieCRUDwindow):
-        self.MovieCRUDwindow = MovieCRUDwindow
-        self.MovieCRUDwindow.title("BOOK MY SHOW - ADD UPDATE DELETE MOVIE")
-        self.MovieCRUDwindow.geometry("1000x600")
-        self.MovieCRUDwindow.state('normal')
-        
-        # ALL FIELD's AND FRAME
-        CRUDtxtFild = Frame(MovieCRUDwindow,background='#800808')
-        CRUDtxtFild.config(height=350,width=1000)
-        CRUDtxtFild.place(x=0,y=0)
-
-        CRUDmenu = Frame(CRUDtxtFild,background='white')
-        CRUDmenu.config(height=30,width=1000)
-        CRUDmenu.place(x=0,y=10)
-
-        MovieAddBtn = Button(CRUDmenu,text="ADD MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=Movieinsert)
-        MovieAddBtn.place(x=540,y=0)
-
-        MovieUpdateBtn = Button(CRUDmenu,text="UPDATE MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=MovieUpdate)
-        MovieUpdateBtn.place(x=700,y=0)
-
-        MovieDeleteBtn = Button(CRUDmenu,text="DELETE MOVIE",font=("century gothic bold",10),width=15,height=1,background='white',foreground='black',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3,command=MovieDelete)
-        MovieDeleteBtn.place(x=850,y=0)
-
-        MoviewDetails = Label(CRUDmenu,text="  MOVIE DETAIL's  ",font=('century gothic bold',20),background='#880808',foreground='white')
-        MoviewDetails.place(x=50,y=0)
-
-        lblid = Label(CRUDtxtFild,text="MOVIE ID :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblid.place(x=50,y=70)
-
-        txtid = Entry(CRUDtxtFild,textvariable=id_int,font=('century gothic',15),width=20,relief='ridge')
-        txtid.place(x=50,y=100)
-
-        lblMovieName = Label(CRUDtxtFild,text="MOVIE NAME :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieName.place(x=50,y=150)
-
-        txtMovieName = Entry(CRUDtxtFild,textvariable=MovieName,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieName.place(x=50,y=180)
-
-        lblReleaseDate = Label(CRUDtxtFild,text="RELEASE DATE :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblReleaseDate.place(x=50,y=230)
-
-        txtReleaseDate = Entry(CRUDtxtFild,textvariable=ReleaseDate,font=('century gothic',15),width=20,relief='ridge')
-        txtReleaseDate.place(x=50,y=260)
-
-        lblMovieCategory = Label(CRUDtxtFild,text="MOVIE CATEGORY :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieCategory.place(x=390,y=70)
-        
-        txtMovieCategory = Entry(CRUDtxtFild,textvariable=category,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieCategory.place(x=390,y=100)
-
-        lblMovieDuration = Label(CRUDtxtFild,text="MOVIE DURATION :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieDuration.place(x=390,y=150)
-        
-        txtMovieDuration = Entry(CRUDtxtFild,textvariable=Duration,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieDuration.place(x=390,y=180)
-
-        lblMovieLanguage = Label(CRUDtxtFild,text="MOVIE LANGUAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieLanguage.place(x=390,y=230)
-
-        txtMovieLanguage = Entry(CRUDtxtFild,textvariable=Language,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieLanguage.place(x=390,y=260)
-
-        lblShortDescription = Label(CRUDtxtFild,text="SHORT DESCRIPTION :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblShortDescription.place(x=730,y=70)
-        
-        txtShortDescription = Entry(CRUDtxtFild,textvariable=Short_Description,font=('century gothic',15),width=20,relief='ridge')
-        txtShortDescription.place(x=730,y=100)
-
-        lblMovieimage = Label(CRUDtxtFild,text="MOVIE IMAGE :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieimage.place(x=730,y=150)
-        
-        txtMovieimage = Entry(CRUDtxtFild,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieimage.place(x=730,y=180)
-
-        lblMovieFormat = Label(CRUDtxtFild,text="MOVIE FORMATE :",font=('century gothic bold',15),background='#880808',foreground='white')
-        lblMovieFormat.place(x=730,y=230)
-
-        txtMovieFormate = Entry(CRUDtxtFild,textvariable=Formatee,font=('century gothic',15),width=20,relief='ridge')
-        txtMovieFormate.place(x=730,y=260)
+# Start the Tkinter event loop
+root.mainloop()

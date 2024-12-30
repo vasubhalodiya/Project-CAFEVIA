@@ -2,97 +2,89 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 
-# Connect to MySQL database
-def connect_db():
+# MySQL connection
+def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",         # Replace with your MySQL username
-        password="",         # Replace with your MySQL password
-        database="table_booking_system"
+        user="root",
+        password="",
+        database="cafevia"
     )
 
-# Fetch all tables from the database
-def fetch_tables():
-    try:
-        db = connect_db()
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM tables")
-        tables = cursor.fetchall()
-        db.close()
-        return tables
-    except mysql.connector.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
-        return []
+# Fetch all products from the product table
+def fetch_products():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM product")
+    products = cursor.fetchall()
+    conn.close()
+    return products
 
-# Update the table status in the database
-def update_table_status(table_id, new_status):
-    try:
-        db = connect_db()
-        cursor = db.cursor()
-        query = "UPDATE tables SET status = %s WHERE id = %s"
-        cursor.execute(query, (new_status, table_id))
-        db.commit()
-        db.close()
-        messagebox.showinfo("Success", f"Table {table_id} is now {new_status}.")
-        refresh_ui()
-    except mysql.connector.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
+# Add product to cart table
+def add_to_cart(proid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO cart (proid) VALUES (%s)", (proid,))
+    conn.commit()
+    conn.close()
 
-# Refresh the UI to reflect updated table statuses
-def refresh_ui():
-    for widget in root.winfo_children():
-        widget.destroy()
-    render_ui()
+# Fetch cart items
+def fetch_cart():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM cart")
+    cart_items = cursor.fetchall()
+    conn.close()
+    return cart_items
 
-# Render the UI with table statuses
-def render_ui():
-    tables = fetch_tables()
+# Update the sidebar cart section
+def update_cart_sidebar():
+    cart_items = fetch_cart()
+    cart_list.delete(0, tk.END)
+    for item in cart_items:
+        cart_list.insert(tk.END, f"Product ID: {item[0]}")  # Adjust this line to show relevant data
 
-    if not tables:
-        tk.Label(root, text="No tables available.", font=("Arial", 12)).pack()
-        return
+# Add to cart button handler
+def on_add_to_cart(proid):
+    add_to_cart(proid)
+    update_cart_sidebar()
+    messagebox.showinfo("Success", "Product added to cart!")
 
-    tk.Label(root, text="Table Booking System", font=("Arial", 16)).pack(pady=10)
+# Create product card
+def create_product_card(master, product):
+    frame = tk.Frame(master)
+    frame.pack(padx=10, pady=10)
+    product_name = tk.Label(frame, text=product[1], font=("Arial", 14))
+    product_name.pack()
+    
+    product_price = tk.Label(frame, text=f"Price: ${product[2]}", font=("Arial", 12))
+    product_price.pack()
+    
+    add_button = tk.Button(frame, text="Add to Cart", command=lambda: on_add_to_cart(product[0]))
+    add_button.pack()
 
-    for table in tables:
-        table_id, table_number, status = table
-        color = "green" if status == "available" else "red"
-        button_text = f"Table {table_number}\n({status.capitalize()})"
-
-        btn = tk.Button(root, text=button_text, bg=color, fg="white", width=15, height=3, command=lambda tid=table_id, stat=status: toggle_table_status(tid, stat))
-        btn.pack(pady=5)
-
-# Toggle table status between 'available' and 'reserved'
-def toggle_table_status(table_id, current_status):
-    new_status = "available" if current_status == "reserved" else "reserved"
-    update_table_status(table_id, new_status)
-
-# Automatically reset all tables to 'available' after 2 hours (7200000 milliseconds)
-def auto_reset_tables():
-    try:
-        db = connect_db()
-        cursor = db.cursor()
-        query = "UPDATE tables SET status = 'available'"
-        cursor.execute(query)
-        db.commit()
-        db.close()
-        messagebox.showinfo("Reset", "All tables are now available.")
-        refresh_ui()
-    except mysql.connector.Error as err:
-        messagebox.showerror("Database Error", f"Error: {err}")
-
-    # Schedule the reset again after 2 hours (7200000 milliseconds)
-    root.after(10000, auto_reset_tables)  # 2 hours = 2 * 60 * 60 * 1000 ms
-
-# Main window setup
+# Tkinter setup
 root = tk.Tk()
-root.title("Table Booking System")
-root.geometry("400x400")
+root.title("Cafevia")
 
-# Call the auto_reset_tables function to start the automatic reset process
-auto_reset_tables()
+# Sidebar for Cart
+sidebar = tk.Frame(root, width=200, bg="lightgray", height=500)
+sidebar.pack(side=tk.RIGHT, fill=tk.Y)
 
-# Initial UI rendering
-render_ui()
+cart_label = tk.Label(sidebar, text="Your Cart", font=("Arial", 16), bg="lightgray")
+cart_label.pack(pady=10)
 
+cart_list = tk.Listbox(sidebar, width=30, height=15)
+cart_list.pack(padx=10, pady=10)
+
+# Main Content
+content_frame = tk.Frame(root)
+content_frame.pack(side=tk.LEFT, padx=20, pady=20)
+
+# Fetch and display products
+products = fetch_products()
+for product in products:
+    create_product_card(content_frame, product)
+
+# Start the Tkinter loop
 root.mainloop()

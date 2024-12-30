@@ -415,7 +415,7 @@ def win():
     window.mainloop()
  
 # LOGIN Main window creation
-if _name_ == "_main_":
+if __name__ == "__main__":
     loginwindow = Tk()
     app = Login(loginwindow)  # Initialize the Login class
     loginwindow.mainloop()
