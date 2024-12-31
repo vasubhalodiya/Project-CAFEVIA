@@ -604,8 +604,6 @@ class AdminDashboard():
                 else:
                     messagebox.showerror("Error", "No image selected.")
 
-
-
             def Productinsert():
                 # Insert movie details along with an optional image into the database.
                 global selected_file_path

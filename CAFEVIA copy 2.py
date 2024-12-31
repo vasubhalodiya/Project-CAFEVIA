@@ -604,8 +604,6 @@ class AdminDashboard():
                 else:
                     messagebox.showerror("Error", "No image selected.")
 
-
-
             def Productinsert():
                 # Insert movie details along with an optional image into the database.
                 global selected_file_path
@@ -701,36 +699,67 @@ class AdminDashboard():
                     con.close()
 
             def ProductUpdate():
+                global selected_file_path  # To access the file path of the selected image
+
                 ProductId = txtProductId.get()
                 ProductName = txtProductName.get()
                 ProductCategory = txtProductCategory.get()
                 ProductAvaliable = txtProductAvaliable.get()
                 ProductPrice = txtProductPrice.get()
-                ProductImage = txtProductImage.get()
 
-                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
-                    messagebox.showinfo("Update Status", "All fields are required")
-                else:
+                # Validation
+                if ProductId == "" or ProductName == "" or ProductCategory == "" or ProductAvaliable == "" or ProductPrice == "":
+                    messagebox.showinfo("Update Status", "All fields except image are required")
+                    return
+
+                image_data = None
+                if selected_file_path:  # Check if a new image is selected
                     try:
-                        # Connect to the database
-                        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                        cursor = con.cursor()
-
-                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proavailable='"+txtProductAvaliable.get()+"',proprice='"+txtProductPrice.get()+"',proimage='"+txtProductImage.get()+"' where proid='"+txtProductId.get()+"'")
-                        con.commit()
-
-                        # Clear input fields
-                        txtProductId.delete(0, 'end')
-                        txtProductName.delete(0, 'end')
-                        txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
-                        txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
-                        messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
-
+                        with open(selected_file_path, "rb") as file:
+                            image_data = file.read()
                     except Exception as e:
-                        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                        messagebox.showerror("Error", f"Failed to read image file: {str(e)}")
+                        return
+
+                try:
+                    # Connect to the database
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+
+                    # SQL query to update the product
+                    if image_data:
+                        query = """UPDATE product 
+                                SET proname=%s, procategory=%s, proavailable=%s, proprice=%s, proimage=%s 
+                                WHERE proid=%s"""
+                        values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, image_data, ProductId)
+                    else:
+                        query = """UPDATE product 
+                                SET proname=%s, procategory=%s, proavailable=%s, proprice=%s 
+                                WHERE proid=%s"""
+                        values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductId)
+
+                    cursor.execute(query, values)
+                    con.commit()
+
+                    # Clear input fields and reset the selected image
+                    txtProductId.delete(0, 'end')
+                    txtProductName.delete(0, 'end')
+                    txtProductCategory.delete(0, 'end')
+                    txtProductAvaliable.delete(0, 'end')
+                    txtProductPrice.delete(0, 'end')
+                    selected_file_path = None  # Reset the image path
+                    if 'image_preview' in globals():
+                        image_preview.config(image='')  # Clear the preview if it exists
+
+                    messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
+
+                except MySQLdb.OperationalError as e:
+                    messagebox.showerror("Database Error", f"Operational error: {str(e)}")
+                except Exception as e:
+                    messagebox.showerror("Error", f"An error occurred: {str(e)}")
+                finally:
                     con.close()
+
 
             AddNavbar = Frame(AddCoffeeWindow, background=primary_color)
             AddNavbar.place(relx=0, rely=0, relwidth=1, relheight=0.5)
@@ -826,7 +855,6 @@ class AdminDashboard():
                 values = my_tree.item(selected,'values')
 
                 txtProductId.insert(0,values[0])
-                txtProductImage.insert(0,values[1])
                 txtProductName.insert(0,values[2])
                 txtProductCategory.insert(0,values[3])
                 txtProductPrice.insert(0,values[4])
