@@ -993,11 +993,6 @@ class AdminDashboard():
             draw_tables()
 
 
-
-
-
-
-
         # ==========================================
 
         def SalesMenu():
