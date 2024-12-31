@@ -5,6 +5,7 @@ import MySQLdb
 from tkinter import messagebox
 import mysql.connector
 import io
+import tkinter as tk
 from tkinter import filedialog
 from tkinter import Tk, Canvas, Button, messagebox
 
@@ -519,6 +520,21 @@ class AdminDashboard():
             products = cursor.fetchall()
             con.close()
 
+            # Function to fetch image for each product by product ID
+            def fetch_image(product_id):
+                con = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+                cursor.execute("SELECT proimage FROM product WHERE proid = %s", (product_id,))
+                image_data = cursor.fetchone()
+                con.close()
+
+                if image_data:
+                    # Convert BLOB data to an image
+                    img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
+                    img = img.resize((90, 90))  # Resize image as needed
+                    return ImageTk.PhotoImage(img)
+                return None
+
             row_frame = None
             card_count = 0
             for product_details in products:
@@ -529,12 +545,17 @@ class AdminDashboard():
                 ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
                 ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
 
-                # movie_name = Label(ProductDtlCard, text=product_details[1], background="white", foreground="black", font=('century gothic bold', 8))
-                # movie_name.place(x=10, y=40)
+                ProductImageFrame = Frame(ProductDtlCard, background=sidecart_color, width=200, height=210)
+                ProductImageFrame.place(relx=0.27, rely=0.01)
 
-                # Image
-                
-
+                # Fetch and display the image for the current product
+                product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
+                product_image = fetch_image(product_id)
+                if product_image:
+                    # Display image in a label
+                    label = tk.Label(ProductImageFrame, image=product_image, background=sidecart_color)
+                    label.image = product_image  # Keep reference to avoid garbage collection
+                    label.pack(pady=10)
 
                 # Category
                 ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
