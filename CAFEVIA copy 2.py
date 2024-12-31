@@ -5,6 +5,8 @@ import MySQLdb
 from tkinter import messagebox
 import mysql.connector
 import io
+import tkinter as tk
+import os
 from tkinter import filedialog
 from tkinter import Tk, Canvas, Button, messagebox
 
@@ -519,6 +521,21 @@ class AdminDashboard():
             products = cursor.fetchall()
             con.close()
 
+            # Function to fetch image for each product by product ID
+            def fetch_image(product_id):
+                con = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+                cursor.execute("SELECT proimage FROM product WHERE proid = %s", (product_id,))
+                image_data = cursor.fetchone()
+                con.close()
+
+                if image_data:
+                    # Convert BLOB data to an image
+                    img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
+                    img = img.resize((150, 150))  # Resize image as needed
+                    return ImageTk.PhotoImage(img)
+                return None
+
             row_frame = None
             card_count = 0
             for product_details in products:
@@ -529,12 +546,14 @@ class AdminDashboard():
                 ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
                 ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
 
-                # movie_name = Label(ProductDtlCard, text=product_details[1], background="white", foreground="black", font=('century gothic bold', 8))
-                # movie_name.place(x=10, y=40)
-
-                # Image
-                
-
+                # Fetch and display the image for the current product
+                product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
+                product_image = fetch_image(product_id)
+                if product_image:
+                    # Display image in a label
+                    label = tk.Label(ProductDtlCard, image=product_image)
+                    label.image = product_image  # Keep reference to avoid garbage collection
+                    label.pack(pady=10)
 
                 # Category
                 ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
@@ -553,6 +572,7 @@ class AdminDashboard():
                 ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
                 card_count += 1
+
 
             
 
@@ -847,129 +867,71 @@ class AdminDashboard():
             lblTable = Label(TableBookFrame, text="Table Booking", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             lblTable.place(relx=0.03, rely=0.02)
 
-            # Database connection setup
-            db = mysql.connector.connect(
-                host="localhost",
-                user="root",  # Replace with your MySQL username
-                password="",  # Replace with your MySQL password
-                database="cafevia"  # Updated database name
-            )
-
+            # Database connection
+            db = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
             cursor = db.cursor()
 
-            # Fetch table status from the database
+            # Functions for table status
             def get_table_status(table_number):
                 cursor.execute("SELECT status FROM tablebook WHERE table_number = %s", (table_number,))
                 result = cursor.fetchone()
                 return result[0] if result else "available"
 
-            # Update table status in the database
             def update_table_status(table_number, status):
                 cursor.execute("UPDATE tablebook SET status = %s WHERE table_number = %s", (status, table_number))
                 db.commit()
 
+            # Handle table click
             def on_table_click(table_number):
                 current_status = get_table_status(table_number)
                 new_status = "reserved" if current_status == "available" else "available"
                 update_table_status(table_number, new_status)
                 
-                # Fetch updated status
-                status = get_table_status(table_number)
-                
-                # Update button color
-                button_color = primary_color if status == "available" else "#F02533"  # Red color for reserved
-                
-                # Update chair color
-                chair_color = price_color if status == "available" else "#CECECE"  # Grey color for reserved
-                
-                # Find the corresponding button and update its color
-                for widget in canvas.winfo_children():
-                    if isinstance(widget, Button) and widget.cget("text") == f"Table {table_number}":
-                        widget.config(bg=button_color)
-                        break
-                
-                # Change chair colors for the corresponding table
-                for chair in canvas.find_withtag(f"table_{table_number}_chair"):
-                    canvas.itemconfig(chair, fill=chair_color)
-                
                 messagebox.showinfo("Table Status Changed", f"Table {table_number} is now {new_status.capitalize()}!")
+                draw_tables()  # Redraw tables to reflect changes
 
-            def draw_table_with_chairs(canvas, relx, rely, table_width, table_height, chair_config, table_number):
-                canvas_width = canvas.winfo_width()
-                canvas_height = canvas.winfo_height()
-                
-                # Calculate the absolute position based on relative position
-                x = relx * canvas_width
-                y = rely * canvas_height
-                
-                # Fetch table status for coloring
+            # Draw table with chairs
+            def draw_table(canvas, x, y, width, height, chair_config, table_number):
                 status = get_table_status(table_number)
-                button_color = primary_color if status == "available" else "#F02533" # Red color for reserved
-                chair_color = price_color if status == "available" else "#CECECE"  # Grey color for reserved
-                
-                # Table button
-                table_button = Button(canvas, text=f"Table {table_number}", bg=button_color, fg=secondary_color, command=lambda: on_table_click(table_number), relief="flat")
-                table_button.place(x=x, y=y, width=table_width, height=table_height)
-                
-                # Chair size and spacing
-                chair_size = 20
-                chair_spacing = 10
-                
-                # Draw chairs and add tags for chair elements
-                # Draw chairs on the top side
-                for i in range(chair_config["top"]):
-                    chair_x = x + (i + 0.5) * (table_width / chair_config["top"]) - (chair_size / 2)
-                    chair_y = y - chair_size - chair_spacing
-                    chair = canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, tags=f"table_{table_number}_chair")
-                
-                # Draw chairs on the bottom side
-                for i in range(chair_config["bottom"]):
-                    chair_x = x + (i + 0.5) * (table_width / chair_config["bottom"]) - (chair_size / 2)
-                    chair_y = y + table_height + chair_spacing
-                    chair = canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, tags=f"table_{table_number}_chair")
-                
-                # Draw chairs on the left side
-                for i in range(chair_config["left"]):
-                    chair_x = x - chair_size - chair_spacing
-                    chair_y = y + (i + 0.5) * (table_height / chair_config["left"]) - (chair_size / 2)
-                    chair = canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, tags=f"table_{table_number}_chair")
-                
-                # Draw chairs on the right side
-                for i in range(chair_config["right"]):
-                    chair_x = x + table_width + chair_spacing
-                    chair_y = y + (i + 0.5) * (table_height / chair_config["right"]) - (chair_size / 2)
-                    chair = canvas.create_rectangle(chair_x, chair_y, chair_x + chair_size, chair_y + chair_size, fill=chair_color, tags=f"table_{table_number}_chair")
+                button_color = primary_color if status == "available" else "#F02533"
+                chair_color = price_color if status == "available" else "#CECECE"
 
-            # Create Canvas
+                # Draw table button
+                table_button = Button(canvas, text=f"Table {table_number}", bg=button_color, fg=secondary_color, command=lambda: on_table_click(table_number))
+                table_button.place(x=x, y=y, width=width, height=height)
+
+
+                # Draw chairs
+                chair_size, spacing = 20, 10
+                positions = {
+                    "top": [(x + (i + 0.5) * width / chair_config["top"] - chair_size / 2, y - chair_size - spacing) for i in range(chair_config["top"])],
+                    "bottom": [(x + (i + 0.5) * width / chair_config["bottom"] - chair_size / 2, y + height + spacing) for i in range(chair_config["bottom"])],
+                    "left": [(x - chair_size - spacing, y + (i + 0.5) * height / chair_config["left"] - chair_size / 2) for i in range(chair_config["left"])],
+                    "right": [(x + width + spacing, y + (i + 0.5) * height / chair_config["right"] - chair_size / 2) for i in range(chair_config["right"])]
+                }
+                for pos_list in positions.values():
+                    for px, py in pos_list:
+                        canvas.create_rectangle(px, py, px + chair_size, py + chair_size, fill=chair_color)
+
+            # Draw all tables
+            def draw_tables():
+                canvas.delete("all")  # Clear existing items
+                table_configs = [
+                    (70, 50, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 1),
+                    (290, 50, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 2),
+                    # Add remaining table configurations here...
+                ]
+                for x, y, width, height, chair_config, table_number in table_configs:
+                    draw_table(canvas, x, y, width, height, chair_config, table_number)
+
+            # Create canvas
             canvas = Canvas(TableBookFrame, bg=secondary_color, bd=0, highlightthickness=0)
             canvas.pack(fill="both", expand=True)
             canvas.place(relx=0, rely=0.15, relwidth=1, relheight=0.85)
 
-            def draw_tables():
-                # Draw tables with different configurations
-                # ---------------------------- x, y, width, height -----------------------------
-                # Row 1
-                draw_table_with_chairs(canvas, 70, 50, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 1)   # Table 1
-                draw_table_with_chairs(canvas, 290, 50, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 2)  # Table 2
-                draw_table_with_chairs(canvas, 560, 50, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 3)  # Table 3
-                draw_table_with_chairs(canvas, 790, 50, 180, 90, {"top": 4, "bottom": 4, "left": 2, "right": 2}, 4)  # Table 4
-                draw_table_with_chairs(canvas, 1080, 50, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 5) # Table 5
-
-                # Row 2
-                draw_table_with_chairs(canvas, 70, 290, 150, 90, {"top": 3, "bottom": 3, "left": 1, "right": 1}, 6)   # Table 6
-                draw_table_with_chairs(canvas, 330, 290, 110, 90, {"top": 2, "bottom": 2, "left": 2, "right": 2}, 7)  # Table 7
-                draw_table_with_chairs(canvas, 560, 290, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 8)  # Table 8
-                draw_table_with_chairs(canvas, 790, 290, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 9)  # Table 9
-                draw_table_with_chairs(canvas, 1050, 290, 140, 90, {"top": 3, "bottom": 3, "left": 1, "right": 1}, 10) # Table 10
-
-                # Row 3
-                draw_table_with_chairs(canvas, 70, 530, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 11)   # Table 11
-                draw_table_with_chairs(canvas, 290, 530, 180, 90, {"top": 4, "bottom": 4, "left": 2, "right": 2}, 12)  # Table 12
-                draw_table_with_chairs(canvas, 580, 530, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 13)  # Table 13
-                draw_table_with_chairs(canvas, 810, 530, 150, 90, {"top": 3, "bottom": 3, "left": 2, "right": 2}, 14)  # Table 14
-                draw_table_with_chairs(canvas, 1080, 530, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 15) # Table 15
-
+            # Initial draw
             draw_tables()
+
 
 
 

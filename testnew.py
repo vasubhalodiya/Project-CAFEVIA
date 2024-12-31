@@ -1,90 +1,76 @@
-import tkinter as tk
-from tkinter import messagebox
-import mysql.connector
+con = MySQLdb.connect(host="localhost", user="root", password="", database="bookmyshow")
+cursor = con.cursor()
+cursor.execute("SELECT * FROM movie_details")
+movies = cursor.fetchall()
+con.close()
 
-# MySQL connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="cafevia"
-    )
+row_frame = None
+card_count = 0
 
-# Fetch all products from the product table
-def fetch_products():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM product")
-    products = cursor.fetchall()
-    conn.close()
-    return products
+for movie_details in movies:
+    if card_count % 4 == 0:
+        row_frame = Frame(canvas_frame,background="#880808")
+        row_frame.pack(pady=10)
 
-# Add product to cart table
-def add_to_cart(proid):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO cart (proid) VALUES (%s)", (proid,))
-    conn.commit()
-    conn.close()
+    MovieCard = Frame(row_frame, background="white", width=234, height=220)
+    MovieCard.grid(row=0, column=card_count % 4, padx=10)
 
-# Fetch cart items
-def fetch_cart():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM cart")
-    cart_items = cursor.fetchall()
-    conn.close()
-    return cart_items
+    movieDetailsBtn = Button(MovieCard,text="DETAILS",font=("century gothic bold",12),width=22,height=1,background='#880808',foreground='white',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3)
+    movieDetailsBtn.place(x=10,y=178)
 
-# Update the sidebar cart section
-def update_cart_sidebar():
-    cart_items = fetch_cart()
-    cart_list.delete(0, tk.END)
-    for item in cart_items:
-        cart_list.insert(tk.END, f"Product ID: {item[0]}")  # Adjust this line to show relevant data
+    movie_name = Label(MovieCard, text=movie_details[1], background="white", foreground="black", font=('century gothic bold', 8))
+    movie_name.place(x=10, y=140)
 
-# Add to cart button handler
-def on_add_to_cart(proid):
-    add_to_cart(proid)
-    update_cart_sidebar()
-    messagebox.showinfo("Success", "Product added to cart!")
+    def fetch_movie_data():
+        try:
+            # Connect to MySQL
+            connection = MySQLdb.connect(
+                host="localhost",
+                user="root",
+                password="",
+                database="bookmyshow"
+            )
+            cursor = connection.cursor()
+            query = "SELECT id, image FROM movie_details"
+            cursor.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+            connection.close()
 
-# Create product card
-def create_product_card(master, product):
-    frame = tk.Frame(master)
-    frame.pack(padx=10, pady=10)
-    product_name = tk.Label(frame, text=product[1], font=("Arial", 14))
-    product_name.pack()
-    
-    product_price = tk.Label(frame, text=f"Price: ${product[2]}", font=("Arial", 12))
-    product_price.pack()
-    
-    add_button = tk.Button(frame, text="Add to Cart", command=lambda: on_add_to_cart(product[0]))
-    add_button.pack()
+            return result
+        except Exception as e:
+            print(f"Error fetching movie data: {e}")
+            return []
+        
+    def display_movie_card(imageframe, movie_data):
+        for idx, (id, image_data) in enumerate(movie_data):
+            if image_data:
+                try:
 
-# Tkinter setup
-root = tk.Tk()
-root.title("Cafevia")
+                    img = Image.open(io.BytesIO(image_data))  
+                    img = img.resize((350, 350))             
+                    img_tk = ImageTk.PhotoImage(img) 
 
-# Sidebar for Cart
-sidebar = tk.Frame(root, width=200, bg="lightgray", height=500)
-sidebar.pack(side=tk.RIGHT, fill=tk.Y)
+                    img_label = Label(imageframe, image=img_tk, bg='white')
+                    img_label.image = img_tk  
+                    img_label.place(x=8, y=8 + (idx * 40)) 
+                except Exception as e:
+                    print(f"Error displaying image for movie ID {id}: {e}")
+            else:
+                
+                Label(
+                    imageframe,
+                    text="No Image",
+                    bg='#feffe4',
+                    fg='red',
+                    font=('Century Gothic', 9)
+                ).place(x=10, y=10 + (idx * 40)) 
 
-cart_label = tk.Label(sidebar, text="Your Cart", font=("Arial", 16), bg="lightgray")
-cart_label.pack(pady=10)
+    imageframe = Frame(MovieCard, background="black", width=100, height=100)
+    imageframe.place(x=10, y=10)
+    movie_data = fetch_movie_data()
 
-cart_list = tk.Listbox(sidebar, width=30, height=15)
-cart_list.pack(padx=10, pady=10)
+    display_movie_card(imageframe, movie_data)
 
-# Main Content
-content_frame = tk.Frame(root)
-content_frame.pack(side=tk.LEFT, padx=20, pady=20)
 
-# Fetch and display products
-products = fetch_products()
-for product in products:
-    create_product_card(content_frame, product)
-
-# Start the Tkinter loop
-root.mainloop()
+    card_count += 1
