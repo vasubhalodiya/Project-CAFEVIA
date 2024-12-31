@@ -1,51 +1,68 @@
-# Function to fetch image for each product by product ID
-def fetch_image(product_id):
-    con = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
-    cursor = con.cursor()
-    cursor.execute("SELECT image_column FROM product WHERE product_id = %s", (product_id,))  # Replace `image_column` with the actual column name
-    image_data = cursor.fetchone()
-    con.close()
+import MySQLdb
+from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import *
 
-    if image_data:
-        # Convert BLOB data to an image
-        img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
-        img = img.resize((150, 150))  # Resize image as needed
-        return ImageTk.PhotoImage(img)
-    return None
+# Function to fetch cart data from the database
+def fetch_cart_data():
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        cursor = con.cursor()
+        cursor.execute("SELECT * FROM cart")  # Fetch all cart items
+        return cursor.fetchall()
+    except Exception as e:
+        print("Error fetching cart data:", e)
+        return []
+    finally:
+        if con:
+            con.close()
 
-row_frame = None
-card_count = 0
-for product_details in products:
-    if card_count % 4 == 0:
-        row_frame = Frame(canvas_frame, background=secondary_color)
-        row_frame.pack(padx=20, pady=10)
+# Function to update item quantity in the cart
+def update_cart(cart_name, new_qty, price):
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        cursor = con.cursor()
+        total = new_qty * price
+        cursor.execute("UPDATE cart SET cartqty = %s, carttotal = %s WHERE cartname = %s", (new_qty, total, cart_name))
+        con.commit()
+    except Exception as e:
+        print("Error updating cart:", e)
+    finally:
+        if con:
+            con.close()
 
-    ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
-    ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
+# Function to create cart cards dynamically
+def populate_cart(frame):
+    for widget in frame.winfo_children():  # Clear existing widgets
+        widget.destroy()
 
-    # Fetch and display the image for the current product
-    product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
-    product_image = fetch_image(product_id)
-    if product_image:
-        # Display image in a label
-        label = tk.Label(ProductDtlCard, image=product_image)
-        label.image = product_image  # Keep reference to avoid garbage collection
-        label.pack(pady=10)
+    cart_items = fetch_cart_data()
 
-    # Category
-    ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
-    ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
+    for idx, (cart_id, name, qty, price, total) in enumerate(cart_items):
+        card = Frame(frame, bg="lightgray")
+        card.place(relx=0.05, rely=0.16 + (idx * 0.12), relwidth=0.91, relheight=0.11)
 
-    # Product Name
-    ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
-    ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+        # Product image (placeholder)
+        img = Image.open('images/coffee.png').resize((60, 60))
+        img = ImageTk.PhotoImage(img)
+        Label(card, image=img, bg="lightgray").place(relx=0, rely=0.09, width=75, height=75)
+        card.image = img  # Keep reference to avoid garbage collection
 
-    # Price
-    ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-    ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+        # Product details
+        Label(card, text=name, bg="lightgray", fg="black", font=("Arial", 12)).place(relx=0.3, rely=0.1)
+        Label(card, text=f"₹ {price}", bg="white", fg="black", font=("Arial", 12)).place(relx=0.32, rely=0.5, width=50)
 
-    # Add to Cart Button
-    ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-    ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+        # Quantity controls
+        Button(card, text="-", command=lambda n=name, q=qty, p=price: update_cart(n, max(1, q - 1), p), width=2).place(relx=0.6, rely=0.5)
+        Label(card, text=qty, bg="lightgray", fg="black", font=("Arial", 12)).place(relx=0.7, rely=0.5, width=20)
+        Button(card, text="+", command=lambda n=name, q=qty, p=price: update_cart(n, q + 1, p), width=2).place(relx=0.8, rely=0.5)
 
-    card_count += 1
+# Main window and frame
+root = tk.Tk()
+root.geometry("500x500")
+MenuCartFrame = Frame(root, bg="white")
+MenuCartFrame.pack(fill="both", expand=True)
+
+populate_cart(MenuCartFrame)  # Load the cart
+
+root.mainloop()

@@ -355,53 +355,61 @@ class AdminDashboard():
             MenuCartTakeAwayBtn = Button(MenuCartFrame, text="Take away", font=("century gothic bold", 11), background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
             MenuCartTakeAwayBtn.place(relx=0.35, rely=0.07, relwidth=0.35, relheight=0.04)
 
-            MenuCartProductCardParent = Frame(MenuCartFrame, background=sidecart_color)
-            MenuCartProductCardParent.place(relx=0.05, rely=0.16, relwidth=0.91, relheight=0.11)
-
-            MenuCartProductImage = Image.open('images/coffee.png').resize((60, 60))
-            MenuCartProductImage = ImageTk.PhotoImage(MenuCartProductImage)
-            MenuCartProductImage_label = Label(MenuCartProductCardParent, image=MenuCartProductImage, background=sidecart_color)
-            MenuCartProductImage_label.image = MenuCartProductImage
-            MenuCartProductImage_label.place(relx=0, rely=0.09, width=75, height=75)
-
-            MenuCartProductName = Label(MenuCartProductCardParent, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13))
-            MenuCartProductName.place(relx=0.3, rely=0.1)
-
-            MenuCartOrderPrice = Label(MenuCartProductCardParent, text="₹ 100", bg=price_color, fg=secondary_color, font=("century gothic bold", 13))
-            MenuCartOrderPrice.place(relx=0.32, rely=0.5, relwidth=0.21, relheight=0.24)
-
-            MenuCartMinusBtn = Button(MenuCartProductCardParent, text="-", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            MenuCartMinusBtn.place(relx=0.6, rely=0.5, width=25, height=25)
-            # *************
-            MenuCartItemNo = Label(MenuCartProductCardParent, text="3", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 15))
-            MenuCartItemNo.place(relx=0.7, rely=0.5, width=22, height=22)
-            # *************
-            MenuCartPlusBtn = Button(MenuCartProductCardParent, text="+", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            MenuCartPlusBtn.place(relx=0.8, rely=0.5, width=25, height=25)
         # ===================================================
-            MenuCartProductCardParent = Frame(MenuCartFrame, background=sidecart_color)
-            MenuCartProductCardParent.place(relx=0.05, rely=0.3, relwidth=0.91, relheight=0.11)
+        
+            # Function to fetch cart data from the database
+            def fetch_cart_data():
+                try:
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM cart")  # Fetch all cart items
+                    return cursor.fetchall()
+                except Exception as e:
+                    print("Error fetching cart data:", e)
+                    return []
+                finally:
+                    if con:
+                        con.close()
 
-            MenuCartProductImage = Image.open('images/coffee.png').resize((60, 60))
-            MenuCartProductImage = ImageTk.PhotoImage(MenuCartProductImage)
-            MenuCartProductImage_label = Label(MenuCartProductCardParent, image=MenuCartProductImage, background=sidecart_color)
-            MenuCartProductImage_label.image = MenuCartProductImage
-            MenuCartProductImage_label.place(relx=0, rely=0.09, width=75, height=75)
+            # Function to update item quantity in the cart
+            def update_cart(cart_name, new_qty, price):
+                try:
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    total = new_qty * price
+                    cursor.execute("UPDATE cart SET cartqty = %s, carttotal = %s WHERE cartname = %s", (new_qty, total, cart_name))
+                    con.commit()
+                except Exception as e:
+                    print("Error updating cart:", e)
+                finally:
+                    if con:
+                        con.close()
 
-            MenuCartProductName = Label(MenuCartProductCardParent, text="Hello World Coffee", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13))
-            MenuCartProductName.place(relx=0.3, rely=0.1)
+            # Function to create cart cards dynamically
+            def populate_cart(frame):
+                for widget in frame.winfo_children():  # Clear existing widgets
+                    widget.destroy()
 
-            MenuCartOrderPrice = Label(MenuCartProductCardParent, text="₹ 100", bg=price_color, fg=secondary_color, font=("century gothic bold", 13))
-            MenuCartOrderPrice.place(relx=0.32, rely=0.5, relwidth=0.21, relheight=0.24)
+                cart_items = fetch_cart_data()
 
-            MenuCartMinusBtn = Button(MenuCartProductCardParent, text="-", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            MenuCartMinusBtn.place(relx=0.6, rely=0.5, width=25, height=25)
-            # *************
-            MenuCartItemNo = Label(MenuCartProductCardParent, text="3", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 15))
-            MenuCartItemNo.place(relx=0.7, rely=0.5, width=22, height=22)
-            # *************
-            MenuCartPlusBtn = Button(MenuCartProductCardParent, text="+", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
-            MenuCartPlusBtn.place(relx=0.8, rely=0.5, width=25, height=25)
+                for idx, (cart_id, name, qty, price, total) in enumerate(cart_items):
+                    card = Frame(frame, bg="lightgray")
+                    card.place(relx=0.05, rely=0.16 + (idx * 0.12), relwidth=0.91, relheight=0.11)
+
+                    # Product image (placeholder)
+                    img = Image.open('images/coffee.png').resize((60, 60))
+                    img = ImageTk.PhotoImage(img)
+                    Label(card, image=img, bg="lightgray").place(relx=0, rely=0.09, width=75, height=75)
+                    card.image = img  # Keep reference to avoid garbage collection
+
+                    # Product details
+                    Label(card, text=name, bg="lightgray", fg="black", font=("Arial", 12)).place(relx=0.3, rely=0.1)
+                    Label(card, text=f"₹ {price}", bg="white", fg="black", font=("Arial", 12)).place(relx=0.32, rely=0.5, width=50)
+
+                    # Quantity controls
+                    Button(card, text="-", command=lambda n=name, q=qty, p=price: update_cart(n, max(1, q - 1), p), width=2).place(relx=0.6, rely=0.5)
+                    Label(card, text=qty, bg="lightgray", fg="black", font=("Arial", 12)).place(relx=0.7, rely=0.5, width=20)
+                    Button(card, text="+", command=lambda n=name, q=qty, p=price: update_cart(n, q + 1, p), width=2).place(relx=0.8, rely=0.5)
         # ===================================================
 
             MenuCartItemTotal = Label(MenuCartFrame, text="Items", bg=sidecart_color, fg=primary_color, font=("century gothic", 11), anchor="w")
@@ -427,8 +435,6 @@ class AdminDashboard():
             # *************
             MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
             MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
-
-
 
         # ================== Menu Cart Product End=====================
 
@@ -535,6 +541,41 @@ class AdminDashboard():
                     return ImageTk.PhotoImage(img)
                 return None
 
+            # Function to insert data into the cart table
+            def add_to_cart(product_id, product_name, product_price):
+                try:
+                    # Connect to the database
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+
+                    # Check if the product is already in the cart
+                    cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
+                    cart_item = cursor.fetchone()
+
+                    if cart_item:
+                        # If the product is already in the cart, update quantity and total
+                        new_qty = cart_item[0] + 1
+                        new_total = new_qty * product_price
+                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", 
+                                    (new_qty, new_total, product_name))
+                    else:
+                        # If the product is not in the cart, insert a new row
+                        cart_total = product_price  # Total is initially the price of one unit
+                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
+                                    (product_name, 1, product_price))
+
+                    # Commit the transaction
+                    con.commit()
+                    print(f"Added {product_name} to cart successfully!")
+
+                except Exception as e:
+                    print("Error while adding to cart:", e)
+                finally:
+                    # Close the database connection
+                    if con:
+                        con.close()
+
+            # UI code to display products and bind Add to Cart functionality
             row_frame = None
             card_count = 0
             for product_details in products:
@@ -570,10 +611,24 @@ class AdminDashboard():
                 ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
 
                 # Add to Cart Button
-                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+                product_name = product_details[2]  # Assuming product name is in column index 2
+                product_price = product_details[4]  # Assuming product price is in column index 4
+                ProductAddToCardButton = Button(ProductDtlCard, 
+                                                text="Add", 
+                                                font=("century gothic bold", 11), 
+                                                width=27, 
+                                                height=1, 
+                                                background=primary_color, 
+                                                foreground=secondary_color, 
+                                                cursor="hand2", 
+                                                relief="flat", 
+                                                activebackground=active_color, 
+                                                bd=2, 
+                                                command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
                 ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
                 card_count += 1
+
 
             
 
@@ -604,33 +659,18 @@ class AdminDashboard():
                 else:
                     messagebox.showerror("Error", "No image selected.")
 
+
+
             def Productinsert():
                 # Insert movie details along with an optional image into the database.
                 global selected_file_path
 
                 ProductName = txtProductName.get()
                 ProductCategory = txtProductCategory.get()
-                ProductAvaliable = txtProductAvaliable.get()
                 ProductPrice = txtProductPrice.get()
                 # ProductImage = txtProductImage.get()
 
-                # if(ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
-                #     messagebox.showinfo("Insert Status","All fields are required")
-                # else:
-                #     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                #     cursor = con.cursor()
-                #     cursor.execute("INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s)", (ProductName, ProductCategory, ProductAvaliable, ProductPrice, ProductImage))
-                #     con.commit()
-
-                #     txtProductName.delete(0,'end')
-                #     txtProductCategory.delete(0,'end')
-                #     txtProductAvaliable.delete(0,'end')
-                #     txtProductPrice.delete(0,'end')
-                #     txtProductImage.delete(0,'end')
-                #     messagebox.showinfo("INSERT Status","INSERTED SUCCESSFULLY")
-                #     con.close()
-
-                if (ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice==""):
+                if (ProductName=="" or ProductCategory=="" or ProductPrice==""):
                     messagebox.showinfo("Insert Status","All fields are required")
                     return  # Exit the function if validation fails
 
@@ -651,7 +691,7 @@ class AdminDashboard():
 
                     # SQL query to insert movie details along with the image
                     query = """ INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s) """
-                    values = (ProductName, ProductCategory, ProductAvaliable, ProductPrice, image_data if image_data else None)
+                    values = (ProductName, ProductCategory, ProductPrice, image_data if image_data else None)
 
                     cursor.execute(query, values)
                     con.commit()
@@ -659,7 +699,6 @@ class AdminDashboard():
                     # Clear input fields and reset the image path
                     txtProductName.delete(0,'end')
                     txtProductCategory.delete(0,'end')
-                    txtProductAvaliable.delete(0,'end')
                     txtProductPrice.delete(0,'end')
                     selected_file_path = None  # Reset the global variable
 
@@ -690,7 +729,6 @@ class AdminDashboard():
                         txtProductId.delete(0, 'end')
                         txtProductName.delete(0, 'end')
                         txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
                         txtProductPrice.delete(0, 'end')
 
                         messagebox.showinfo("DELETE Status", "Deleted Successfully")
@@ -702,11 +740,9 @@ class AdminDashboard():
                 ProductId = txtProductId.get()
                 ProductName = txtProductName.get()
                 ProductCategory = txtProductCategory.get()
-                ProductAvaliable = txtProductAvaliable.get()
                 ProductPrice = txtProductPrice.get()
-                ProductImage = txtProductImage.get()
 
-                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductAvaliable=="" or ProductPrice=="" or ProductImage==""):
+                if (ProductId=="" or ProductName=="" or ProductCategory=="" or ProductPrice==""):
                     messagebox.showinfo("Update Status", "All fields are required")
                 else:
                     try:
@@ -714,16 +750,14 @@ class AdminDashboard():
                         con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                         cursor = con.cursor()
 
-                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proavailable='"+txtProductAvaliable.get()+"',proprice='"+txtProductPrice.get()+"',proimage='"+txtProductImage.get()+"' where proid='"+txtProductId.get()+"'")
+                        cursor.execute("update product set proname='"+txtProductName.get()+"',procategory='"+txtProductCategory.get()+"',proprice='"+txtProductPrice.get()+"' where proid='"+txtProductId.get()+"'")
                         con.commit()
 
                         # Clear input fields
                         txtProductId.delete(0, 'end')
                         txtProductName.delete(0, 'end')
                         txtProductCategory.delete(0, 'end')
-                        txtProductAvaliable.delete(0, 'end')
                         txtProductPrice.delete(0, 'end')
-                        txtProductImage.delete(0, 'end')
                         messagebox.showinfo("UPDATE Status", "UPDATED SUCCESSFULLY")
 
                     except Exception as e:
@@ -746,11 +780,6 @@ class AdminDashboard():
             txtProductCategory = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
             txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
 
-            lblProductAvaliable = Label(AddCoffeeWindow, text="Product Availability", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductAvaliable.place(relx=0.07, rely=0.36)
-            txtProductAvaliable = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
-            txtProductAvaliable.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
-
             lblProductName = Label(AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductName.place(relx=0.4, rely=0.1)
             txtProductName = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
@@ -762,9 +791,9 @@ class AdminDashboard():
             txtProductPrice.place(relx=0.4, rely=0.28, relwidth=0.25, relheight=0.05)
 
             lblProductImage = Label(AddCoffeeWindow, text="Product Image", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
-            lblProductImage.place(relx=0.4, rely=0.36)
+            lblProductImage.place(relx=0.07, rely=0.36)
             txtProductImage = Button(AddCoffeeWindow, text="Browse Image", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=browse_image)
-            txtProductImage.place(relx=0.4, rely=0.41, relwidth=0.25, relheight=0.05)
+            txtProductImage.place(relx=0.07, rely=0.41, relwidth=0.25, relheight=0.05)
 
             AddProductButton = Button(AddCoffeeWindow, text="Add Product", background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, font=("century gothic bold", 12), command=Productinsert)
             AddProductButton.place(relx=0.73, rely=0.12, relwidth=0.2, relheight=0.08)
@@ -795,15 +824,14 @@ class AdminDashboard():
                 except MySQLdb.Error as err:
                     print(f"Error: {err}")
             my_tree = ttk.Treeview(CRUDtxtDatagridView)
-            my_tree['columns'] = ("proid", "proimage", "proname","procategory","proprice","proavaliable")
+            my_tree['columns'] = ("proid", "proimage", "proname","procategory","proprice")
 
             my_tree.column("#0", width=0, stretch=NO)  # Default column for the tree structure
             my_tree.column("proid", anchor="w", width=100)
-            my_tree.column("proimage", anchor="w", width=220)
+            my_tree.column("proimage", anchor="w", width=440)
             my_tree.column("proname", anchor="w", width=220)
             my_tree.column("procategory", anchor="w", width=220)
             my_tree.column("proprice", anchor="w", width=220)
-            my_tree.column("proavaliable", anchor="w", width=220)
 
             my_tree.heading("#0", text="Label", anchor="w")
             my_tree.heading("proid", text="Product Id", anchor="w")
@@ -811,24 +839,20 @@ class AdminDashboard():
             my_tree.heading("proname", text="Product Name", anchor="w")
             my_tree.heading("procategory", text="Product Ctegory", anchor="w")
             my_tree.heading("proprice", text="Product Price", anchor="w")
-            my_tree.heading("proavaliable", text="Product Avaliable", anchor="w")
 
             def selectedrecord(e):
                 txtProductId.delete(0, 'end')
                 txtProductName.delete(0, 'end')
                 txtProductCategory.delete(0, 'end')
-                txtProductAvaliable.delete(0, 'end')
                 txtProductPrice.delete(0, 'end')
 
                 selected = my_tree.focus()
                 values = my_tree.item(selected,'values')
 
                 txtProductId.insert(0,values[0])
-                txtProductImage.insert(0,values[1])
                 txtProductName.insert(0,values[2])
                 txtProductCategory.insert(0,values[3])
                 txtProductPrice.insert(0,values[4])
-                txtProductAvaliable.insert(0,values[5])
 
             my_tree.pack()  
             my_tree.bind("<ButtonRelease-1>",selectedrecord)
@@ -989,11 +1013,6 @@ class AdminDashboard():
                 draw_table_with_chairs(canvas, 1080, 530, 110, 90, {"top": 2, "bottom": 2, "left": 1, "right": 1}, 15) # Table 15
 
             draw_tables()
-
-
-
-
-
 
 
         # ==========================================
