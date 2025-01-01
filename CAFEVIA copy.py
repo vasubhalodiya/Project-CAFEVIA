@@ -308,10 +308,9 @@ class AdminDashboard():
                         con.close()
 
             def update_cart(cart_name, new_qty, price, label_qty):
-                # Prevent going beyond the maximum quantity
                 if new_qty < 1:
                     new_qty = 1
-                if new_qty > 10:  # MAX_QUANTITY is set to 10
+                if new_qty > 10:
                     new_qty = 10
 
                 try:
@@ -319,8 +318,6 @@ class AdminDashboard():
                     cursor = con.cursor()
                     cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (new_qty, cart_name))
                     con.commit()
-
-                    # Immediately update the label with the new quantity in the UI
                     label_qty.config(text=str(new_qty))  # Update the quantity label immediately
                 except Exception as e:
                     print("Error updating cart:", e)
@@ -329,42 +326,29 @@ class AdminDashboard():
                         con.close()
 
             def populate_cart(frame):
-                # Clear existing widgets
                 for widget in frame.winfo_children():
                     widget.destroy()
 
-                # Fetch cart data
-                cart_items = fetch_cart_data()  # Ensure this returns (cart_id, name, qty, price)
-
-                for idx, (cart_id, name, price, qty) in enumerate(cart_items):  # Ensure this order is correct
-                    total = int(qty) * float(price)  # Calculate total dynamically
-
-                    card = Frame(frame, background=sidecart_color)  # Adjust the background color as needed
+                cart_items = fetch_cart_data()
+                for idx, (cart_id, name, price, qty) in enumerate(cart_items):
+                    total = int(qty) * float(price)
+                    card = Frame(frame, background=sidecart_color)
                     card.place(relx=0.05, rely=0.03 + (idx * 0.18), relwidth=0.91, relheight=0.15)
 
-                    # Product image (placeholder)
                     img = Image.open('images/coffee.png').resize((50, 50))
                     img = ImageTk.PhotoImage(img)
                     Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
                     card.image = img  # Keep reference to avoid garbage collection
 
-                    # Product details
-                    MenuCartProductName = Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 11)).place(relx=0.3, rely=0.15)
-
-                    # Price Label
-                    MenuCartOrderPrice = Label(card, text=f"₹ {price}", bg=price_color, fg=secondary_color, font=("century gothic bold", 11)).place(relx=0.32, rely=0.55, relwidth=0.21, height=22)
-
-                    # Quantity label (updated dynamically)
+                    Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 11)).place(relx=0.3, rely=0.15)
+                    Label(card, text=f"₹ {price}", bg=price_color, fg=secondary_color, font=("century gothic bold", 11)).place(relx=0.32, rely=0.55, relwidth=0.21, height=22)
                     label_qty = Label(card, text=qty, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 15))
                     label_qty.place(relx=0.7, rely=0.55, width=22, height=22)
 
-                    # Quantity controls with red background for buttons
-                    MenuCartMinusBtn = Button(card, text="-", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, max(1, q - 1), p, label_qty)).place(relx=0.6, rely=0.55, width=22, height=22)
+                    Button(card, text="-", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q - 1, p, label_qty)).place(relx=0.6, rely=0.55, width=22, height=22)
+                    Button(card, text="+", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q + 1, p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
 
-                    # Plus button for Quantity with red background
-                    MenuCartPlusBtn = Button(card, text="+", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, min(10, q + 1), p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
-
-            populate_cart(cart_item_frame)  # Load the cart
+            populate_cart(cart_item_frame)
 
         # ============================
 
@@ -410,7 +394,7 @@ class AdminDashboard():
 
 
             # Function to update total and discount
-            def update_total(MenuCartFrame):
+            def update_total():
                 # Fetch cart data from database
                 cart_items = fetch_cart_data()  # Fetch all cart items (cart_id, name, qty, price)
 
@@ -428,117 +412,54 @@ class AdminDashboard():
                 MenuCartAllTotalAns.config(text=f"₹ {final_total:.0f}")
 
             # Call this function after updating the cart or when populating the cart
-            update_total(MenuCartFrame)
+            update_total()
 
+            # Function to open the customer name frame
+            def open_customer_name_frame():
+                customer_frame = Toplevel()
+                customer_frame.title("Customer Details")
+                customer_frame.geometry("300x150")
+                customer_frame.resizable(False, False)
 
+                Label(customer_frame, text="Enter Customer Name:", font=("century gothic", 12)).pack(pady=10)
 
-            
-            # *************
+                customer_name_var = StringVar()
+                Entry(customer_frame, textvariable=customer_name_var, font=("century gothic", 12), width=30).pack(pady=5)
 
-            # Function to clear the cart table
-            def clear_cart():
-                try:
-                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                    cursor = con.cursor()
-                    cursor.execute("DELETE FROM cart")  # Clear all cart items
-                    con.commit()
-
-                    # Refresh the UI after clearing
-                    populate_cart(cart_item_frame)  # Reload cart UI
-                    update_total(cart_item_frame)  # Update total and discount labels
-                except Exception as e:
-                    print("Error clearing cart:", e)
-                finally:
-                    if con:
-                        con.close()
-
-
-            # Function to insert cart data into orders table
-            def place_order():
-                try:
-                    # Fetch cart data from the database
-                    cart_items = fetch_cart_data()  # Fetch cart data (cart_id, name, qty, price)
-
-                    if not cart_items:
-                        print("Cart is empty. Cannot place an order.")
+                def submit_customer_name():
+                    customer_name = customer_name_var.get()
+                    if not customer_name.strip():
+                        print("Customer name is required.")
                         return
+                    place_order_action(customer_name)
+                    customer_frame.destroy()
 
-                    # Connect to your database
+                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).pack(pady=10)
+
+            # Function to place an order
+            def place_order_action(customer_name):
+                try:
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
-
-                    # Loop through cart items and insert each one into the orders table
+                    cart_items = fetch_cart_data()
+                    if not cart_items:
+                        print("Cart is empty.")
+                        return
                     for _, name, price, qty in cart_items:
-                        total = float(price) * int(qty)  # Calculate total for each item
-                        discount = total * 0.20 if total > 1500 else 0  # Apply discount if total > 1500
-                        final_total = total - discount  # Calculate final total after discount
-
-                        # Insert data into the orders table
-                        cursor.execute("""
-                            INSERT INTO orders (cart_name, cart_qty, cart_price, total, discount, final_total)
-                            VALUES (%s, %s, %s, %s, %s, %s)
-                        """, (name, qty, price, total, discount, final_total))
-
-                    # Commit the transaction
+                        cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (name, qty, price, customer_name))
+                    cursor.execute("DELETE FROM cart")
                     con.commit()
-
-                    # Clear the cart after placing the order
-                    clear_cart()
-
+                    populate_cart(cart_item_frame)
+                    update_total()
                 except Exception as e:
                     print("Error placing order:", e)
                 finally:
                     if con:
                         con.close()
 
-            # Function to display orders in a Treeview
-            def display_orders():
-                try:
-                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                    cursor = con.cursor()
-
-                    # Fetch all orders from the orders table
-                    cursor.execute("""
-                        SELECT order_id, cart_name, cart_qty, cart_price, total, discount, final_total, order_date 
-                        FROM orders
-                    """)
-                    orders = cursor.fetchall()
-
-                    # Clear existing rows in the Treeview
-                    for row in treeview.get_children():
-                        treeview.delete(row)
-
-                    # Insert new rows for each order
-                    for order in orders:
-                        treeview.insert("", "end", values=order)
-
-                except Exception as e:
-                    print("Error fetching orders:", e)
-                finally:
-                    if con:
-                        con.close()
-
-            # Function to handle placing an order and displaying the orders
-            def place_order_action():
-                place_order()  # Insert cart data into orders table and clear the cart
-                display_orders()  # Display the orders in the Treeview
-
-            # Create a Treeview widget to display orders
-            treeview = ttk.Treeview(MenuCartFrame, columns=("Order ID", "Product", "Quantity", "Price", "Total", "Discount", "Final Total", "Order Date"), show="headings")
-            treeview.heading("Order ID", text="Order ID")
-            treeview.heading("Product", text="Product")
-            treeview.heading("Quantity", text="Quantity")
-            treeview.heading("Price", text="Price")
-            treeview.heading("Total", text="Total")
-            treeview.heading("Discount", text="Discount")
-            treeview.heading("Final Total", text="Final Total")
-            treeview.heading("Order Date", text="Order Date")
-
-            treeview.place(relx=0.05, rely=0, relwidth=0.9, relheight=0.4)
-
-            # Create the Place Order button and assign the action to it
-            MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=place_order_action)
+            MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=open_customer_name_frame)
             MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
+
 
 
 

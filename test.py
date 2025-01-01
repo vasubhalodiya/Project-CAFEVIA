@@ -1,95 +1,96 @@
-import mysql.connector
+import MySQLdb
 from tkinter import *
-from tkinter import messagebox
-
-# Database credentials
-DB_HOST = "your_host"
-DB_USER = "your_username"
-DB_PASSWORD = "your_password"
-DB_NAME = "your_database"
-
-# Function to handle placing an order
-def place_order_action():
-    try:
-        # Connect to MySQL database
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME
-        )
-        cursor = conn.cursor()
-
-        # Fetch cart data
-        cursor.execute("SELECT * FROM cart")
-        cart_data = cursor.fetchall()
-
-        if not cart_data:
-            messagebox.showinfo("Info", "Your cart is empty!")
-            return
-
-        # Insert cart data into orders table
-        for item in cart_data:
-            cursor.execute(
-                "INSERT INTO orders (product_id, quantity, price, user_id) VALUES (%s, %s, %s, %s)",
-                (item[1], item[2], item[3], item[4])  # Adjust columns as per your database
-            )
-
-        # Clear the cart
-        cursor.execute("DELETE FROM cart")
-        conn.commit()
-
-        # Show success message
-        messagebox.showinfo("Success", "Your order has been placed successfully!")
-
-        # Clear cart UI (if applicable)
-        for widget in MenuCartFrame.winfo_children():
-            widget.destroy()
-
-    except mysql.connector.Error as err:
-        messagebox.showerror("Error", f"Database error: {err}")
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()
-
-# Main Tkinter application
-root = Tk()
-root.title("Shopping Cart")
-root.geometry("600x400")
+from tkinter import Toplevel
+from PIL import Image, ImageTk
 
 # Colors
-primary_color = "#3498db"
-secondary_color = "#ffffff"
-active_color = "#2980b9"
+sidecart_color, primary_color, secondary_color = "#F8F8F8", "#FF5733", "#FFFFFF"
 
-# Frame for cart
-MenuCartFrame = Frame(root, bg="lightgray")
-MenuCartFrame.place(relx=0.05, rely=0.1, relwidth=0.9, relheight=0.6)
+# Database Helpers
+def fetch_cart_data():
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        with con.cursor() as cursor:
+            cursor.execute("SELECT * FROM cart")
+            return cursor.fetchall()
+    except Exception as e:
+        print("Error fetching cart data:", e)
+        return []
 
-# Mock Cart Data (Optional for Testing UI)
-cart_items = ["Item 1", "Item 2", "Item 3"]
-for index, item in enumerate(cart_items):
-    Label(MenuCartFrame, text=item, font=("Arial", 12), bg="lightgray").place(relx=0.05, rely=0.1 * index)
+def update_cart(name, qty, price, label):
+    qty = max(1, min(10, qty))
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        with con.cursor() as cursor:
+            cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (qty, name))
+        label.config(text=str(qty))
+    except Exception as e:
+        print("Error updating cart:", e)
 
-# Frame for the "Place Order" button
-MenuCartTotalFrame = Frame(root, bg="white")
-MenuCartTotalFrame.place(relx=0.05, rely=0.8, relwidth=0.9, relheight=0.15)
+def populate_cart(frame):
+    for widget in frame.winfo_children():
+        widget.destroy()
+    for idx, (_, name, price, qty) in enumerate(fetch_cart_data()):
+        card = Frame(frame, bg=sidecart_color)
+        card.place(relx=0.05, rely=0.03 + idx * 0.18, relwidth=0.91, relheight=0.15)
 
-# "Place Order" button
-MenuCartPlaceOrderBtn = Button(
-    MenuCartTotalFrame,
-    text="Place an order",
-    font=("century gothic bold", 13),
-    background=primary_color,
-    foreground=secondary_color,
-    cursor="hand2",
-    relief="flat",
-    activebackground=active_color,
-    bd=2,
-    command=place_order_action
-)
-MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
+        img = ImageTk.PhotoImage(Image.open('images/coffee.png').resize((50, 50)))
+        Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
+        card.image = img  # Prevent garbage collection
 
-# Start the Tkinter main loop
+        Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic", 11)).place(relx=0.3, rely=0.15)
+        Label(card, text=f"₹ {price}", bg=sidecart_color, font=("century gothic", 11)).place(relx=0.32, rely=0.55, relwidth=0.21)
+        label_qty = Label(card, text=qty, bg=sidecart_color, font=("century gothic", 15))
+        label_qty.place(relx=0.7, rely=0.55, width=22)
+
+        Button(card, text="-", command=lambda n=name, q=int(qty): update_cart(n, q - 1, float(price), label_qty)).place(relx=0.6, rely=0.55, width=22)
+        Button(card, text="+", command=lambda n=name, q=int(qty): update_cart(n, q + 1, float(price), label_qty)).place(relx=0.8, rely=0.55, width=22)
+
+def update_total(label):
+    cart_items = fetch_cart_data()
+    total = sum(float(price) * int(qty) for _, _, price, qty in cart_items)
+    label.config(text=f"₹ {total - (total * 0.20 if total > 800 else 0):.0f}")
+
+# Order Functions
+def place_order(name):
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        with con.cursor() as cursor:
+            cart_items = fetch_cart_data()
+            if not cart_items:
+                print("Cart is empty.")
+                return
+            for _, item, price, qty in cart_items:
+                cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (item, qty, price, name))
+            cursor.execute("DELETE FROM cart")
+        populate_cart(cart_item_frame)
+        update_total(total_label)
+    except Exception as e:
+        print("Error placing order:", e)
+
+def open_customer_frame():
+    customer_window = Toplevel(root)
+    customer_window.geometry("300x150")
+    Label(customer_window, text="Enter Customer Name:").pack(pady=10)
+    name_var = StringVar()
+    Entry(customer_window, textvariable=name_var).pack(pady=5)
+    Button(customer_window, text="Submit", command=lambda: [place_order(name_var.get()), customer_window.destroy()]).pack(pady=10)
+
+# GUI Setup
+root = Tk()
+root.geometry("800x600")
+
+cart_frame = Frame(root, bg=sidecart_color)
+cart_frame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
+
+cart_item_frame = Frame(cart_frame, bg=sidecart_color)
+cart_item_frame.place(relx=0.05, rely=0.15, relwidth=0.91, relheight=0.6)
+
+total_label = Label(cart_frame, text="₹ 0", bg=sidecart_color, font=("century gothic bold", 12))
+total_label.place(relx=0.7, rely=0.77, relwidth=0.25)
+
+Button(cart_frame, text="Place Order", command=open_customer_frame).place(relx=0, rely=0.86, relwidth=1)
+
+populate_cart(cart_item_frame)
+update_total(total_label)
 root.mainloop()
