@@ -581,18 +581,18 @@ class AdminDashboard():
                 place_order()  # Insert cart data into orders table and clear the cart
                 display_orders()  # Display the orders in the Treeview
 
-            # # Create a Treeview widget to display orders
-            # treeview = ttk.Treeview(MenuCartFrame, columns=("Order ID", "Product", "Quantity", "Price", "Total", "Discount", "Final Total", "Order Date"), show="headings")
-            # treeview.heading("Order ID", text="Order ID")
-            # treeview.heading("Product", text="Product")
-            # treeview.heading("Quantity", text="Quantity")
-            # treeview.heading("Price", text="Price")
-            # treeview.heading("Total", text="Total")
-            # treeview.heading("Discount", text="Discount")
-            # treeview.heading("Final Total", text="Final Total")
-            # treeview.heading("Order Date", text="Order Date")
+            # Create a Treeview widget to display orders
+            treeview = ttk.Treeview(MenuCartFrame, columns=("Order ID", "Product", "Quantity", "Price", "Total", "Discount", "Final Total", "Order Date"), show="headings")
+            treeview.heading("Order ID", text="Order ID")
+            treeview.heading("Product", text="Product")
+            treeview.heading("Quantity", text="Quantity")
+            treeview.heading("Price", text="Price")
+            treeview.heading("Total", text="Total")
+            treeview.heading("Discount", text="Discount")
+            treeview.heading("Final Total", text="Final Total")
+            treeview.heading("Order Date", text="Order Date")
 
-            # treeview.place(relx=0.05, rely=0.5, relwidth=0.9, relheight=0.4)
+            treeview.place(relx=0.05, rely=0.5, relwidth=0.9, relheight=0.4)
 
             # Create the Place Order button and assign the action to it
             MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=place_order_action)

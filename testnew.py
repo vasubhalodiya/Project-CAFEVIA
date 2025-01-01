@@ -1,26 +1,73 @@
-con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-cursor = con.cursor()
-cursor.execute("SELECT * FROM product")
-movies = cursor.fetchall()
-con.close()
+# Function to insert cart data into the orders table
+def place_order():
+    try:
+        # Fetch cart data from the database
+        cart_items = fetch_cart_data()  # Fetch cart data (cart_id, name, qty, price)
 
-row_frame = None
-card_count = 0
-for movie_details in movies:
-    if card_count % 4 == 0:
-        row_frame = Frame(canvas_frame,background="#880808")
-        row_frame.pack(pady=10)
+        if not cart_items:
+            print("Cart is empty. Cannot place an order.")
+            return
 
-    MovieCard = Frame(row_frame, background="white", width=234, height=220)
-    MovieCard.grid(row=0, column=card_count % 4, padx=10)
+        # Connect to your database
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        cursor = con.cursor()
 
-    movieDetailsBtn = Button(MovieCard,text="DETAILS",font=("century gothic bold",12),width=22,height=1,background='#880808',foreground='white',cursor="hand2",highlightthickness=2,relief="flat",overrelief="raise",activebackground="darkred",bd=3)
-    movieDetailsBtn.place(x=10,y=178)
+        # Loop through cart items and insert each one into the orders table
+        for _, name, price, qty in cart_items:
+            total = float(price) * int(qty)  # Calculate total for each item
+            discount = total * 0.20 if total > 1500 else 0  # Apply discount if total > 1500
+            final_total = total - discount  # Calculate final total after discount
 
-    movie_name = Label(MovieCard, text=movie_details[1], background="white", foreground="black", font=('century gothic bold', 8))
-    movie_name.place(x=10, y=150)
+            # Insert data into the orders table
+            cursor.execute("""
+                INSERT INTO orders (cart_name, cart_qty, cart_price, total, discount, final_total)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (name, qty, price, total, discount, final_total))
 
-    Movie_img_frame = Frame(MovieCard, background="red", width=100, height=100)
-    Movie_img_frame.place(x=0,y=0)
-    
-    card_count += 1
+        # Commit the transaction
+        con.commit()
+
+        # Clear the cart after placing the order
+        clear_cart()
+
+    except Exception as e:
+        print("Error placing order:", e)
+    finally:
+        if con:
+            con.close()
+
+# Function to handle placing an order
+def place_order_action():
+    place_order()  # Insert cart data into orders table and clear the cart
+    OrderMenu()  # Call the OrderMenu function to display updated orders
+
+# Create a Treeview widget to display orders in the OrderMenu
+def OrderMenu():
+    try:
+        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+        cursor = con.cursor()
+
+        # Fetch all orders from the orders table
+        cursor.execute("""
+            SELECT order_id, cart_name, cart_qty, cart_price, total, discount, final_total, order_date 
+            FROM orders
+        """)
+        orders = cursor.fetchall()
+
+        # Clear existing rows in the Treeview
+        for row in treeview.get_children():
+            treeview.delete(row)
+
+        # Insert new rows for each order
+        for order in orders:
+            treeview.insert("", "end", values=order)
+
+    except Exception as e:
+        print("Error fetching orders:", e)
+    finally:
+        if con:
+            con.close()
+
+# Create the Place Order button and assign the action to it
+MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=place_order_action)
+MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
