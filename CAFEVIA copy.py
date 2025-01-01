@@ -641,18 +641,7 @@ class AdminDashboard():
                 # Add to Cart Button
                 product_name = product_details[2]  # Assuming product name is in column index 2
                 product_price = product_details[4]  # Assuming product price is in column index 4
-                ProductAddToCardButton = Button(ProductDtlCard, 
-                                                text="Add", 
-                                                font=("century gothic bold", 11), 
-                                                width=27, 
-                                                height=1, 
-                                                background=primary_color, 
-                                                foreground=secondary_color, 
-                                                cursor="hand2", 
-                                                relief="flat", 
-                                                activebackground=active_color, 
-                                                bd=2, 
-                                                command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
+                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
                 ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
                 card_count += 1
@@ -718,7 +707,7 @@ class AdminDashboard():
                     cursor = con.cursor()
 
                     # SQL query to insert movie details along with the image
-                    query = """ INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s) """
+                    query = """ INSERT INTO product (proname, procategory, proprice, proimage) VALUES (%s, %s, %s, %s) """
                     values = (ProductName, ProductCategory, ProductPrice, image_data if image_data else None)
 
                     cursor.execute(query, values)
@@ -896,8 +885,79 @@ class AdminDashboard():
         # ==========================================
 
         def OrderMenu():
-            OrderFrame = Frame(main_frame, background='green')
+            OrderFrame = Frame(main_frame, background=secondary_color)
             OrderFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+            OrderHeading = Label(OrderFrame, text="Recent Orders", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
+            OrderHeading.place(relx=0.03, rely=0.02)
+
+            # Function to fetch order data
+            def fetch_order_data():
+                try:
+                    # Connect to the database
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    
+                    # Query the orders table
+                    cursor.execute("SELECT * FROM orders")
+                    data = cursor.fetchall()
+                    return data
+                except Exception as e:
+                    print("Error fetching order data:", e)
+                    return []
+                finally:
+                    if con:
+                        con.close()
+
+            # Function to populate Treeview
+            def populate_treeview(tree):
+                # Clear existing data
+                for row in tree.get_children():
+                    tree.delete(row)
+                
+                # Fetch data from the database
+                orders = fetch_order_data()
+                
+                # Insert data into the Treeview
+                for order in orders:
+                    tree.insert("", "end", values=order)
+
+            # Create a frame for the Treeview (occupying half the page)
+            treeview_frame = Frame(OrderFrame, background="#f0f0f0")  # Adjust background if needed
+            treeview_frame.place(relx=0.03, rely=0.09, relwidth=0.94, relheight=0.87)
+
+            # Define columns for the Treeview
+            columns = ("Order ID", "Order Name", "Customer Name", "Quantity", "Price", 
+                    "Total", "Discount", "Final Total", "Order Date")
+
+            # Style configuration for Treeview
+            style = ttk.Style()
+            style.configure("Custom.Treeview", background="#e6f2ff", fieldbackground="#e6f2ff", foreground=primary_color, rowheight=25)
+            style.configure("Custom.Treeview.Heading", background="#white", foreground=primary_color, font=("Arial", 10, "bold"))
+
+            # Create the Treeview widget with custom style
+            tree = ttk.Treeview(treeview_frame, columns=columns, show="headings", height=10, style="Custom.Treeview")
+
+            # Configure Treeview columns
+            for col in columns:
+                tree.heading(col, text=col)
+                tree.column(col, width=130, anchor="center")  # Adjust column width as needed
+
+            # Add a vertical scrollbar
+            scrollbar = ttk.Scrollbar(treeview_frame, orient=VERTICAL, command=tree.yview)
+            tree.configure(yscroll=scrollbar.set)
+            scrollbar.pack(side=RIGHT, fill=Y)
+
+            # Hide the scrollbar (still functional, but not visible)
+            scrollbar.pack_forget()
+
+            # Pack the Treeview widget
+            tree.pack(fill=BOTH, expand=True)
+
+            # Populate the Treeview with data
+            populate_treeview(tree)
+
+
 
         # ==========================================
 

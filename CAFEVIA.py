@@ -185,6 +185,7 @@ class AdminDashboard():
             txtDashboard = Label(DashboardFrame, text="Dashboard", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             txtDashboard.place(relx=0.03, rely=0.02)
 
+
            # Connect to MySQL Database
             def get_db_connection():
                 return mysql.connector.connect(
@@ -283,6 +284,9 @@ class AdminDashboard():
         # ================== Menu Cart Product Start=====================
             MenuCartFrame = Frame(main_frame, background=sidecart_color)
             MenuCartFrame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
+
+            cart_item_frame = Frame(main_frame, background=sidecart_color)
+            cart_item_frame.place(relx=0.76, rely=0.15, relwidth=0.24, relheight=0.6)
             
         # ===================================================
         
@@ -304,10 +308,9 @@ class AdminDashboard():
                         con.close()
 
             def update_cart(cart_name, new_qty, price, label_qty):
-                # Prevent going beyond the maximum quantity
                 if new_qty < 1:
                     new_qty = 1
-                if new_qty > 10:  # MAX_QUANTITY is set to 10
+                if new_qty > 10:
                     new_qty = 10
 
                 try:
@@ -315,8 +318,6 @@ class AdminDashboard():
                     cursor = con.cursor()
                     cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (new_qty, cart_name))
                     con.commit()
-
-                    # Immediately update the label with the new quantity in the UI
                     label_qty.config(text=str(new_qty))  # Update the quantity label immediately
                 except Exception as e:
                     print("Error updating cart:", e)
@@ -325,42 +326,29 @@ class AdminDashboard():
                         con.close()
 
             def populate_cart(frame):
-                # Clear existing widgets
                 for widget in frame.winfo_children():
                     widget.destroy()
 
-                # Fetch cart data
-                cart_items = fetch_cart_data()  # Ensure this returns (cart_id, name, qty, price)
+                cart_items = fetch_cart_data()
+                for idx, (cart_id, name, price, qty) in enumerate(cart_items):
+                    total = int(qty) * float(price)
+                    card = Frame(frame, background=sidecart_color)
+                    card.place(relx=0.05, rely=0.03 + (idx * 0.18), relwidth=0.91, relheight=0.15)
 
-                for idx, (cart_id, name, price, qty) in enumerate(cart_items):  # Ensure this order is correct
-                    total = int(qty) * float(price)  # Calculate total dynamically
-
-                    card = Frame(frame, background=sidecart_color)  # Adjust the background color as needed
-                    card.place(relx=0.05, rely=0.16 + (idx * 0.12), relwidth=0.91, relheight=0.11)
-
-                    # Product image (placeholder)
-                    img = Image.open('images/coffee.png').resize((60, 60))
+                    img = Image.open('images/coffee.png').resize((50, 50))
                     img = ImageTk.PhotoImage(img)
-                    Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0.09, width=75, height=75)
+                    Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
                     card.image = img  # Keep reference to avoid garbage collection
 
-                    # Product details
-                    MenuCartProductName = Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13)).place(relx=0.3, rely=0.1)
-
-                    # Price Label
-                    MenuCartOrderPrice = Label(card, text=f"₹ {price}", bg=price_color, fg=secondary_color, font=("century gothic bold", 13)).place(relx=0.32, rely=0.5, relwidth=0.21, relheight=0.24)
-
-                    # Quantity label (updated dynamically)
+                    Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 11)).place(relx=0.3, rely=0.15)
+                    Label(card, text=f"₹ {price}", bg=price_color, fg=secondary_color, font=("century gothic bold", 11)).place(relx=0.32, rely=0.55, relwidth=0.21, height=22)
                     label_qty = Label(card, text=qty, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 15))
-                    label_qty.place(relx=0.7, rely=0.5, width=22, height=22)
+                    label_qty.place(relx=0.7, rely=0.55, width=22, height=22)
 
-                    # Quantity controls with red background for buttons
-                    MenuCartMinusBtn = Button(card, text="-", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, max(1, q - 1), p, label_qty)).place(relx=0.6, rely=0.5, width=25, height=25)
+                    Button(card, text="-", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q - 1, p, label_qty)).place(relx=0.6, rely=0.55, width=22, height=22)
+                    Button(card, text="+", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q + 1, p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
 
-                    # Plus button for Quantity with red background
-                    MenuCartPlusBtn = Button(card, text="+", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, min(10, q + 1), p, label_qty)).place(relx=0.8, rely=0.5, width=25, height=25)
-
-            populate_cart(MenuCartFrame)  # Load the cart
+            populate_cart(cart_item_frame)
 
         # ============================
 
@@ -376,24 +364,20 @@ class AdminDashboard():
             MenuCartTakeAwayBtn = Button(MenuCartFrame, text="Take away", font=("century gothic bold", 11), background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
             MenuCartTakeAwayBtn.place(relx=0.35, rely=0.07, relwidth=0.35, relheight=0.04)
 
-                    
-
-                    
-
-
-
-
         # ===================================================
 
+            # Define the labels globally and place them in the frame
             MenuCartItemTotal = Label(MenuCartFrame, text="Items", bg=sidecart_color, fg=primary_color, font=("century gothic", 11), anchor="w")
             MenuCartItemTotal.place(relx=0.05, rely=0.77, relwidth=0.2, relheight=0.03)
-            MenuCartItemTotalAns = Label(MenuCartFrame, text="₹ 1000", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 12), anchor="e")
+
+            MenuCartItemTotalAns = Label(MenuCartFrame, text="₹ 0", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 12), anchor="e")
             MenuCartItemTotalAns.place(relx=0.7, rely=0.77, relwidth=0.25, relheight=0.03)
-            # *************
+
             MenuCartDiscountTotal = Label(MenuCartFrame, text="Discount", bg=sidecart_color, fg=primary_color, font=("century gothic", 11), anchor="w")
             MenuCartDiscountTotal.place(relx=0.05, rely=0.81, relwidth=0.25, relheight=0.03)
-            MenuCartDiscountTotalAns = Label(MenuCartFrame, text="- ₹100", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 12), anchor="e")
-            MenuCartDiscountTotalAns.place(relx=0.75, rely=0.81, relwidth=0.2, relheight=0.03)
+
+            MenuCartDiscountTotalAns = Label(MenuCartFrame, text="-₹ 0", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 12), anchor="e")
+            MenuCartDiscountTotalAns.place(relx=0.68, rely=0.81, relwidth=0.27, relheight=0.03)
 
             # *************
             MenuCartTotalFrame = Frame(MenuCartFrame, background=sidecart_color)
@@ -403,11 +387,82 @@ class AdminDashboard():
             # *************
             MenuCartAllTotal = Label(MenuCartTotalFrame, text="Total", bg=sidecart_color, fg=primary_color, font=("century gothic bold", 12), anchor="w")
             MenuCartAllTotal.place(relx=0, rely=0.2, relwidth=0.2, relheight=0.2)
-            MenuCartAllTotalAns = Label(MenuCartTotalFrame, text="₹ 1000", bg=price_color, fg=secondary_color, font=("century gothic bold", 12))
+
+            # Add MenuCartAllTotalAns for the final total
+            MenuCartAllTotalAns = Label(MenuCartTotalFrame, text="₹ 0", bg=price_color, fg=secondary_color, font=("century gothic bold", 12))
             MenuCartAllTotalAns.place(relx=0.73, rely=0.2, relwidth=0.28, relheight=0.2)
-            # *************
-            MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2)
+
+
+            # Function to update total and discount
+            def update_total():
+                # Fetch cart data from database
+                cart_items = fetch_cart_data()  # Fetch all cart items (cart_id, name, qty, price)
+
+                total = 0  # Variable to store the total price
+                for _, name, price, qty in cart_items:
+                    total += float(price) * int(qty)  # Calculate total for each item
+
+                # Calculate discount based on total
+                discount = total * 0.20 if total > 800 else 0  # 20% discount if total > 1500, else 0% discount
+                final_total = total - discount  # Final total after applying discount
+
+                # Update the total price label
+                MenuCartItemTotalAns.config(text=f"₹ {total:.0f}")
+                MenuCartDiscountTotalAns.config(text=f"- ₹ {discount:.0f}")
+                MenuCartAllTotalAns.config(text=f"₹ {final_total:.0f}")
+
+            # Call this function after updating the cart or when populating the cart
+            update_total()
+
+            # Function to open the customer name frame
+            def open_customer_name_frame():
+                customer_frame = Toplevel()
+                customer_frame.title("Customer Details")
+                customer_frame.geometry("300x150")
+                customer_frame.resizable(False, False)
+
+                Label(customer_frame, text="Enter Customer Name:", font=("century gothic", 12)).pack(pady=10)
+
+                customer_name_var = StringVar()
+                Entry(customer_frame, textvariable=customer_name_var, font=("century gothic", 12), width=30).pack(pady=5)
+
+                def submit_customer_name():
+                    customer_name = customer_name_var.get()
+                    if not customer_name.strip():
+                        print("Customer name is required.")
+                        return
+                    place_order_action(customer_name)
+                    customer_frame.destroy()
+
+                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).pack(pady=10)
+
+            # Function to place an order
+            def place_order_action(customer_name):
+                try:
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    cart_items = fetch_cart_data()
+                    if not cart_items:
+                        print("Cart is empty.")
+                        return
+                    for _, name, price, qty in cart_items:
+                        cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (name, qty, price, customer_name))
+                    cursor.execute("DELETE FROM cart")
+                    con.commit()
+                    populate_cart(cart_item_frame)
+                    update_total()
+                except Exception as e:
+                    print("Error placing order:", e)
+                finally:
+                    if con:
+                        con.close()
+
+            MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=open_customer_name_frame)
             MenuCartPlaceOrderBtn.place(relx=0, rely=0.5, relwidth=1, relheight=0.4)
+
+
+
+
 
         # ================== Menu Cart Product End=====================
 
@@ -586,18 +641,7 @@ class AdminDashboard():
                 # Add to Cart Button
                 product_name = product_details[2]  # Assuming product name is in column index 2
                 product_price = product_details[4]  # Assuming product price is in column index 4
-                ProductAddToCardButton = Button(ProductDtlCard, 
-                                                text="Add", 
-                                                font=("century gothic bold", 11), 
-                                                width=27, 
-                                                height=1, 
-                                                background=primary_color, 
-                                                foreground=secondary_color, 
-                                                cursor="hand2", 
-                                                relief="flat", 
-                                                activebackground=active_color, 
-                                                bd=2, 
-                                                command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
+                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
                 ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
                 card_count += 1
@@ -663,7 +707,7 @@ class AdminDashboard():
                     cursor = con.cursor()
 
                     # SQL query to insert movie details along with the image
-                    query = """ INSERT INTO product (proname, procategory, proavailable, proprice, proimage) VALUES (%s, %s, %s, %s, %s) """
+                    query = """ INSERT INTO product (proname, procategory, proprice, proimage) VALUES (%s, %s, %s, %s) """
                     values = (ProductName, ProductCategory, ProductPrice, image_data if image_data else None)
 
                     cursor.execute(query, values)
@@ -841,8 +885,79 @@ class AdminDashboard():
         # ==========================================
 
         def OrderMenu():
-            OrderFrame = Frame(main_frame, background='green')
+            OrderFrame = Frame(main_frame, background=secondary_color)
             OrderFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+            OrderHeading = Label(OrderFrame, text="Recent Orders", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
+            OrderHeading.place(relx=0.03, rely=0.02)
+
+            # Function to fetch order data
+            def fetch_order_data():
+                try:
+                    # Connect to the database
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    
+                    # Query the orders table
+                    cursor.execute("SELECT * FROM orders")
+                    data = cursor.fetchall()
+                    return data
+                except Exception as e:
+                    print("Error fetching order data:", e)
+                    return []
+                finally:
+                    if con:
+                        con.close()
+
+            # Function to populate Treeview
+            def populate_treeview(tree):
+                # Clear existing data
+                for row in tree.get_children():
+                    tree.delete(row)
+                
+                # Fetch data from the database
+                orders = fetch_order_data()
+                
+                # Insert data into the Treeview
+                for order in orders:
+                    tree.insert("", "end", values=order)
+
+            # Create a frame for the Treeview (occupying half the page)
+            treeview_frame = Frame(OrderFrame, background="#f0f0f0")  # Adjust background if needed
+            treeview_frame.place(relx=0.03, rely=0.09, relwidth=0.94, relheight=0.87)
+
+            # Define columns for the Treeview
+            columns = ("Order ID", "Order Name", "Customer Name", "Quantity", "Price", 
+                    "Total", "Discount", "Final Total", "Order Date")
+
+            # Style configuration for Treeview
+            style = ttk.Style()
+            style.configure("Custom.Treeview", background="#e6f2ff", fieldbackground="#e6f2ff", foreground=primary_color, rowheight=25)
+            style.configure("Custom.Treeview.Heading", background="#white", foreground=primary_color, font=("Arial", 10, "bold"))
+
+            # Create the Treeview widget with custom style
+            tree = ttk.Treeview(treeview_frame, columns=columns, show="headings", height=10, style="Custom.Treeview")
+
+            # Configure Treeview columns
+            for col in columns:
+                tree.heading(col, text=col)
+                tree.column(col, width=130, anchor="center")  # Adjust column width as needed
+
+            # Add a vertical scrollbar
+            scrollbar = ttk.Scrollbar(treeview_frame, orient=VERTICAL, command=tree.yview)
+            tree.configure(yscroll=scrollbar.set)
+            scrollbar.pack(side=RIGHT, fill=Y)
+
+            # Hide the scrollbar (still functional, but not visible)
+            scrollbar.pack_forget()
+
+            # Pack the Treeview widget
+            tree.pack(fill=BOTH, expand=True)
+
+            # Populate the Treeview with data
+            populate_treeview(tree)
+
+
 
         # ==========================================
 
