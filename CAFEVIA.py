@@ -325,6 +325,20 @@ class AdminDashboard():
                     if con:
                         con.close()
 
+            def remove_from_cart(cart_name, card):
+                try:
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+                    cursor.execute("DELETE FROM cart WHERE cartname = %s", (cart_name,))
+                    con.commit()
+                    print(f"Removed {cart_name} from the cart")
+                    card.destroy()  # Remove the product card from the UI
+                except Exception as e:
+                    print("Error removing from cart:", e)
+                finally:
+                    if con:
+                        con.close()
+
             def populate_cart(frame):
                 for widget in frame.winfo_children():
                     widget.destroy()
@@ -348,7 +362,12 @@ class AdminDashboard():
                     Button(card, text="-", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q - 1, p, label_qty)).place(relx=0.6, rely=0.55, width=22, height=22)
                     Button(card, text="+", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q + 1, p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
 
+                    # Remove button to remove the item from the cart
+                    Button(card, text="X", font=("century gothic bold", 10), bg="red", fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, card=card: remove_from_cart(n, card)).place(relx=0.85, rely=0.02, width=22, height=22)
+
+            # Assuming you have a frame for cart items
             populate_cart(cart_item_frame)
+
 
         # ============================
 
@@ -462,20 +481,7 @@ class AdminDashboard():
 
 
 
-
-
         # ================== Menu Cart Product End=====================
-
-            ChooseCategory = Label(MenuFrame, text="Choose Category", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
-            ChooseCategory.place(relx=0.03, rely=0.02)
-
-            # ============================
-            # categoryimage = Image.open('images/all.png').resize((45, 45))
-            # categoryimage = ImageTk.PhotoImage(categoryimage)
-            # categoryimage_label = Label(MenuFrame, image=categoryimage, background=sidecart_color)
-            # categoryimage_label.image = categoryimage
-            # CategoryChildCard = Button(MenuFrame, text="All", background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, image=categoryimage, compound="top", font=("century gothic bold", 12), pady=13)
-            # CategoryChildCard.place(relx=0.03, rely=0.08, width=110, height=110)
 
             categories = [
                 {"name": "All", "image": "images/all.png"},
@@ -487,33 +493,132 @@ class AdminDashboard():
                 {"name": "Food Meal", "image": "images/meal.png"},
             ]
 
+           # Label for choosing category
+            ChooseCategory = Label(MenuFrame, text="Choose Category", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
+            ChooseCategory.place(relx=0.03, rely=0.02)
+
+            # Function to filter products by category
+            def filter_products_by_category(category_name):
+                # Clear the existing product cards
+                for widget in canvas_frame.winfo_children():
+                    widget.destroy()
+
+                # Fetch products based on the selected category
+                con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+
+                # If "All" is selected, fetch all products
+                if category_name == "All":
+                    cursor.execute("SELECT * FROM product")
+                else:
+                    cursor.execute("SELECT * FROM product WHERE procategory = %s", (category_name,))
+
+                products = cursor.fetchall()
+                con.close()
+
+                # Display the filtered products
+                card_count = 0
+                row_frame = None
+                for product_details in products:
+                    if card_count % 4 == 0:
+                        row_frame = Frame(canvas_frame, background=secondary_color)
+                        row_frame.pack(padx=20, pady=10)
+
+                    ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
+                    ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
+
+                    ProductImageFrame = Frame(ProductDtlCard, background=sidecart_color, width=200, height=210)
+                    ProductImageFrame.place(relx=0.27, rely=0.01)
+
+                    # Fetch and display the image for the current product
+                    product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
+                    product_image = fetch_image(product_id)
+                    if product_image:
+                        label = tk.Label(ProductImageFrame, image=product_image, background=sidecart_color)
+                        label.image = product_image
+                        label.pack(pady=10)
+
+                    # Category
+                    ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
+                    ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
+
+                    # Product Name
+                    ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
+                    ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
+
+                    # Price
+                    ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
+                    ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
+
+                    # Add to Cart Button
+                    product_name = product_details[2]  # Assuming product name is in column index 2
+                    product_price = product_details[4]  # Assuming product price is in column index 4
+                    ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
+                    ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
+
+                    card_count += 1
+
+            # Function to fetch image for each product by product ID
+            def fetch_image(product_id):
+                con = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
+                cursor = con.cursor()
+                cursor.execute("SELECT proimage FROM product WHERE proid = %s", (product_id,))
+                image_data = cursor.fetchone()
+                con.close()
+
+                if image_data:
+                    img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
+                    img = img.resize((90, 90))  # Resize image as needed
+                    return ImageTk.PhotoImage(img)
+                return None
+
+            # Function to insert data into the cart table
+            def add_to_cart(product_id, product_name, product_price):
+                try:
+                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
+                    cursor = con.cursor()
+
+                    cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
+                    cart_item = cursor.fetchone()
+
+                    if cart_item:
+                        new_qty = cart_item[0] + 1
+                        new_total = new_qty * product_price
+                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", 
+                                    (new_qty, new_total, product_name))
+                    else:
+                        cart_total = product_price
+                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
+                                    (product_name, 1, product_price))
+
+                    con.commit()
+                    print(f"Added {product_name} to cart successfully!")
+                except Exception as e:
+                    print("Error while adding to cart:", e)
+                finally:
+                    if con:
+                        con.close()
+
+            # Create category buttons
             for i, category in enumerate(categories):
                 category_image = Image.open(category["image"]).resize((45, 45))
                 category_image = ImageTk.PhotoImage(category_image)
                 
                 relx = 0.03 + i * 0.13
                 
-                CategoryChildCard = Button(MenuFrame, text=category["name"], image=category_image, background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, compound="top", font=("century gothic bold", 12), pady=13)
+                CategoryChildCard = Button(MenuFrame, text=category["name"], image=category_image, background=sidecart_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, compound="top", font=("century gothic bold", 12), pady=13, command=lambda cat=category["name"]: filter_products_by_category(cat))
                 CategoryChildCard.image = category_image
                 CategoryChildCard.place(relx=relx, rely=0.08, width=110, height=110)
-           
-# =============================================================================================
 
+            # Add Coffee Category
             CoffeeCategory = Frame(MenuFrame, background=secondary_color)
             CoffeeCategory.place(relx=0, rely=0.27, relwidth=0.95, relheight=1)
             CoffeeCategoryLabel = Label(CoffeeCategory, text="Coffee Menu", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
 
-    # ================= add coffee button =======================
-            AddCoffeeButtonImage = Image.open('images/cateoryaddplus.png').resize((30, 30))
-            AddCoffeeButtonImage = ImageTk.PhotoImage(AddCoffeeButtonImage)
-            AddCoffeeButtonImage_label = Label(CoffeeCategory, image=AddCoffeeButtonImage, background=sidecart_color)
-            AddCoffeeButtonImage_label.image = AddCoffeeButtonImage
-
-            AddProductButton = Button(CoffeeCategory, text="Add Product", background=primary_color, foreground=secondary_color, cursor="hand2", relief="solid", activebackground=active_color, bd=0, font=("century gothic bold", 12), command=ProductMenu)
+            # Add Product Button
+            AddProductButton = Button(CoffeeCategory, text="Add Product", background=primary_color, foreground=secondary_color, cursor="hand2", relief="solid", activebackground=active_color, bd=0, font=("century gothic bold", 12))
             AddProductButton.place(relx=0.815, rely=0.02, relwidth=0.15, relheight=0.05)
-
-# =========================================================================================================
 
             # Add a scrollbar to the ProductCategorymain_frame
             ProductCategorymain_frame = Frame(CoffeeCategory)
@@ -525,7 +630,6 @@ class AdminDashboard():
 
             # Create a vertical scrollbar
             scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
-            # scrollbar.pack(side="right", fill="y")
             scrollbar.place(relx=0.988, rely=0, relwidth=0.013, relheight=1)
 
             # Configure the canvas to use the scrollbar
@@ -547,107 +651,8 @@ class AdminDashboard():
 
             Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
-            # Database and card creation
-            con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-            cursor = con.cursor()
-            cursor.execute("SELECT * FROM product")
-            products = cursor.fetchall()
-            con.close()
-
-            # Function to fetch image for each product by product ID
-            def fetch_image(product_id):
-                con = mysql.connector.connect(host="localhost", user="root", password="", database="cafevia")
-                cursor = con.cursor()
-                cursor.execute("SELECT proimage FROM product WHERE proid = %s", (product_id,))
-                image_data = cursor.fetchone()
-                con.close()
-
-                if image_data:
-                    # Convert BLOB data to an image
-                    img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
-                    img = img.resize((90, 90))  # Resize image as needed
-                    return ImageTk.PhotoImage(img)
-                return None
-
-            # Function to insert data into the cart table
-            def add_to_cart(product_id, product_name, product_price):
-                try:
-                    # Connect to the database
-                    con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-                    cursor = con.cursor()
-
-                    # Check if the product is already in the cart
-                    cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
-                    cart_item = cursor.fetchone()
-
-                    if cart_item:
-                        # If the product is already in the cart, update quantity and total
-                        new_qty = cart_item[0] + 1
-                        new_total = new_qty * product_price
-                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", 
-                                    (new_qty, new_total, product_name))
-                    else:
-                        # If the product is not in the cart, insert a new row
-                        cart_total = product_price  # Total is initially the price of one unit
-                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
-                                    (product_name, 1, product_price))
-
-                    # Commit the transaction
-                    con.commit()
-                    print(f"Added {product_name} to cart successfully!")
-
-                except Exception as e:
-                    print("Error while adding to cart:", e)
-                finally:
-                    # Close the database connection
-                    if con:
-                        con.close()
-
-            # UI code to display products and bind Add to Cart functionality
-            row_frame = None
-            card_count = 0
-            for product_details in products:
-                if card_count % 4 == 0:
-                    row_frame = Frame(canvas_frame, background=secondary_color)
-                    row_frame.pack(padx=20, pady=10)
-
-                ProductDtlCard = Frame(row_frame, background=sidecart_color, width=200, height=210)
-                ProductDtlCard.grid(row=0, column=card_count % 4, padx=15)
-
-                ProductImageFrame = Frame(ProductDtlCard, background=sidecart_color, width=200, height=210)
-                ProductImageFrame.place(relx=0.27, rely=0.01)
-
-                # Fetch and display the image for the current product
-                product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
-                product_image = fetch_image(product_id)
-                if product_image:
-                    # Display image in a label
-                    label = tk.Label(ProductImageFrame, image=product_image, background=sidecart_color)
-                    label.image = product_image  # Keep reference to avoid garbage collection
-                    label.pack(pady=10)
-
-                # Category
-                ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
-                ProductCategoryLabel.place(relx=0.05, rely=0.56, relwidth=0.32, relheight=0.09)
-
-                # Product Name
-                ProductNameLabel = Label(ProductDtlCard, text=product_details[2], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 13), anchor="w")
-                ProductNameLabel.place(relx=0.05, rely=0.65, relwidth=0.94, relheight=0.115)
-
-                # Price
-                ProductPriceLabel = Label(ProductDtlCard, text=f"₹ {product_details[4]}", bg=price_color, fg=sidecart_color, font=("century gothic bold", 15))
-                ProductPriceLabel.place(relx=0.05, rely=0.78, relwidth=0.4, relheight=0.17)
-
-                # Add to Cart Button
-                product_name = product_details[2]  # Assuming product name is in column index 2
-                product_price = product_details[4]  # Assuming product price is in column index 4
-                ProductAddToCardButton = Button(ProductDtlCard, text="Add", font=("century gothic bold", 11), width=27, height=1, background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda pid=product_id, pname=product_name, pprice=product_price: add_to_cart(pid, pname, pprice))
-                ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
-
-                card_count += 1
-
-
-            
+            # Initially display products from "All" category after canvas_frame is created
+            filter_products_by_category("All")
 
 
 # =========================================================================================================
