@@ -185,64 +185,6 @@ class AdminDashboard():
             txtDashboard = Label(DashboardFrame, text="Dashboard", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             txtDashboard.place(relx=0.03, rely=0.02)
 
-            # cards_data = [
-            #     {"title": "Happy Customers", "value": "30000", "icon_path": "images/happycustomer.png"},
-            #     {"title": "All Category", "value": "6", "icon_path": "images/category.png"},
-            #     {"title": "All Products", "value": "475", "icon_path": "images/product.png"},
-            #     {"title": "Avliable Tables", "value": "14", "icon_path": "images/tablebook.png"},
-            #     {"title": "All Orders", "value": "459", "icon_path": "images/order.png"},
-            #     {"title": "Total Sales", "value": "$ 1,00,000", "icon_path": "images/sales.png"},
-            # ]
-
-            # # Constants for layout
-            # cards_per_row = 4  # Maximum cards per row
-            # card_width = 0.22  # Width of each card
-            # card_height = 0.18  # Height of each card
-            # horizontal_spacing = 0.02  # Spacing between cards
-            # vertical_spacing = 0.03  # Spacing between rows
-
-            # # Starting position for the first card
-            # start_relx = 0.03
-            # start_rely = 0.1
-
-            # # Loop to create dashboard cards
-            # for idx, card in enumerate(cards_data):
-            #     # Calculate relx and rely
-            #     col = idx % cards_per_row
-            #     row = idx // cards_per_row
-
-            #     relx = start_relx + col * (card_width + horizontal_spacing)
-            #     rely = start_rely + row * (card_height + vertical_spacing)
-
-            #     # Create the card frame
-            #     DashboardCard = Frame(DashboardFrame, background=sidecart_color)
-            #     DashboardCard.place(relx=relx, rely=rely, relwidth=card_width, relheight=card_height)
-
-            #     # Add the title label
-            #     lblDashboardCustomer = Label(DashboardCard, text=card["title"], bg=sidecart_color, fg=primary_color, font=("century gothic", 12))
-            #     lblDashboardCustomer.place(relx=0.08, rely=0.25)
-
-            #     # Add the value label
-            #     NoDashboardCustomer = Label( DashboardCard, text=card["value"], bg=sidecart_color, fg=primary_color, font=("century gothic bold", 25))
-            #     NoDashboardCustomer.place(relx=0.08, rely=0.45)
-
-            #     # Add the icon with reduced opacity
-            #     try:
-            #         # Open and reduce opacity
-            #         dashboardIcon = Image.open(card["icon_path"]).convert("RGBA")
-            #         alpha = dashboardIcon.getchannel("A")
-            #         alpha = alpha.point(lambda p: int(p * 0.7))
-            #         dashboardIcon.putalpha(alpha)
-
-            #         # Resize and display the image
-            #         dashboardIcon = dashboardIcon.resize((60, 60))
-            #         dashboardIcon = ImageTk.PhotoImage(dashboardIcon)
-            #         dashboardIcon_label = Label(DashboardCard, image=dashboardIcon, background=sidecart_color)
-            #         dashboardIcon_label.image = dashboardIcon
-            #         dashboardIcon_label.place(relx=0.67, rely=0.28, width=60, height=60)
-            #     except Exception as e:
-            #         print(f"Error loading image for {card['title']}: {e}")
-
 
            # Connect to MySQL Database
             def get_db_connection():
@@ -592,7 +534,7 @@ class AdminDashboard():
             treeview.heading("Final Total", text="Final Total")
             treeview.heading("Order Date", text="Order Date")
 
-            treeview.place(relx=0.05, rely=0.5, relwidth=0.9, relheight=0.4)
+            treeview.place(relx=0.05, rely=0, relwidth=0.9, relheight=0.4)
 
             # Create the Place Order button and assign the action to it
             MenuCartPlaceOrderBtn = Button(MenuCartTotalFrame, text="Place an order", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=place_order_action)
