@@ -617,7 +617,7 @@ class AdminDashboard():
             CoffeeCategoryLabel.place(relx=0.03, rely=0.02)
 
             # Add Product Button
-            AddProductButton = Button(CoffeeCategory, text="Add Product", background=primary_color, foreground=secondary_color, cursor="hand2", relief="solid", activebackground=active_color, bd=0, font=("century gothic bold", 12))
+            AddProductButton = Button(CoffeeCategory, text="Add Product", background=primary_color, foreground=secondary_color, cursor="hand2", relief="solid", activebackground=active_color, bd=0, font=("century gothic bold", 12), command=ProductMenu)
             AddProductButton.place(relx=0.815, rely=0.02, relwidth=0.15, relheight=0.05)
 
             # Add a scrollbar to the ProductCategorymain_frame

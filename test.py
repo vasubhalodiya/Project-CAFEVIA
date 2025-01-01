@@ -1,96 +1,96 @@
-import MySQLdb
-from tkinter import *
-from tkinter import Toplevel
-from PIL import Image, ImageTk
 
-# Colors
-sidecart_color, primary_color, secondary_color = "#F8F8F8", "#FF5733", "#FFFFFF"
+# Database connection function
+def db_connect():
+    return mysql.connector.connect(
+        host="localhost", user="root", password="password", database="your_database"
+    )
 
-# Database Helpers
-def fetch_cart_data():
-    try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        with con.cursor() as cursor:
-            cursor.execute("SELECT * FROM cart")
-            return cursor.fetchall()
-    except Exception as e:
-        print("Error fetching cart data:", e)
-        return []
+# Check user credentials in the database
+def check_credentials(username, password):
+    db = db_connect()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+    result = cursor.fetchone()
+    cursor.close()
+    db.close()
+    return result
 
-def update_cart(name, qty, price, label):
-    qty = max(1, min(10, qty))
-    try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        with con.cursor() as cursor:
-            cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (qty, name))
-        label.config(text=str(qty))
-    except Exception as e:
-        print("Error updating cart:", e)
+# Admin Dashboard class
+class AdminDashboard():
+    def __init__(self, window):
+        self.window = window
+        self.window.title("CAFEVIA")
+        self.window.state('zoomed')  # Fullscreen
+        self.window.resizable(False, False)
+        self.window.config(background=secondary_color)
 
-def populate_cart(frame):
-    for widget in frame.winfo_children():
-        widget.destroy()
-    for idx, (_, name, price, qty) in enumerate(fetch_cart_data()):
-        card = Frame(frame, bg=sidecart_color)
-        card.place(relx=0.05, rely=0.03 + idx * 0.18, relwidth=0.91, relheight=0.15)
+        # Add your admin dashboard content here
+        welcome_label = Label(self.window, text="Welcome to CAFEVIA Dashboard!", font=("century gothic", 30), bg=secondary_color, fg=primary_color)
+        welcome_label.pack(pady=20)
 
-        img = ImageTk.PhotoImage(Image.open('images/coffee.png').resize((50, 50)))
-        Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
-        card.image = img  # Prevent garbage collection
+        # Additional dashboard elements can go here
 
-        Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic", 11)).place(relx=0.3, rely=0.15)
-        Label(card, text=f"₹ {price}", bg=sidecart_color, font=("century gothic", 11)).place(relx=0.32, rely=0.55, relwidth=0.21)
-        label_qty = Label(card, text=qty, bg=sidecart_color, font=("century gothic", 15))
-        label_qty.place(relx=0.7, rely=0.55, width=22)
+# Login class
+class Login():
+    def __init__(self, loginwindow):
+        self.loginwindow = loginwindow
+        self.loginwindow.title("LOGIN - CAFEVIA")
+        self.loginwindow.geometry('1000x600+200+100')
+        self.loginwindow.resizable(False, False)
+        self.loginwindow.config(background=secondary_color)
 
-        Button(card, text="-", command=lambda n=name, q=int(qty): update_cart(n, q - 1, float(price), label_qty)).place(relx=0.6, rely=0.55, width=22)
-        Button(card, text="+", command=lambda n=name, q=int(qty): update_cart(n, q + 1, float(price), label_qty)).place(relx=0.8, rely=0.55, width=22)
+        # Login Image
+        loginimage = Image.open('images/login_img.jpg')
+        loginimage = ImageTk.PhotoImage(loginimage)
+        loginimage_label = Label(self.loginwindow, image=loginimage,  background=secondary_color)
+        loginimage_label.image = loginimage
+        loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
 
-def update_total(label):
-    cart_items = fetch_cart_data()
-    total = sum(float(price) * int(qty) for _, _, price, qty in cart_items)
-    label.config(text=f"₹ {total - (total * 0.20 if total > 800 else 0):.0f}")
+        # User input fields
+        self.name_var = StringVar()
+        self.passw_var = StringVar()
 
-# Order Functions
-def place_order(name):
-    try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        with con.cursor() as cursor:
-            cart_items = fetch_cart_data()
-            if not cart_items:
-                print("Cart is empty.")
-                return
-            for _, item, price, qty in cart_items:
-                cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (item, qty, price, name))
-            cursor.execute("DELETE FROM cart")
-        populate_cart(cart_item_frame)
-        update_total(total_label)
-    except Exception as e:
-        print("Error placing order:", e)
+        loginform = Frame(self.loginwindow, background=secondary_color)
+        loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
 
-def open_customer_frame():
-    customer_window = Toplevel(root)
-    customer_window.geometry("300x150")
-    Label(customer_window, text="Enter Customer Name:").pack(pady=10)
-    name_var = StringVar()
-    Entry(customer_window, textvariable=name_var).pack(pady=5)
-    Button(customer_window, text="Submit", command=lambda: [place_order(name_var.get()), customer_window.destroy()]).pack(pady=10)
+        closebutton = Button(loginform, text="x", font=("century gothic bold", 13), background=primary_color, 
+                             foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, 
+                             bd=2, command=self.close_window)
+        closebutton.place(relx=0.94, rely=0.014, width=30, height=30)
 
-# GUI Setup
-root = Tk()
-root.geometry("800x600")
+        loginlogo = Label(loginform, text="CAFEVIA", bg=secondary_color, fg=primary_color, font=("century gothic bold", 30))
+        loginlogo.place(relx=0.35, rely=0.07)
 
-cart_frame = Frame(root, bg=sidecart_color)
-cart_frame.place(relx=0.76, rely=0, relwidth=0.24, relheight=1)
+        # Username & Password labels and entry
+        Label(loginform, text="Username", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16)).place(relx=0.2, rely=0.3)
+        Entry(loginform, textvariable=self.name_var, font=("century gothic", 13), relief='ridge', bd=2).place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
 
-cart_item_frame = Frame(cart_frame, bg=sidecart_color)
-cart_item_frame.place(relx=0.05, rely=0.15, relwidth=0.91, relheight=0.6)
+        Label(loginform, text="Password", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16)).place(relx=0.2, rely=0.46)
+        Entry(loginform, textvariable=self.passw_var, font=("century gothic", 13), relief='ridge', bd=2, show='*').place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
-total_label = Label(cart_frame, text="₹ 0", bg=sidecart_color, font=("century gothic bold", 12))
-total_label.place(relx=0.7, rely=0.77, relwidth=0.25)
+        login_button = Button(loginform, text="Login", font=("century gothic bold", 15), background=primary_color, 
+                              foreground=secondary_color, cursor="hand2", relief="flat", bd=2, command=self.submit)
+        login_button.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
 
-Button(cart_frame, text="Place Order", command=open_customer_frame).place(relx=0, rely=0.86, relwidth=1)
+        Label(loginform, text="Must check USERNAME & PASSWORD", bg=secondary_color, fg=primary_color, font=("century gothic", 8)).place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
 
-populate_cart(cart_item_frame)
-update_total(total_label)
-root.mainloop()
+    def close_window(self):
+        self.loginwindow.destroy()
+
+    def submit(self):
+        username = self.name_var.get()
+        password = self.passw_var.get()
+
+        if check_credentials(username, password):
+            self.loginwindow.destroy()
+            self.show_main_window()
+        else:
+            error_label = Label(self.loginwindow, text="Invalid username or password", bg=secondary_color, fg="red", font=("century gothic", 12))
+            error_label.place(relx=0.5, rely=0.9, anchor="center")
+
+    def show_main_window(self):
+        main_window = Toplevel(self.loginwindow)
+        AdminDashboard(main_window)  # Open Admin Dashboard
+        main_window.mainloop()  # Start the new window's mainloop
+
+
