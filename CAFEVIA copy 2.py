@@ -287,7 +287,7 @@ class AdminDashboard():
 
             cart_item_frame = Frame(main_frame, background=sidecart_color)
             cart_item_frame.place(relx=0.76, rely=0.15, relwidth=0.24, relheight=0.6)
-            
+
         # ===================================================
         
             # Define the maximum quantity
@@ -339,6 +339,8 @@ class AdminDashboard():
                     if con:
                         con.close()
 
+            
+
             def populate_cart(frame):
                 for widget in frame.winfo_children():
                     widget.destroy()
@@ -349,6 +351,7 @@ class AdminDashboard():
                     card = Frame(frame, background=sidecart_color)
                     card.place(relx=0.05, rely=0.03 + (idx * 0.18), relwidth=0.91, relheight=0.15)
 
+                    # Image
                     img = Image.open('images/coffee.png').resize((50, 50))
                     img = ImageTk.PhotoImage(img)
                     Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
@@ -364,6 +367,7 @@ class AdminDashboard():
 
                     # Remove button to remove the item from the cart
                     Button(card, text="X", font=("century gothic bold", 10), bg="red", fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, card=card: remove_from_cart(n, card)).place(relx=0.85, rely=0.02, width=22, height=22)
+                    
 
             # Assuming you have a frame for cart items
             populate_cart(cart_item_frame)
@@ -530,7 +534,7 @@ class AdminDashboard():
                     ProductImageFrame = Frame(ProductDtlCard, background=sidecart_color, width=200, height=210)
                     ProductImageFrame.place(relx=0.27, rely=0.01)
 
-                    # Fetch and display the image for the current product
+                    # Image
                     product_id = product_details[0]  # Assuming the product ID is in the first column (index 0)
                     product_image = fetch_image(product_id)
                     if product_image:
@@ -578,26 +582,32 @@ class AdminDashboard():
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
 
+                    # Check if the product already exists in the cart
                     cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
                     cart_item = cursor.fetchone()
 
                     if cart_item:
+                        # Update quantity if product already exists in cart
                         new_qty = cart_item[0] + 1
                         new_total = new_qty * product_price
-                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", 
-                                    (new_qty, new_total, product_name))
+                        cursor.execute("UPDATE cart SET cartqty = %s, cartprice = %s WHERE cartname = %s", (new_qty, new_total, product_name))
                     else:
-                        cart_total = product_price
-                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
-                                    (product_name, 1, product_price))
+                        # Add new product to the cart
+                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", (product_name, 1, product_price))
 
                     con.commit()
                     print(f"Added {product_name} to cart successfully!")
+
+                    # Immediately update the cart display after adding to cart
+                    populate_cart(cart_item_frame)  # Refresh the cart UI
+                    update_total()  # Update the total value after adding the product
+
                 except Exception as e:
                     print("Error while adding to cart:", e)
                 finally:
                     if con:
                         con.close()
+
 
             # Create category buttons
             for i, category in enumerate(categories):
@@ -625,31 +635,31 @@ class AdminDashboard():
             ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
 
             # Create a Canvas inside the ProductCategorymain_frame
-            Produc_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
-            Produc_canvas.pack(side="left", fill="both", expand=True)
+            product_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
+            product_canvas.pack(side="left", fill="both", expand=True)
 
             # Create a vertical scrollbar
-            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
+            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=product_canvas.yview)
             scrollbar.place(relx=0.988, rely=0, relwidth=0.013, relheight=1)
 
             # Configure the canvas to use the scrollbar
-            Produc_canvas.configure(yscrollcommand=scrollbar.set)
+            product_canvas.configure(yscrollcommand=scrollbar.set)
 
             # Create a frame inside the canvas to hold the content
-            canvas_frame = Frame(Produc_canvas, background=secondary_color)
-            Produc_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
+            canvas_frame = Frame(product_canvas, background=secondary_color)
+            product_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
             # Bind the canvas to resize the scroll region
             def update_scrollregion(event):
-                Produc_canvas.configure(scrollregion=Produc_canvas.bbox("all"))
+                product_canvas.configure(scrollregion=product_canvas.bbox("all"))
 
             canvas_frame.bind("<Configure>", update_scrollregion)
 
             # Add mousewheel scrolling functionality
             def on_mousewheel(event):
-                Produc_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                product_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-            Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
+            product_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
             # Initially display products from "All" category after canvas_frame is created
             filter_products_by_category("All")

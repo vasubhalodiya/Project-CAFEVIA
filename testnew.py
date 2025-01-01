@@ -1,65 +1,49 @@
-import MySQLdb
+import mysql.connector
 from tkinter import *
 from tkinter import ttk
 
-# Function to fetch order data
-def fetch_order_data():
-    try:
-        # Connect to the database
-        con = MySQLdb.connect(host="localhost", user="OrderFrame", password="", database="cafevia")
-        cursor = con.cursor()
-        
-        # Query the orders table
-        cursor.execute("SELECT orderid, ordername, customername, orderqty, orderprice, ordertotal, orderdiscount, order_final_total, orderdate FROM orders")
-        data = cursor.fetchall()
-        return data
-    except Exception as e:
-        print("Error fetching order data:", e)
-        return []
-    finally:
-        if con:
-            con.close()
+# MySQL connection function
+def db_connect():
+    return mysql.connector.connect(
+        host="localhost", user="root", password="", database="your_database"
+    )
 
-# Function to populate Treeview
-def populate_treeview(tree):
-    # Clear existing data
-    for row in tree.get_children():
-        tree.delete(row)
-    
-    # Fetch data from the database
-    orders = fetch_order_data()
-    
-    # Insert data into the Treeview
-    for order in orders:
-        tree.insert("", "end", values=order)
+# Function to insert selected data into MySQL database
+def insert_data(selected_value):
+    db = db_connect()
+    cursor = db.cursor()
 
-# Main application window
-OrderFrame = Tk()
-OrderFrame.title("Order Data")
-OrderFrame.geometry("1200x500")  # Adjust window size for all columns
+    # Assuming you have a table 'dropdown_data' with a column 'value' to store the selected value
+    query = "INSERT INTO dropdown_data (value) VALUES (%s)"
+    cursor.execute(query, (selected_value,))
+    db.commit()  # Commit the changes
+    cursor.close()
+    db.close()
+    print(f"Data '{selected_value}' inserted into the database!")
 
-# Define columns for the Treeview
-columns = ("Order ID", "Order Name", "Customer Name", "Quantity", "Price", 
-           "Total", "Discount", "Final Total", "Order Date")
+# Tkinter GUI class
+class DropdownApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Dropdown Example")
 
-# Create the Treeview widget
-tree = ttk.Treeview(OrderFrame, columns=columns, show="headings", height=20)
+        # Sample data for the dropdown
+        dropdown_values = ['Option 1', 'Option 2', 'Option 3', 'Option 4']
 
-# Configure Treeview columns
-for col in columns:
-    tree.heading(col, text=col)
-    tree.column(col, width=150, anchor="center")  # Adjust column width as needed
+        # Create a Combobox (dropdown) with the sample values
+        self.dropdown = ttk.Combobox(self.root, values=dropdown_values)
+        self.dropdown.set(dropdown_values[0])  # Set default value to the first item in the list
+        self.dropdown.pack(pady=20)
 
-# Add a vertical scrollbar
-scrollbar = ttk.Scrollbar(OrderFrame, orient=VERTICAL, command=tree.yview)
-tree.configure(yscroll=scrollbar.set)
-scrollbar.pack(side=RIGHT, fill=Y)
+        # Submit button to insert the selected value into MySQL
+        submit_button = Button(self.root, text="Submit", command=self.submit)
+        submit_button.pack(pady=10)
 
-# Pack the Treeview widget
-tree.pack(fill=BOTH, expand=True)
+    def submit(self):
+        selected_value = self.dropdown.get()  # Get the selected value from the dropdown
+        insert_data(selected_value)  # Insert the selected value into the database
 
-# Populate the Treeview with data
-populate_treeview(tree)
-
-# Run the application
-OrderFrame.mainloop()
+# Initialize Tkinter window
+root = Tk()
+app = DropdownApp(root)
+root.mainloop()
