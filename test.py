@@ -1,77 +1,84 @@
-# Define the maximum quantity
-MAX_QUANTITY = 10
+import mysql.connector
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Database connection and functions
-def fetch_cart_data():
+def fetch_sales_data():
+    """Fetch sales data from the MySQL database."""
     try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        cursor = con.cursor()
-        cursor.execute("SELECT * FROM cart")  # Fetch all cart items
-        return cursor.fetchall()
-    except Exception as e:
-        print("Error fetching cart data:", e)
-        return []
+        # Connect to the MySQL database
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="",
+            database="cafevia"
+        )
+
+        # Query to fetch sales data
+        query = """
+        SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales,
+            DATE(orderdate) AS sale_date
+        FROM orders
+        GROUP BY ordername, customername, sale_date
+        """
+
+        # Load data into a pandas DataFrame
+        df = pd.read_sql(query, conn)
+        return df
+
+    except mysql.connector.Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        return pd.DataFrame()
+
     finally:
-        if con:
-            con.close()
+        if conn.is_connected():
+            conn.close()
 
-def update_cart(cart_name, new_qty, price, label_qty):
-    if new_qty < 1:
-        new_qty = 1
-    if new_qty > 10:
-        new_qty = 10
+def plot_charts(df):
+    """Plot all charts in one window with 2 charts per row."""
+    # 1. Aggregate product sales for the pie chart
+    product_sales = df.groupby('ordername')['total_qty'].sum()
 
-    try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        cursor = con.cursor()
-        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (new_qty, cart_name))
-        con.commit()
-        label_qty.config(text=str(new_qty))  # Update the quantity label immediately
-    except Exception as e:
-        print("Error updating cart:", e)
-    finally:
-        if con:
-            con.close()
+    # 2. Aggregate daily product quantities for the line chart
+    daily_sales = df.groupby(['sale_date'])['total_qty'].sum()
 
-def remove_from_cart(cart_name, card):
-    try:
-        con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
-        cursor = con.cursor()
-        cursor.execute("DELETE FROM cart WHERE cartname = %s", (cart_name,))
-        con.commit()
-        print(f"Removed {cart_name} from the cart")
-        card.destroy()  # Remove the product card from the UI
-    except Exception as e:
-        print("Error removing from cart:", e)
-    finally:
-        if con:
-            con.close()
+    # 3. Aggregate customer orders for the bar chart
+    customer_orders = df.groupby(['customername', 'sale_date'])['total_qty'].sum().unstack()
 
-def populate_cart(frame):
-    for widget in frame.winfo_children():
-        widget.destroy()
+    # Create a figure with two rows and two columns (adjust the grid accordingly)
+    fig, axes = plt.subplots(2, 2, figsize=(20, 12))
 
-    cart_items = fetch_cart_data()
-    for idx, (cart_id, name, price, qty) in enumerate(cart_items):
-        total = int(qty) * float(price)
-        card = Frame(frame, background=sidecart_color)
-        card.place(relx=0.05, rely=0.03 + (idx * 0.18), relwidth=0.91, relheight=0.15)
+    # Pie Chart - Product Sales Percentage (top-left)
+    axes[0, 0].pie(product_sales, labels=product_sales.index, autopct='%1.1f%%', startangle=140, colors=plt.cm.tab10.colors)
+    axes[0, 0].set_title("Product Sales Percentage")
 
-        img = Image.open('images/coffee.png').resize((50, 50))
-        img = ImageTk.PhotoImage(img)
-        Label(card, image=img, bg=sidecart_color).place(relx=0, rely=0, width=75, height=75)
-        card.image = img  # Keep reference to avoid garbage collection
+    # Line Chart - Daily Product Sales (top-right)
+    axes[0, 1].plot(daily_sales.index, daily_sales, marker='o', color='blue', linestyle='-', linewidth=2)
+    axes[0, 1].set_title("Daily Product Sales")
+    axes[0, 1].set_xlabel("Date")
+    axes[0, 1].set_ylabel("Total Quantity Sold")
+    axes[0, 1].tick_params(axis='x', rotation=45)
 
-        Label(card, text=name, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 11)).place(relx=0.3, rely=0.15)
-        Label(card, text=f"₹ {price}", bg=price_color, fg=secondary_color, font=("century gothic bold", 11)).place(relx=0.32, rely=0.55, relwidth=0.21, height=22)
-        label_qty = Label(card, text=qty, bg=sidecart_color, fg=primary_color, font=("century gothic bold", 15))
-        label_qty.place(relx=0.7, rely=0.55, width=22, height=22)
+    # Bar Chart - Orders by Customer and Date (bottom-left)
+    customer_orders.T.plot(kind='bar', stacked=True, ax=axes[1, 0], colormap='tab20')
+    axes[1, 0].set_title("Orders by Customer and Date")
+    axes[1, 0].set_xlabel("Date")
+    axes[1, 0].set_ylabel("Number of Products Sold")
+    axes[1, 0].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left')
+    axes[1, 0].tick_params(axis='x', rotation=45)
 
-        Button(card, text="-", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q - 1, p, label_qty)).place(relx=0.6, rely=0.55, width=22, height=22)
-        Button(card, text="+", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q + 1, p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
+    # Empty plot for bottom-right (you can add another chart here if needed)
+    axes[1, 1].axis('off')
 
-        # Remove button to remove the item from the cart
-        Button(card, text="Remove", font=("century gothic bold", 10), bg="red", fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, card=card: remove_from_cart(n, card)).place(relx=0.85, rely=0.02, width=60, height=20)
+    # Adjust layout
+    plt.tight_layout()
+    plt.show()
 
-# Assuming you have a frame for cart items
-populate_cart(cart_item_frame)
+if __name__ == "__main__":
+    # Fetch data
+    sales_data = fetch_sales_data()
+
+    if not sales_data.empty:
+        # Plot the charts
+        plot_charts(sales_data)
+    else:
+        print("No data found or failed to fetch data.")

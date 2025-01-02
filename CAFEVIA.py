@@ -8,6 +8,8 @@ import io
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import Tk, Canvas, Button, messagebox
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 primary_color = "#27150C"
@@ -143,20 +145,17 @@ class AdminDashboard():
         MenuButton = Button(self.sidebar, text="Menu", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(MenuMenu))
         MenuButton.place(relx=0.1, rely=0.28, relwidth=0.8, relheight=0.05)
 
-        BillingButton = Button(self.sidebar, text="Billing", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(BillingMenu))
-        BillingButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
-
         OrderButton = Button(self.sidebar, text="Orders", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(OrderMenu))
-        OrderButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
+        OrderButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
 
         TableBookButton = Button(self.sidebar, text="Table Book", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(TableBookMenu))
-        TableBookButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
+        TableBookButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
 
         SalesButton = Button(self.sidebar, text="Sales", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(SalesMenu))
-        SalesButton.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.05)
+        SalesButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
 
         LogoutButton = Button(self.sidebar, text="Logout", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(LogoutMenu))
-        LogoutButton.place(relx=0.1, rely=0.68, relwidth=0.8, relheight=0.05)
+        LogoutButton.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.05)
 
         # Functionality for menu system
         main_frame = Frame(window, background=secondary_color)
@@ -436,11 +435,17 @@ class AdminDashboard():
             # Function to open the customer name frame
             def open_customer_name_frame():
                 customer_frame = Toplevel()
+                width = 370
+                height = 230
+                x = (window.winfo_screenwidth()//2)-(width//2)
+                y = (window.winfo_screenheight()//2)-(height//2)
+                customer_frame.geometry('{}x{}+{}+{}'.format(width, height, x, y))
                 customer_frame.title("Customer Details")
-                customer_frame.geometry("300x150")
+                # customer_frame.geometry("300x150")
                 customer_frame.resizable(False, False)
+                customer_frame.configure(bg=secondary_color)
 
-                Label(customer_frame, text="Enter Customer Name:", font=("century gothic", 12)).pack(pady=10)
+                Label(customer_frame, text="Enter Customer Name:", background=secondary_color, font=("century gothic", 12)).pack(pady=10)
 
                 customer_name_var = StringVar()
                 Entry(customer_frame, textvariable=customer_name_var, font=("century gothic", 12), width=30).pack(pady=5)
@@ -453,7 +458,7 @@ class AdminDashboard():
                     place_order_action(customer_name)
                     customer_frame.destroy()
 
-                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).pack(pady=10)
+                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).place(relwidth=0.45, relheight=0.17)
 
             # Function to place an order
             def place_order_action(customer_name):
@@ -578,26 +583,35 @@ class AdminDashboard():
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
 
+                    # Check if the product already exists in the cart
                     cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
                     cart_item = cursor.fetchone()
 
                     if cart_item:
+                        # Update quantity if product already exists in cart
                         new_qty = cart_item[0] + 1
                         new_total = new_qty * product_price
-                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", 
+                        cursor.execute("UPDATE cart SET cartqty = %s, cartprice = %s WHERE cartname = %s", 
                                     (new_qty, new_total, product_name))
                     else:
-                        cart_total = product_price
+                        # Add new product to the cart
                         cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
                                     (product_name, 1, product_price))
 
                     con.commit()
                     print(f"Added {product_name} to cart successfully!")
+
+                    # Immediately update the cart display after adding to cart
+                    populate_cart(cart_item_frame)  # Refresh the cart UI
+                    update_total()  # Update the total value after adding the product
+
                 except Exception as e:
                     print("Error while adding to cart:", e)
                 finally:
                     if con:
                         con.close()
+
+
 
             # Create category buttons
             for i, category in enumerate(categories):
@@ -880,13 +894,6 @@ class AdminDashboard():
             my_tree.bind("<ButtonRelease-1>",selectedrecord)
             fetch_data()
 
-
-        # ==========================================
-
-        def BillingMenu():
-            BillingFrame = Frame(main_frame, background='green')
-            BillingFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
-
         # ==========================================
 
         def OrderMenu():
@@ -961,7 +968,6 @@ class AdminDashboard():
 
             # Populate the Treeview with data
             populate_treeview(tree)
-
 
 
         # ==========================================
@@ -1114,37 +1120,90 @@ class AdminDashboard():
             SalesFrame = Frame(main_frame, background='darkred')
             SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+            def fetch_sales_data():
+                """Fetch sales data from the MySQL database."""
+                try:
+                    # Connect to the MySQL database
+                    conn = mysql.connector.connect(
+                        host="localhost",
+                        user="root",
+                        password="",
+                        database="cafevia"
+                    )
+
+                    # Query to fetch sales data
+                    query = """ SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales, DATE(orderdate) AS sale_date FROM orders GROUP BY ordername, customername, sale_date """
+
+                    # Load data into a pandas DataFrame
+                    df = pd.read_sql(query, conn)
+                    return df
+
+                except mysql.connector.Error as e:
+                    print(f"Error connecting to MySQL: {e}")
+                    return pd.DataFrame()
+
+                finally:
+                    if conn.is_connected():
+                        conn.close()
+
+            def plot_charts(df):
+                """Plot all charts in one window with 2 charts per row."""
+                # 1. Aggregate product sales for the pie chart
+                product_sales = df.groupby('ordername')['total_qty'].sum()
+
+                # 2. Aggregate daily product quantities for the line chart
+                daily_sales = df.groupby(['sale_date'])['total_qty'].sum()
+
+                # 3. Aggregate customer orders for the bar chart
+                customer_orders = df.groupby(['customername', 'sale_date'])['total_qty'].sum().unstack()
+
+                # Create a figure with two rows and two columns (adjust the grid accordingly)
+                fig, axes = plt.subplots(2, 2, figsize=(20, 12))
+
+                # Pie Chart - Product Sales Percentage (top-left)
+                axes[0, 0].pie(product_sales, labels=product_sales.index, autopct='%1.1f%%', startangle=140, colors=plt.cm.tab10.colors)
+                axes[0, 0].set_title("Product Sales Percentage")
+
+                # Line Chart - Daily Product Sales (top-right)
+                axes[0, 1].plot(daily_sales.index, daily_sales, marker='o', color='blue', linestyle='-', linewidth=2)
+                axes[0, 1].set_title("Daily Product Sales")
+                axes[0, 1].set_xlabel("Date")
+                axes[0, 1].set_ylabel("Total Quantity Sold")
+                axes[0, 1].tick_params(axis='x', rotation=45)
+
+                # Bar Chart - Orders by Customer and Date (bottom-left)
+                customer_orders.T.plot(kind='bar', stacked=True, ax=axes[1, 0], colormap='tab20')
+                axes[1, 0].set_title("Orders by Customer and Date")
+                axes[1, 0].set_xlabel("Date")
+                axes[1, 0].set_ylabel("Number of Products Sold")
+                axes[1, 0].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left')
+                axes[1, 0].tick_params(axis='x', rotation=45)
+
+                # Empty plot for bottom-right (you can add another chart here if needed)
+                axes[1, 1].axis('off')
+
+                # Adjust layout
+                plt.tight_layout()
+                plt.show()
+
+            if __name__ == "__main__":
+                # Fetch data
+                sales_data = fetch_sales_data()
+
+                if not sales_data.empty:
+                    # Plot the charts
+                    plot_charts(sales_data)
+                else:
+                    print("No data found or failed to fetch data.")
+
+
+
         # ==========================================
 
         def LogoutMenu():
             self.window.destroy()
 
         # ==========================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
