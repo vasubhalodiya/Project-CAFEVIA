@@ -1,6 +1,9 @@
+from tkinter import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 import mysql.connector
 import pandas as pd
-import matplotlib.pyplot as plt
+
 
 def fetch_sales_data():
     """Fetch sales data from the MySQL database."""
@@ -15,7 +18,8 @@ def fetch_sales_data():
 
         # Query to fetch sales data
         query = """
-        SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales, DATE(orderdate) AS sale_date
+        SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales,
+            DATE(orderdate) AS sale_date
         FROM orders
         GROUP BY ordername, customername, sale_date
         """
@@ -32,50 +36,70 @@ def fetch_sales_data():
         if conn.is_connected():
             conn.close()
 
-def plot_combined_charts(df):
-    """Plot all charts in one window."""
-    # Pie Chart: Total products sold by product name
-    total_qty_by_product = df.groupby('ordername')['total_qty'].sum()
 
-    # Line Chart 1: Date vs Product Quantity
-    total_qty_by_date = df.groupby('sale_date')['total_qty'].sum()
+def plot_charts(df, parent_frame):
+    """Plot all charts in one frame using Tkinter canvas."""
+    # 1. Aggregate product sales for the pie chart
+    product_sales = df.groupby('ordername')['total_qty'].sum()
 
-    # Line Chart 2: Customer vs Date (Orders Count)
-    orders_by_customer_date = df.groupby(['sale_date', 'customername']).size().unstack(fill_value=0)
+    # 2. Aggregate daily product quantities for the line chart
+    daily_sales = df.groupby(['sale_date'])['total_qty'].sum()
 
-    # Create a figure with three subplots
-    fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+    # 3. Aggregate customer orders for the bar chart
+    customer_orders = df.groupby(['customername', 'sale_date'])['total_qty'].sum().unstack()
 
-    # Pie chart: Products sold distribution
-    axes[0].pie(total_qty_by_product, labels=total_qty_by_product.index, autopct='%1.1f%%', startangle=140, colors=plt.cm.tab10.colors)
-    axes[0].set_title("Product Sales Distribution (in %)")
+    # Create a figure with two rows and two columns
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 
-    # Line chart 1: Date vs Product Quantity
-    axes[1].plot(total_qty_by_date.index, total_qty_by_date, marker='o', color='blue', linestyle='-', linewidth=2)
-    axes[1].set_title("Date vs Product Quantity")
-    axes[1].set_xlabel("Date")
-    axes[1].set_ylabel("Total Quantity Sold")
-    axes[1].tick_params(axis='x', rotation=45)
+    # Pie Chart - Product Sales Percentage (top-left)
+    axes[0, 0].pie(product_sales, labels=product_sales.index, autopct='%1.1f%%', startangle=140, colors=plt.cm.tab10.colors)
+    axes[0, 0].set_title("Product Sales Percentage")
 
-    # Line chart 2: Customer vs Date (Order Counts)
-    for customer in orders_by_customer_date.columns:
-        axes[2].plot(orders_by_customer_date.index, orders_by_customer_date[customer], marker='o', linestyle='-', label=customer)
-    axes[2].set_title("Customer vs Date (Order Counts)")
-    axes[2].set_xlabel("Date")
-    axes[2].set_ylabel("Number of Orders")
-    axes[2].tick_params(axis='x', rotation=45)
-    axes[2].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Line Chart - Daily Product Sales (top-right)
+    axes[0, 1].plot(daily_sales.index, daily_sales, marker='o', color='blue', linestyle='-', linewidth=2)
+    axes[0, 1].set_title("Daily Product Sales")
+    axes[0, 1].set_xlabel("Date")
+    axes[0, 1].set_ylabel("Total Quantity Sold")
+    axes[0, 1].tick_params(axis='x', rotation=45)
+
+    # Bar Chart - Orders by Customer and Date (bottom-left)
+    customer_orders.T.plot(kind='bar', stacked=True, ax=axes[1, 0], colormap='tab20')
+    axes[1, 0].set_title("Orders by Customer and Date")
+    axes[1, 0].set_xlabel("Date")
+    axes[1, 0].set_ylabel("Number of Products Sold")
+    axes[1, 0].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left')
+    axes[1, 0].tick_params(axis='x', rotation=45)
+
+    # Empty plot for bottom-right (you can add another chart here if needed)
+    axes[1, 1].axis('off')
 
     # Adjust layout
     plt.tight_layout()
-    plt.show()
+
+    # Embed the figure in the Tkinter frame
+    canvas = FigureCanvasTkAgg(fig, parent_frame)
+    canvas_widget = canvas.get_tk_widget()
+    canvas_widget.pack(fill=BOTH, expand=True)
+    canvas.draw()
+
 
 if __name__ == "__main__":
-    # Fetch data
-    sales_data = fetch_sales_data()
+    root = Tk()
+    root.geometry("800x600")
 
+    # Main frame setup
+    main_frame = Frame(root, background="gray")
+    main_frame.pack(fill=BOTH, expand=True)
+
+    # SalesFrame setup
+    SalesFrame = Frame(main_frame, background='darkred')
+    SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+    # Fetch and display data
+    sales_data = fetch_sales_data()
     if not sales_data.empty:
-        # Plot combined charts
-        plot_combined_charts(sales_data)
+        plot_charts(sales_data, SalesFrame)
     else:
-        print("No data found or failed to fetch data.")
+        Label(SalesFrame, text="No data found or failed to fetch data.", bg='darkred', fg='white', font=("Arial", 14)).pack(pady=20)
+
+    root.mainloop()

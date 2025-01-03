@@ -458,7 +458,7 @@ class AdminDashboard():
                     place_order_action(customer_name)
                     customer_frame.destroy()
 
-                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).place(relwidth=0.45, relheight=0.17)
+                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).place(relx=0.28, rely=0.4, relwidth=0.45, relheight=0.17)
 
             # Function to place an order
             def place_order_action(customer_name):
