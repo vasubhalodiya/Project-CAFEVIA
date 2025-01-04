@@ -10,6 +10,8 @@ from tkinter import filedialog
 from tkinter import Tk, Canvas, Button, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.cm as cm  # For dynamic colormap
 
 
 primary_color = "#27150C"
@@ -465,16 +467,34 @@ class AdminDashboard():
                 try:
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
+
+                    # Fetch cart items
                     cart_items = fetch_cart_data()
                     if not cart_items:
                         print("Cart is empty.")
                         return
+
+                    # Calculate totals
+                    ordertotal = sum(price * qty for _, name, price, qty in cart_items)
+                    orderdiscount = (0.2 if ordertotal > 1500 else 0) * ordertotal
+                    order_final_total = ordertotal - orderdiscount
+
+                    # Insert order details into the database
                     for _, name, price, qty in cart_items:
-                        cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (name, qty, price, customer_name))
+                        cursor.execute(
+                            "INSERT INTO orders (ordername, orderqty, orderprice, customername, ordertotal,orderdiscount, order_final_total) VALUES (%s, %s, %s, %s, %s, %s, %s)",(name, qty, price, customer_name, ordertotal, orderdiscount, order_final_total)
+                            )
+
+                    # Clear the cart
                     cursor.execute("DELETE FROM cart")
+
+                    # Commit the changes
                     con.commit()
+
+                    # Update UI
                     populate_cart(cart_item_frame)
                     update_total()
+                    print(f"Order placed successfully for {customer_name}.")
                 except Exception as e:
                     print("Error placing order:", e)
                 finally:
@@ -644,7 +664,7 @@ class AdminDashboard():
 
             # Create a vertical scrollbar
             scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
-            scrollbar.place(relx=0.988, rely=0, relwidth=0.013, relheight=1)
+            scrollbar.place(relx=0.988, rely=0, relwidth=0, relheight=0)
 
             # Configure the canvas to use the scrollbar
             Produc_canvas.configure(yscrollcommand=scrollbar.set)
@@ -1117,7 +1137,7 @@ class AdminDashboard():
         # ==========================================
 
         def SalesMenu():
-            SalesFrame = Frame(main_frame, background='darkred')
+            SalesFrame = Frame(main_frame, background=secondary_color)
             SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
             def fetch_sales_data():
@@ -1132,7 +1152,12 @@ class AdminDashboard():
                     )
 
                     # Query to fetch sales data
-                    query = """ SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales, DATE(orderdate) AS sale_date FROM orders GROUP BY ordername, customername, sale_date """
+                    query = """
+                    SELECT ordername, customername, SUM(orderqty) AS total_qty, SUM(orderprice * orderqty) AS total_sales,
+                        DATE(orderdate) AS sale_date
+                    FROM orders
+                    GROUP BY ordername, customername, sale_date
+                    """
 
                     # Load data into a pandas DataFrame
                     df = pd.read_sql(query, conn)
@@ -1146,8 +1171,8 @@ class AdminDashboard():
                     if conn.is_connected():
                         conn.close()
 
-            def plot_charts(df):
-                """Plot all charts in one window with 2 charts per row."""
+            def plot_charts(df, parent_frame):
+                """Plot all charts in one frame using Tkinter canvas with #E7E0D6 background and dynamic soft light and dark colors."""
                 # 1. Aggregate product sales for the pie chart
                 product_sales = df.groupby('ordername')['total_qty'].sum()
 
@@ -1157,44 +1182,74 @@ class AdminDashboard():
                 # 3. Aggregate customer orders for the bar chart
                 customer_orders = df.groupby(['customername', 'sale_date'])['total_qty'].sum().unstack()
 
-                # Create a figure with two rows and two columns (adjust the grid accordingly)
-                fig, axes = plt.subplots(2, 2, figsize=(20, 12))
+                # Generate dynamic color palettes manually
+                num_pie_colors = len(product_sales)
+                num_bar_colors = len(customer_orders.index)
+
+                # Soft light and dark color palette
+                pie_colors = cm.Pastel1(range(num_pie_colors))  # Soft pastel colors for pie chart
+                bar_colors = cm.Set2(range(num_bar_colors))  # Muted tones for bar chart
+                line_color = '#4C6A92'  # Soft dark blue for line chart
+
+                # Create a figure with two rows and two columns
+                fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+
+                # Set figure background to #E7E0D6
+                fig.patch.set_facecolor('#E7E0D6')
 
                 # Pie Chart - Product Sales Percentage (top-left)
-                axes[0, 0].pie(product_sales, labels=product_sales.index, autopct='%1.1f%%', startangle=140, colors=plt.cm.tab10.colors)
-                axes[0, 0].set_title("Product Sales Percentage")
+                axes[0, 0].pie(
+                    product_sales, labels=product_sales.index, autopct='%1.1f%%',
+                    startangle=140, colors=pie_colors, textprops={'color': 'black'}
+                )
+                axes[0, 0].set_title("Product Sales Percentage", color='black')
 
                 # Line Chart - Daily Product Sales (top-right)
-                axes[0, 1].plot(daily_sales.index, daily_sales, marker='o', color='blue', linestyle='-', linewidth=2)
-                axes[0, 1].set_title("Daily Product Sales")
-                axes[0, 1].set_xlabel("Date")
-                axes[0, 1].set_ylabel("Total Quantity Sold")
-                axes[0, 1].tick_params(axis='x', rotation=45)
+                axes[0, 1].plot(daily_sales.index, daily_sales, marker='o', color=line_color, linestyle='-', linewidth=2)
+                axes[0, 1].set_title("Daily Product Sales", color='black')
+                axes[0, 1].set_xlabel("Date", color='black')
+                axes[0, 1].set_ylabel("Total Quantity Sold", color='black')
+                axes[0, 1].tick_params(axis='x', rotation=45, colors='black')
+                axes[0, 1].tick_params(axis='y', colors='black')
+                axes[0, 1].grid(color='gray', linestyle='--', linewidth=0.5)
 
                 # Bar Chart - Orders by Customer and Date (bottom-left)
-                customer_orders.T.plot(kind='bar', stacked=True, ax=axes[1, 0], colormap='tab20')
-                axes[1, 0].set_title("Orders by Customer and Date")
-                axes[1, 0].set_xlabel("Date")
-                axes[1, 0].set_ylabel("Number of Products Sold")
-                axes[1, 0].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left')
-                axes[1, 0].tick_params(axis='x', rotation=45)
+                customer_orders.T.plot(
+                    kind='bar', stacked=True, ax=axes[1, 0], color=bar_colors
+                )
+                axes[1, 0].set_title("Orders by Customer and Date", color='black')
+                axes[1, 0].set_xlabel("Date", color='black')
+                axes[1, 0].set_ylabel("Number of Products Sold", color='black')
+                axes[1, 0].legend(title="Customer", bbox_to_anchor=(1.05, 1), loc='upper left', facecolor='#E7E0D6', edgecolor='black')
+                axes[1, 0].tick_params(axis='x', rotation=45, colors='black')
+                axes[1, 0].tick_params(axis='y', colors='black')
+                axes[1, 0].grid(color='gray', linestyle='--', linewidth=0.5)
 
                 # Empty plot for bottom-right (you can add another chart here if needed)
                 axes[1, 1].axis('off')
 
                 # Adjust layout
                 plt.tight_layout()
-                plt.show()
+
+                # Embed the figure in the Tkinter frame
+                canvas = FigureCanvasTkAgg(fig, parent_frame)
+                canvas_widget = canvas.get_tk_widget()
+                canvas_widget.configure(bg='#E7E0D6')  # Match canvas background to frame
+                canvas_widget.pack(fill=BOTH, expand=True)
+                canvas.draw()
 
             if __name__ == "__main__":
-                # Fetch data
-                sales_data = fetch_sales_data()
 
+                # SalesFrame setup
+                SalesFrame = Frame(main_frame, background=secondary_color)
+                SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+                # Fetch and display data
+                sales_data = fetch_sales_data()
                 if not sales_data.empty:
-                    # Plot the charts
-                    plot_charts(sales_data)
+                    plot_charts(sales_data, SalesFrame)
                 else:
-                    print("No data found or failed to fetch data.")
+                    Label(SalesFrame, text="No data found or failed to fetch data.", bg=secondary_color, fg='white', font=("Arial", 14)).pack(pady=20)
 
 
 
