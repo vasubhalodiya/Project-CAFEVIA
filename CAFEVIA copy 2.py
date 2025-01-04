@@ -405,7 +405,7 @@ class AdminDashboard():
                     Button(card, text="+", font=("century gothic bold", 15), bg=primary_color, fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, q=int(qty), p=float(price), label_qty=label_qty: update_cart(n, q + 1, p, label_qty)).place(relx=0.8, rely=0.55, width=22, height=22)
 
                     # Remove button to remove the item from the cart
-                    Button(card, text="X", font=("century gothic bold", 10), bg="red", fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, card=card: remove_from_cart(n, card)).place(relx=0.9, rely=0, width=22, height=22)
+                    Button(card, text="X", font=("century gothic bold", 10), bg="red", fg=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda n=name, card=card: remove_from_cart(n, card)).place(relx=0.85, rely=0.02, width=22, height=22)
 
             # Assuming you have a frame for cart items
             populate_cart(cart_item_frame)
@@ -573,9 +573,9 @@ class AdminDashboard():
                 con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                 cursor = con.cursor()
 
-                # If "All" is selected, fetch all products in random order
+                # If "All" is selected, fetch all products
                 if category_name == "All":
-                    cursor.execute("SELECT * FROM product ORDER BY RAND()")  # Random order
+                    cursor.execute("SELECT * FROM product")
                 else:
                     cursor.execute("SELECT * FROM product WHERE procategory = %s", (category_name,))
 
@@ -623,7 +623,6 @@ class AdminDashboard():
                     ProductAddToCardButton.place(relx=0.5, rely=0.78, relwidth=0.45, relheight=0.17)
 
                     card_count += 1
-
 
             # Function to fetch image for each product by product ID
             def fetch_image(product_id):
@@ -748,10 +747,10 @@ class AdminDashboard():
                     title="Select Image",
                     filetypes=[("Image Files", ".png;.jpg;.jpeg;.bmp;*.gif")]
                 )
-                # if selected_file_path:
-                #     messagebox.showinfo("File Selected", f"Image selected: {selected_file_path}")
-                # else:
-                #     messagebox.showerror("Error", "No image selected.")
+                if selected_file_path:
+                    messagebox.showinfo("File Selected", f"Image selected: {selected_file_path}")
+                else:
+                    messagebox.showerror("Error", "No image selected.")
 
 
 
@@ -797,7 +796,7 @@ class AdminDashboard():
                     selected_file_path = None  # Reset the global variable
 
                     # Success message
-                    # messagebox.showinfo("INSERT Status", "INSERTED SUCCESSFULLY")
+                    messagebox.showinfo("INSERT Status", "INSERTED SUCCESSFULLY")
 
                 except MySQLdb.OperationalError as e:
                     messagebox.showerror("Database Error", f"Operational error: {str(e)}")
@@ -824,7 +823,7 @@ class AdminDashboard():
                         txtProductCategory.delete(0, 'end')
                         txtProductPrice.delete(0, 'end')
 
-                        # messagebox.showinfo("DELETE Status", "Deleted Successfully")
+                        messagebox.showinfo("DELETE Status", "Deleted Successfully")
                     except Exception as e:
                         messagebox.showerror("Error", f"An error occurred: {str(e)}")
                     con.close()
@@ -870,7 +869,7 @@ class AdminDashboard():
 
             lblProductCategory = Label(AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductCategory.place(relx=0.07, rely=0.23)
-            categories = ["All", "Coffee", "Softdrink", "Pizza", "Burger", "Dessert", "Food Meal"]
+            categories = ["All", "Coffee", "Soft Drink", "Pizza", "Burger", "Dessert", "Food Meal"]
             txtProductCategory = ttk.Combobox(AddCoffeeWindow, values=categories, font=("century gothic", 13), state="readonly")
             txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
             txtProductCategory.set("All")  # Default selection
