@@ -14,7 +14,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.cm as cm  # For dynamic colormap
 
 
-
 primary_color = "#27150C"
 secondary_color = "#E7E0D6"
 sidecart_color = "#DDD2C3"
@@ -120,7 +119,9 @@ class Login():
 
         # Bind Enter key to call submit
         self.loginwindow.bind("<Return>", on_enter_pressed)
-
+# def submit():
+#     loginwindow.destroy()
+#     win()
     def submit(self):
         # For demo purposes, using hardcoded username and password
         if self.name_var.get() == "admin" and self.passw_var.get() == "admin123":
@@ -128,6 +129,7 @@ class Login():
             win()
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
+
 
 
 class AdminDashboard():
@@ -162,20 +164,17 @@ class AdminDashboard():
         MenuButton = Button(self.sidebar, text="Menu", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(MenuMenu))
         MenuButton.place(relx=0.1, rely=0.28, relwidth=0.8, relheight=0.05)
 
-        BillingButton = Button(self.sidebar, text="Billing", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(BillingMenu))
-        BillingButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
-
         OrderButton = Button(self.sidebar, text="Orders", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(OrderMenu))
-        OrderButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
+        OrderButton.place(relx=0.1, rely=0.36, relwidth=0.8, relheight=0.05)
 
         TableBookButton = Button(self.sidebar, text="Table Book", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(TableBookMenu))
-        TableBookButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
+        TableBookButton.place(relx=0.1, rely=0.44, relwidth=0.8, relheight=0.05)
 
         SalesButton = Button(self.sidebar, text="Sales", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(SalesMenu))
-        SalesButton.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.05)
+        SalesButton.place(relx=0.1, rely=0.52, relwidth=0.8, relheight=0.05)
 
         LogoutButton = Button(self.sidebar, text="Logout", font=("century gothic bold", 11), width=27, height=1, background=secondary_color, foreground=primary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=lambda:MenuSystem(LogoutMenu))
-        LogoutButton.place(relx=0.1, rely=0.68, relwidth=0.8, relheight=0.05)
+        LogoutButton.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.05)
 
         # Functionality for menu system
         main_frame = Frame(window, background=secondary_color)
@@ -479,11 +478,17 @@ class AdminDashboard():
             # Function to open the customer name frame
             def open_customer_name_frame():
                 customer_frame = Toplevel()
+                width = 370
+                height = 230
+                x = (window.winfo_screenwidth()//2)-(width//2)
+                y = (window.winfo_screenheight()//2)-(height//2)
+                customer_frame.geometry('{}x{}+{}+{}'.format(width, height, x, y))
                 customer_frame.title("Customer Details")
-                customer_frame.geometry("300x150")
+                # customer_frame.geometry("300x150")
                 customer_frame.resizable(False, False)
+                customer_frame.configure(bg=secondary_color)
 
-                Label(customer_frame, text="Enter Customer Name:", font=("century gothic", 12)).pack(pady=10)
+                Label(customer_frame, text="Enter Customer Name:", background=secondary_color, font=("century gothic", 12)).pack(pady=10)
 
                 customer_name_var = StringVar()
                 Entry(customer_frame, textvariable=customer_name_var, font=("century gothic", 12), width=30).pack(pady=5)
@@ -496,23 +501,41 @@ class AdminDashboard():
                     place_order_action(customer_name)
                     customer_frame.destroy()
 
-                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).pack(pady=10)
+                Button(customer_frame, text="Submit", font=("century gothic bold", 12), bg=primary_color, fg=secondary_color, relief="flat", cursor="hand2", command=submit_customer_name).place(relx=0.28, rely=0.4, relwidth=0.45, relheight=0.17)
 
             # Function to place an order
             def place_order_action(customer_name):
                 try:
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
+
+                    # Fetch cart items
                     cart_items = fetch_cart_data()
                     if not cart_items:
                         print("Cart is empty.")
                         return
+
+                    # Calculate totals
+                    ordertotal = sum(price * qty for _, name, price, qty in cart_items)
+                    orderdiscount = (0.2 if ordertotal > 1500 else 0) * ordertotal
+                    order_final_total = ordertotal - orderdiscount
+
+                    # Insert order details into the database
                     for _, name, price, qty in cart_items:
-                        cursor.execute("INSERT INTO orders (ordername, orderqty, orderprice, customername) VALUES (%s, %s, %s, %s)", (name, qty, price, customer_name))
+                        cursor.execute(
+                            "INSERT INTO orders (ordername, orderqty, orderprice, customername, ordertotal,orderdiscount, order_final_total) VALUES (%s, %s, %s, %s, %s, %s, %s)",(name, qty, price, customer_name, ordertotal, orderdiscount, order_final_total)
+                            )
+
+                    # Clear the cart
                     cursor.execute("DELETE FROM cart")
+
+                    # Commit the changes
                     con.commit()
+
+                    # Update UI
                     populate_cart(cart_item_frame)
                     update_total()
+                    print(f"Order placed successfully for {customer_name}.")
                 except Exception as e:
                     print("Error placing order:", e)
                 finally:
@@ -579,7 +602,7 @@ class AdminDashboard():
                     if product_image:
                         label = tk.Label(ProductImageFrame, image=product_image, background=sidecart_color)
                         label.image = product_image
-                        label.pack(pady=10)
+                        label.pack(pady=15)
 
                     # Category
                     ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
@@ -611,7 +634,7 @@ class AdminDashboard():
 
                 if image_data:
                     img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
-                    img = img.resize((90, 90))  # Resize image as needed
+                    img = img.resize((80, 80))  # Resize image as needed
                     return ImageTk.PhotoImage(img)
                 return None
 
@@ -621,25 +644,31 @@ class AdminDashboard():
                     con = MySQLdb.connect(host="localhost", user="root", password="", database="cafevia")
                     cursor = con.cursor()
 
+                    # Check if the product already exists in the cart
                     cursor.execute("SELECT cartqty, cartprice FROM cart WHERE cartname = %s", (product_name,))
                     cart_item = cursor.fetchone()
 
                     if cart_item:
+                        # Update quantity if product already exists in cart
                         new_qty = cart_item[0] + 1
                         new_total = new_qty * product_price
-                        cursor.execute("UPDATE cart SET cartqty = %s WHERE cartname = %s", (new_qty, new_total, product_name))
+                        cursor.execute("UPDATE cart SET cartqty = %s, cartprice = %s WHERE cartname = %s", (new_qty, new_total, product_name))
                     else:
-                        cart_total = product_price
+                        # Add new product to the cart
                         cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", (product_name, 1, product_price))
 
                     con.commit()
                     print(f"Added {product_name} to cart successfully!")
+
+                    # Immediately update the cart display after adding to cart
+                    populate_cart(cart_item_frame)  # Refresh the cart UI
+                    update_total()  # Update the total value after adding the product
+
                 except Exception as e:
                     print("Error while adding to cart:", e)
                 finally:
                     if con:
                         con.close()
-
 
             # Create category buttons
             for i, category in enumerate(categories):
@@ -667,31 +696,31 @@ class AdminDashboard():
             ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
 
             # Create a Canvas inside the ProductCategorymain_frame
-            Produc_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
-            Produc_canvas.pack(side="left", fill="both", expand=True)
+            Product_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
+            Product_canvas.pack(side="left", fill="both", expand=True)
 
             # Create a vertical scrollbar
-            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
-            scrollbar.place(relx=0.988, rely=0, relwidth=0.013, relheight=1)
+            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Product_canvas.yview)
+            scrollbar.place(relx=0.988, rely=0, relwidth=0, relheight=0)
 
             # Configure the canvas to use the scrollbar
-            Produc_canvas.configure(yscrollcommand=scrollbar.set)
+            Product_canvas.configure(yscrollcommand=scrollbar.set)
 
             # Create a frame inside the canvas to hold the content
-            canvas_frame = Frame(Produc_canvas, background=secondary_color)
-            Produc_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
+            canvas_frame = Frame(Product_canvas, background=secondary_color)
+            Product_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
             # Bind the canvas to resize the scroll region
             def update_scrollregion(event):
-                Produc_canvas.configure(scrollregion=Produc_canvas.bbox("all"))
+                Product_canvas.configure(scrollregion=Product_canvas.bbox("all"))
 
             canvas_frame.bind("<Configure>", update_scrollregion)
 
             # Add mousewheel scrolling functionality
             def on_mousewheel(event):
-                Produc_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                Product_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-            Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
+            Product_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
             # Initially display products from "All" category after canvas_frame is created
             filter_products_by_category("All")
@@ -776,7 +805,6 @@ class AdminDashboard():
                 finally:
                     con.close()
 
-
             def ProductDelete():
                 if(txtProductId.get() == ""):
                     messagebox.showinfo("Delete Status", "ID is required for delete operation")
@@ -841,8 +869,10 @@ class AdminDashboard():
 
             lblProductCategory = Label(AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductCategory.place(relx=0.07, rely=0.23)
-            txtProductCategory = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
+            categories = ["All", "Coffee", "Soft Drink", "Pizza", "Burger", "Dessert", "Food Meal"]
+            txtProductCategory = ttk.Combobox(AddCoffeeWindow, values=categories, font=("century gothic", 13), state="readonly")
             txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+            txtProductCategory.set("All")  # Default selection
 
             lblProductName = Label(AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductName.place(relx=0.4, rely=0.1)
@@ -922,13 +952,6 @@ class AdminDashboard():
             my_tree.bind("<ButtonRelease-1>",selectedrecord)
             fetch_data()
 
-
-        # ==========================================
-
-        def BillingMenu():
-            BillingFrame = Frame(main_frame, background='green')
-            BillingFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
-
         # ==========================================
 
         def OrderMenu():
@@ -1003,7 +1026,6 @@ class AdminDashboard():
 
             # Populate the Treeview with data
             populate_treeview(tree)
-
 
 
         # ==========================================
@@ -1257,7 +1279,7 @@ class AdminDashboard():
             if __name__ == "__main__":
 
                 # SalesFrame setup
-                SalesFrame = Frame(main_frame, background='darkred')
+                SalesFrame = Frame(main_frame, background=secondary_color)
                 SalesFrame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
                 # Fetch and display data
@@ -1265,13 +1287,17 @@ class AdminDashboard():
                 if not sales_data.empty:
                     plot_charts(sales_data, SalesFrame)
                 else:
-                    Label(SalesFrame, text="No data found or failed to fetch data.", bg='darkred', fg='white', font=("Arial", 14)).pack(pady=20)
+                    Label(SalesFrame, text="No data found or failed to fetch data.", bg=secondary_color, fg='white', font=("Arial", 14)).pack(pady=20)
+
 
 
         # ==========================================
 
         def LogoutMenu():
             self.window.destroy()
+            loginwindow = Tk()
+            Login(loginwindow)
+            loginwindow.mainloop()
 
         # ==========================================
 
@@ -1287,10 +1313,10 @@ def win():
 
 if __name__ == '__main__':
 
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
-    # win()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
 
 
 

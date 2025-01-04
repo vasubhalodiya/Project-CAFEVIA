@@ -602,7 +602,7 @@ class AdminDashboard():
                     if product_image:
                         label = tk.Label(ProductImageFrame, image=product_image, background=sidecart_color)
                         label.image = product_image
-                        label.pack(pady=10)
+                        label.pack(pady=15)
 
                     # Category
                     ProductCategoryLabel = Label(ProductDtlCard, text=product_details[3], bg=sidecart_color, fg=primary_color, font=("century gothic", 8), anchor="w")
@@ -634,7 +634,7 @@ class AdminDashboard():
 
                 if image_data:
                     img = Image.open(io.BytesIO(image_data[0]))  # Assuming image is the first column
-                    img = img.resize((90, 90))  # Resize image as needed
+                    img = img.resize((80, 80))  # Resize image as needed
                     return ImageTk.PhotoImage(img)
                 return None
 
@@ -652,12 +652,10 @@ class AdminDashboard():
                         # Update quantity if product already exists in cart
                         new_qty = cart_item[0] + 1
                         new_total = new_qty * product_price
-                        cursor.execute("UPDATE cart SET cartqty = %s, cartprice = %s WHERE cartname = %s", 
-                                    (new_qty, new_total, product_name))
+                        cursor.execute("UPDATE cart SET cartqty = %s, cartprice = %s WHERE cartname = %s", (new_qty, new_total, product_name))
                     else:
                         # Add new product to the cart
-                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", 
-                                    (product_name, 1, product_price))
+                        cursor.execute("INSERT INTO cart (cartname, cartqty, cartprice) VALUES (%s, %s, %s)", (product_name, 1, product_price))
 
                     con.commit()
                     print(f"Added {product_name} to cart successfully!")
@@ -671,8 +669,6 @@ class AdminDashboard():
                 finally:
                     if con:
                         con.close()
-
-
 
             # Create category buttons
             for i, category in enumerate(categories):
@@ -700,31 +696,31 @@ class AdminDashboard():
             ProductCategorymain_frame.place(relx=0, rely=0.08, relwidth=1, relheight=0.66)
 
             # Create a Canvas inside the ProductCategorymain_frame
-            Produc_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
-            Produc_canvas.pack(side="left", fill="both", expand=True)
+            Product_canvas = Canvas(ProductCategorymain_frame, bg=secondary_color, bd=0, highlightthickness=0)
+            Product_canvas.pack(side="left", fill="both", expand=True)
 
             # Create a vertical scrollbar
-            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Produc_canvas.yview)
+            scrollbar = Scrollbar(ProductCategorymain_frame, orient="vertical", command=Product_canvas.yview)
             scrollbar.place(relx=0.988, rely=0, relwidth=0, relheight=0)
 
             # Configure the canvas to use the scrollbar
-            Produc_canvas.configure(yscrollcommand=scrollbar.set)
+            Product_canvas.configure(yscrollcommand=scrollbar.set)
 
             # Create a frame inside the canvas to hold the content
-            canvas_frame = Frame(Produc_canvas, background=secondary_color)
-            Produc_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
+            canvas_frame = Frame(Product_canvas, background=secondary_color)
+            Product_canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
             # Bind the canvas to resize the scroll region
             def update_scrollregion(event):
-                Produc_canvas.configure(scrollregion=Produc_canvas.bbox("all"))
+                Product_canvas.configure(scrollregion=Product_canvas.bbox("all"))
 
             canvas_frame.bind("<Configure>", update_scrollregion)
 
             # Add mousewheel scrolling functionality
             def on_mousewheel(event):
-                Produc_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                Product_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-            Produc_canvas.bind_all("<MouseWheel>", on_mousewheel)
+            Product_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
             # Initially display products from "All" category after canvas_frame is created
             filter_products_by_category("All")
@@ -809,7 +805,6 @@ class AdminDashboard():
                 finally:
                     con.close()
 
-
             def ProductDelete():
                 if(txtProductId.get() == ""):
                     messagebox.showinfo("Delete Status", "ID is required for delete operation")
@@ -874,8 +869,10 @@ class AdminDashboard():
 
             lblProductCategory = Label(AddCoffeeWindow, text="Product Category", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductCategory.place(relx=0.07, rely=0.23)
-            txtProductCategory = Entry(AddCoffeeWindow, font=("century gothic", 13), relief='ridge', bd=2)
+            categories = ["All", "Coffee", "Soft Drink", "Pizza", "Burger", "Dessert", "Food Meal"]
+            txtProductCategory = ttk.Combobox(AddCoffeeWindow, values=categories, font=("century gothic", 13), state="readonly")
             txtProductCategory.place(relx=0.07, rely=0.28, relwidth=0.25, relheight=0.05)
+            txtProductCategory.set("All")  # Default selection
 
             lblProductName = Label(AddCoffeeWindow, text="Product Name", bg=primary_color, fg=secondary_color, font=("century gothic bold", 16))
             lblProductName.place(relx=0.4, rely=0.1)
@@ -1316,10 +1313,10 @@ def win():
 
 if __name__ == '__main__':
 
-    loginwindow = Tk()
-    Login(loginwindow)
-    loginwindow.mainloop()
-    # win()
+    # loginwindow = Tk()
+    # Login(loginwindow)
+    # loginwindow.mainloop()
+    win()
 
 
 
