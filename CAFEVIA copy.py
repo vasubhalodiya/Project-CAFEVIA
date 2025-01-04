@@ -75,13 +75,14 @@ class Login():
         loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
 
         #Use Verification
-        name_var = StringVar()
-        passw_var = StringVar()
+        self.name_var = StringVar()
+        self.passw_var = StringVar()
 
         loginform = Frame(loginwindow, background=secondary_color)
         loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
 
         loginwindow.overrideredirect(True)
+
         def close_button():
             loginwindow.destroy() 
         closebutton = Button(loginform, text="x", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=close_button)
@@ -95,15 +96,15 @@ class Login():
 
         loginUserlabel = Label(loginform, text="Username", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         loginUserlabel.place(relx=0.2, rely=0.3)
-        txtProductName = Entry(loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductName = Entry(loginform, textvariable=self.name_var, font=("century gothic", 13), relief='ridge', bd=2)
         txtProductName.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
 
         loginPasswordlabel = Label(loginform, text="Password", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         loginPasswordlabel.place(relx=0.2, rely=0.46)
-        loginPasswordentry = Entry(loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
+        loginPasswordentry = Entry(loginform, textvariable=self.passw_var, font=("century gothic", 13), relief='ridge', bd=2, show='*')
         loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
-        login = Button(loginform, text="Login", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", bd=2, command=submit)
+        login = Button(loginform, text="Login", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", bd=2, command=self.submit)
         login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
         loginNote = Label(loginform, text="Must do check USERNAME & PASSWORD is correct", bg=secondary_color, fg=primary_color, font=("century gothic", 8))
         loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
@@ -111,10 +112,16 @@ class Login():
         def Submit(name, passv):
             mylabel = Label(loginform, text = name + passv).pack()
 
-def submit():
-    loginwindow.destroy()
-    win()
-
+# def submit():
+#     loginwindow.destroy()
+#     win()
+    def submit(self):
+        # For demo purposes, using hardcoded username and password
+        if self.name_var.get() == "admin" and self.passw_var.get() == "password123":
+            self.loginwindow.destroy()
+            win()
+        else:
+            messagebox.showerror("Login Failed", "Invalid username or password.")
 
 class AdminDashboard():
     def __init__(self,window):
@@ -245,11 +252,10 @@ class AdminDashboard():
             # Cards data dynamically fetched from the database
             cards_data = [
                 {"title": "Happy Customers", "table_name": "customers", "icon_path": "images/happycustomer.png"},
-                {"title": "All Category", "table_name": "category", "icon_path": "images/category.png"},
+                {"title": "All Category", "value": "7", "icon_path": "images/category.png"},
                 {"title": "All Products", "table_name": "product", "icon_path": "images/product.png"},
-                {"title": "Available Tables", "table_name": "tables", "icon_path": "images/tablebook.png"},
+                {"title": "Available Tables", "table_name": "tablebook", "icon_path": "images/tablebook.png"},
                 {"title": "All Orders", "table_name": "orders", "icon_path": "images/order.png"},
-                {"title": "Total Sales", "value": "$ 10,000", "icon_path": "images/sales.png"},
             ]
 
             # Constants for layout
@@ -1249,10 +1255,10 @@ def win():
 
 if __name__ == '__main__':
 
-    # loginwindow = Tk()
-    # Login(loginwindow)
-    # loginwindow.mainloop()
-    win()
+    loginwindow = Tk()
+    Login(loginwindow)
+    loginwindow.mainloop()
+    # win()
 
 
 

@@ -75,13 +75,14 @@ class Login():
         loginimage_label.place(relx=0, rely=0, relwidth=0.57, relheight=1)
 
         #Use Verification
-        name_var = StringVar()
-        passw_var = StringVar()
+        self.name_var = StringVar()
+        self.passw_var = StringVar()
 
         loginform = Frame(loginwindow, background=secondary_color)
         loginform.place(relx=0.37, rely=0, relwidth=0.63, relheight=1)
 
         loginwindow.overrideredirect(True)
+
         def close_button():
             loginwindow.destroy() 
         closebutton = Button(loginform, text="x", font=("century gothic bold", 13), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", activebackground=active_color, bd=2, command=close_button)
@@ -95,15 +96,15 @@ class Login():
 
         loginUserlabel = Label(loginform, text="Username", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         loginUserlabel.place(relx=0.2, rely=0.3)
-        txtProductName = Entry(loginform, textvariable="name_var", font=("century gothic", 13), relief='ridge', bd=2)
+        txtProductName = Entry(loginform, textvariable=self.name_var, font=("century gothic", 13), relief='ridge', bd=2)
         txtProductName.place(relx=0.2, rely=0.35, relwidth=0.6, relheight=0.065)
 
         loginPasswordlabel = Label(loginform, text="Password", bg=secondary_color, fg=primary_color, font=("century gothic bold", 16))
         loginPasswordlabel.place(relx=0.2, rely=0.46)
-        loginPasswordentry = Entry(loginform, textvariable="passw_var", font=("century gothic", 13), relief='ridge', bd=2, show='*')
+        loginPasswordentry = Entry(loginform, textvariable=self.passw_var, font=("century gothic", 13), relief='ridge', bd=2, show='*')
         loginPasswordentry.place(relx=0.2, rely=0.51, relwidth=0.6, relheight=0.065)
 
-        login = Button(loginform, text="Login", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", bd=2, command=submit)
+        login = Button(loginform, text="Login", font=("century gothic bold", 15), background=primary_color, foreground=secondary_color, cursor="hand2", relief="flat", bd=2, command=self.submit)
         login.place(relx=0.2, rely=0.68, relwidth=0.6, relheight=0.065)
         loginNote = Label(loginform, text="Must do check USERNAME & PASSWORD is correct", bg=secondary_color, fg=primary_color, font=("century gothic", 8))
         loginNote.place(relx=0.2, rely=0.755, relwidth=0.6, relheight=0.015)
@@ -111,10 +112,16 @@ class Login():
         def Submit(name, passv):
             mylabel = Label(loginform, text = name + passv).pack()
 
-def submit():
-    loginwindow.destroy()
-    win()
-
+# def submit():
+#     loginwindow.destroy()
+#     win()
+    def submit(self):
+        # For demo purposes, using hardcoded username and password
+        if self.name_var.get() == "admin" and self.passw_var.get() == "admin123":
+            self.loginwindow.destroy()
+            win()
+        else:
+            messagebox.showerror("Login Failed", "Invalid username or password.")
 
 class AdminDashboard():
     def __init__(self,window):
@@ -190,7 +197,6 @@ class AdminDashboard():
             txtDashboard = Label(DashboardFrame, text="Dashboard", bg=secondary_color, fg=primary_color, font=("century gothic bold", 20))
             txtDashboard.place(relx=0.03, rely=0.02)
 
-
            # Connect to MySQL Database
             def get_db_connection():
                 return mysql.connector.connect(
@@ -200,18 +206,38 @@ class AdminDashboard():
                     database="cafevia"
                 )
 
-            # Fetch row count for a specific table
-            def get_table_row_count(table_name):
+            # Fetch row count for a specific table with an optional condition
+            def get_table_row_count(table_name, condition=None):
                 try:
                     conn = get_db_connection()
                     cursor = conn.cursor()
-                    cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    
+                    # If a condition is provided, add it to the query
+                    if condition:
+                        cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {condition}")
+                    else:
+                        cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    
                     row_count = cursor.fetchone()[0]
                     conn.close()
                     return row_count
                 except mysql.connector.Error as err:
                     print(f"Error fetching data from table '{table_name}': {err}")
                     return 0  # Return 0 if there's an error (e.g., table doesn't exist)
+
+            # Fetch unique customer count from the orders table
+            def get_unique_customers_count():
+                try:
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT COUNT(DISTINCT customername) FROM orders")
+                    unique_customer_count = cursor.fetchone()[0]
+                    conn.close()
+                    return unique_customer_count
+                except mysql.connector.Error as err:
+                    print(f"Error fetching unique customer count: {err}")
+                    return 0  # Return 0 if there's an error
+
 
             # Create a card with dynamic data
             def create_card(frame, title, value, icon_path, x, y):
@@ -244,12 +270,11 @@ class AdminDashboard():
 
             # Cards data dynamically fetched from the database
             cards_data = [
-                {"title": "Happy Customers", "table_name": "customers", "icon_path": "images/happycustomer.png"},
-                {"title": "All Category", "table_name": "category", "icon_path": "images/category.png"},
+                {"title": "Happy Customers", "value": get_unique_customers_count(), "icon_path": "images/happycustomer.png"},
+                {"title": "All Category", "value": "7", "icon_path": "images/category.png"},
                 {"title": "All Products", "table_name": "product", "icon_path": "images/product.png"},
-                {"title": "Available Tables", "table_name": "tables", "icon_path": "images/tablebook.png"},
+                {"title": "Available Tables", "table_name": "tablebook", "condition": "status = 'available'", "icon_path": "images/tablebook.png"},
                 {"title": "All Orders", "table_name": "orders", "icon_path": "images/order.png"},
-                {"title": "Total Sales", "value": "$ 10,000", "icon_path": "images/sales.png"},
             ]
 
             # Constants for layout
@@ -267,8 +292,14 @@ class AdminDashboard():
             for idx, card in enumerate(cards_data):
                 # Fetch the row count from the database if it exists
                 if 'table_name' in card:
-                    row_count = get_table_row_count(card["table_name"])
+                    # Check if the card has a condition for available tables
+                    condition = card.get("condition", None)
+                    row_count = get_table_row_count(card["table_name"], condition)  # Pass condition if available
                     card["value"] = str(row_count)  # Update the card with the dynamic value
+                
+                # If "Happy Customers" card, ensure the unique customer count is set
+                elif card["title"] == "Happy Customers" and "value" not in card:
+                    card["value"] = str(get_unique_customers_count())  # Set dynamic value for Happy Customers
                 
                 # Calculate relx and rely for dynamic positioning
                 col = idx % cards_per_row
@@ -279,6 +310,8 @@ class AdminDashboard():
 
                 # Create the card using the `create_card` function
                 create_card(DashboardFrame, card["title"], card["value"], card["icon_path"], relx, rely)
+
+
 
         # ==========================================
 
